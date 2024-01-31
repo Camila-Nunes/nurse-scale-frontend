@@ -1,0 +1,45 @@
+trigger:
+  - main
+  
+pool:
+    vmImage: 'windows-latest'
+  
+jobs:
+  - job: Build
+    displayName: 'Build job'
+    pool:
+      vmImage: 'windows-latest'
+    steps:
+    - task: UseDotNet@2
+      inputs:
+        version: '7.x'
+        includePreviewVersions: true
+    - script: |
+        cd $(System.DefaultWorkingDirectory)/path/to/Z:/Freelas/projetos-reais/nurses-scale/nurses_scale_frontend
+        dotnet restore
+      displayName: 'Restore'
+    - script: dotnet build --configuration Release
+      displayName: 'Build'
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        artifactName: 'drop'
+        publishLocation: 'Container'
+      
+  - job: Deploy
+    displayName: 'Deploy job'
+    pool:
+      vmImage: 'windows-latest'
+    dependsOn: Build
+    condition: succeeded()
+    steps:
+    - download: current
+      artifact: 'drop'
+      displayName: 'Download artifacts'
+    - task: UseDotNet@2
+      inputs:
+        version: '7.x'
+        includePreviewVersions: true
+    - script: dotnet publish -o $(Build.ArtifactStagingDirectory)/publish
+      displayName: 'Publish'
+    # Adicione aqui os passos necessários para implantar a sua aplicação.
