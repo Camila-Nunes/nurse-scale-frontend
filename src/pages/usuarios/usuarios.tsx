@@ -2,7 +2,7 @@ import api from "@/api";
 import Page from "@/components/Page";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import React, { useState, ChangeEvent, FormEvent } from 'react';
 import { Slide, toast } from "react-toastify";
 
 export default function Usuarios() {
@@ -11,9 +11,17 @@ export default function Usuarios() {
   const [senha, setSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
   const [tipoUsuario, setTipoUsuario] = useState('');
+  const [foto, setFoto] = useState<File | null>(null);
 
   const router = useRouter();
 
+  const handleFotoChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const selectedFoto = e.target.files?.[0];
+
+    if (selectedFoto) {
+      setFoto(selectedFoto);
+    }
+  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -24,22 +32,27 @@ export default function Usuarios() {
       senha,
       confirmarSenha,
       tipoUsuario
+      //,foto
     }
 
   try {
     const response = await api.post('/api/Usuarios/register', usuario);
-    toast.success(`Usuário ${usuario.nome}  salvo com sucesso.`, {
-      transition: Slide,
-      icon: false
-    });
-    router.push("/usuarios/listarUsuarios");
-  } catch (error) {
-    console.error(error);
-    toast.error("Erro ao salvar usuário: " + usuario.nome, {
-      transition: Slide,
-      icon: false
-    });
-  }};
+
+    console.log(usuario);
+
+    toast.success(`Usuário ${nome} salvo com sucesso.`, {
+        transition: Slide,
+        icon: true,
+      });
+      router.push("/usuarios/listarUsuarios");
+    } catch (error) {
+      console.error(error);
+      toast.error("Erro ao salvar usuário: " + nome, {
+        transition: Slide,
+        icon: true,
+      });
+    }
+  };
 
   async function handleCancel (){
     router.push(`/usuarios/listarUsuarios`);
@@ -139,6 +152,7 @@ export default function Usuarios() {
                       accept="image/*"
                       name="foto"
                       id="foto"
+                      onChange={handleFotoChange}
                       className="block w-full rounded-md border-0 py-1 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-teal-500 sm:text-sm sm:leading-6"
                     />
                   </div>
