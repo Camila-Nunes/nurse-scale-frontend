@@ -27,12 +27,12 @@ export default function Usuarios() {
     }
 
   try {
-    const response = await api.post('/api/Usuarios/registrar', usuario);
+    const response = await api.post('/api/Usuarios/register', usuario);
     toast.success(`Usuário ${usuario.nome}  salvo com sucesso.`, {
       transition: Slide,
       icon: false
     });
-    router.push("/clientes/listarClientes");
+    router.push("/usuarios/listarUsuarios");
   } catch (error) {
     console.error(error);
     toast.error("Erro ao salvar usuário: " + usuario.nome, {
@@ -42,13 +42,13 @@ export default function Usuarios() {
   }};
 
   async function handleCancel (){
-    router.push(`/clientes/listarClientes`);
+    router.push(`/usuarios/listarUsuarios`);
   };
 
   return (
     <Page titulo="Cadastro de Usuários">
       <form onSubmit={handleSubmit} className="container max-w-full">
-          <Link href="/clientes/listarClientes">
+          <Link href="/usuarios/listarUsuarios">
               <button type="button" className="rounded-md bg-teal-600 hover:bg-teal-800 px-10 py-2 text-sm font-semibold leading-6 text-white">Voltar</button>     
           </Link>
           <div className="container mx-auto">
@@ -74,66 +74,73 @@ export default function Usuarios() {
                     <div className="mt-2">
                       <input
                           type="text"
-                          name="nome"
-                          id="nome"
-                          value={nome}
-                          onChange={(e) => setEmail(e.target.value.toUpperCase())}
-                          autoComplete="nome"
+                          name="email"
+                          id="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          autoComplete="email"
                           className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-teal-500 sm:text-sm sm:leading-6"
                       />
                     </div>
-                  </div>   
-
-                  <div>
-                    
                   </div>
-                  <div className="sm:col-span-4">
-                    <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">Senha</label>
+                  <div className="sm:col-span-2">
+                    <label htmlFor="senha" className="block text-sm font-medium leading-6 text-gray-900">Senha</label>
                     <div className="mt-2">
                       <input
                           type="text"
-                          name="nome"
-                          id="nome"
-                          value={nome}
-                          onChange={(e) => setEmail(e.target.value.toUpperCase())}
-                          autoComplete="nome"
+                          name="senha"
+                          id="senha"
+                          value={senha}
+                          onChange={(e) => setSenha(e.target.value.toUpperCase())}
+                          autoComplete="senha"
                           className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-teal-500 sm:text-sm sm:leading-6"
                       />
                     </div>
                   </div>
 
-                  <div className="sm:col-span-4">
-                    <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">Confirma Senha</label>
+                  <div className="sm:col-span-2">
+                    <label htmlFor="confirmarSenha" className="block text-sm font-medium leading-6 text-gray-900">Confirmar Senha</label>
                     <div className="mt-2">
                       <input
                           type="text"
-                          name="nome"
-                          id="nome"
-                          value={nome}
-                          onChange={(e) => setEmail(e.target.value.toUpperCase())}
-                          autoComplete="nome"
+                          name="confirmarSenha"
+                          id="confirmarSenha"
+                          value={confirmarSenha}
+                          onChange={(e) => setConfirmarSenha(e.target.value.toUpperCase())}
+                          autoComplete="confirmarSenha"
                           className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-teal-500 sm:text-sm sm:leading-6"
                       />
                     </div>
                   </div>
 
-                  <div className="sm:col-span-3 sm:w-full">
+                  <div className="sm:col-span-2 sm:w-full">
                     <label htmlFor="uf-local" className="block text-sm font-medium leading-6 text-gray-900">Tipo de Usuário</label>
                     <div className="mt-2">
                         <select
-                          id="statusAtendimento"
-                          name="statusAtendimento"
-                          autoComplete="statusAtendimento"
+                          id="tipoUsuario"
+                          name="tipoUsuario"
+                          autoComplete="tipoUsuario"
                           value={tipoUsuario}
                           onChange={(e) => setTipoUsuario(e.target.value)}
                           className="block w-full rounded-md border-0 py-2 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-teal-500 sm:max-w-xs sm:text-sm sm:leading-6"
                         >
                             <option>Selecione o Tipo Usuário</option>
-                            <option value="AGUARDANDO">NORMAL</option>
-                            <option value="INICIADO">Administrador</option>
-                            <option value="PAUSADO">FINANCEIRO</option>
+                            <option value="ADMINISTRADOR">ADMINISTRADOR</option>
+                            <option value="FINANCEIRO">FINANCEIRO</option>
+                            <option value="NORMAL">NORMAL</option>
                         </select>
                     </div>
+                  </div>
+
+                  <div className="sm:col-span-6">
+                    <label htmlFor="foto" className="block text-sm font-medium leading-6 text-gray-900 mb-2">Escolher Foto</label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      name="foto"
+                      id="foto"
+                      className="block w-full rounded-md border-0 py-1 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-teal-500 sm:text-sm sm:leading-6"
+                    />
                   </div>
                     
                 </div>
