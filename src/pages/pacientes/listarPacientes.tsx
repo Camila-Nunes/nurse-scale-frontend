@@ -51,6 +51,7 @@ export default function Pacientes() {
     const response = await api.get(`/api/Pacientes?page=${page}&pageSize=${pageSize}`)
     .then(response => {
       setPacientes(response.data.result);
+      console.log(response.data.result);
     }).catch(error => {
       toast.error("Erro ao carregar dados. " + error)
     })

@@ -5,12 +5,14 @@ import api from '../../../api';
 import InputMask from "react-input-mask";
 import { toast } from "react-toastify";
 import Link from "next/link";
+import { CgSpinnerTwo } from "react-icons/cg";
 import EstadoSelect from "@/components/EstadoSelect";
 import CidadeSelect from "@/components/CidadeSelect";
 
 export default function EditarEnfermeiro() {
     const router = useRouter();
     const { id } = router.query;
+    const [isLoading, setIsLoading] = useState(true);
     const [registro, setRegistro] = useState<any>(null); // Defina o tipo adequado para o seu registro
     
     useEffect(() => {
@@ -20,14 +22,27 @@ export default function EditarEnfermeiro() {
                 setRegistro(response.data.result);
             } catch (error) {
             console.error('Erro ao obter os dados do registro:', error);
+            }finally {
+                setIsLoading(false);
             }};
 
             if (id) {
-                fetchRegistro();
+                setIsLoading(true);
+                setTimeout(() => {
+                    fetchRegistro();
+                }, 1000);
             }
 
         }, [id]
     );
+
+    if (isLoading || !registro) {
+        return (
+          <div className="flex justify-center items-center h-screen">
+            <CgSpinnerTwo className="animate-spin text-teal-600" size={100} />
+          </div>
+        );
+    }
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } : any = event.target;
