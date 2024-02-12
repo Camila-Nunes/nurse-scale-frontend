@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AiFillCaretLeft, AiFillCaretRight } from 'react-icons/ai';
+import { format, getMonth } from 'date-fns'; // Importar a função getMonth do date-fns
 
 interface FiltroMesProps {
   meses: string[];
@@ -7,10 +8,10 @@ interface FiltroMesProps {
 }
 
 const FiltroMes: React.FC<FiltroMesProps> = ({ meses, onChange }) => {
-  const [selectedMonth, setSelectedMonth] = useState<string>(meses[0] || ''); // Usar o primeiro mês como valor inicial
+  const currentDate = new Date();
+  const [selectedMonth, setSelectedMonth] = useState<string>(meses[currentDate.getMonth()] || '');
 
   useEffect(() => {
-    // Chamar a função de onChange com o mês selecionado
     onChange(selectedMonth, meses.indexOf(selectedMonth) + 1);
   }, [meses, onChange, selectedMonth]);
 
@@ -38,7 +39,7 @@ const FiltroMes: React.FC<FiltroMesProps> = ({ meses, onChange }) => {
       </button>
       <div>
         <p className="text-lg font-semibold">
-          {selectedMonth} {/* Mostrar o mês selecionado */}
+          {selectedMonth}
         </p>
       </div>
       <button onClick={handleNextMonth}>
