@@ -10,6 +10,7 @@ import {
     IconDashboard
 } from "@tabler/icons-react";
 import { BiSolidChevronDown, BiChevronUp } from "react-icons/bi";
+import { BsCalendarPlusFill, BsClipboardData } from "react-icons/bs";
 import { FaUserPlus } from "react-icons/fa";
 import MenuItem from "./MenuItem";
 import { useState } from "react";
@@ -37,8 +38,8 @@ export default function Menu() {
       </div>
       {showAdministrativo && (
         <div className="pl-6 mr-6">
-          <MenuItem icone={<IconCalendarPlus />} texto="Atendimentos" url="/atendimentos/listarAtendimentos" />
-          <MenuItem icone={<IconCalendarPlus />} texto="Orçamento" url="" />
+          <MenuItem icone={<BsCalendarPlusFill size={20}/>} texto="Atendimentos" url="/atendimentos/listarAtendimentos" />
+          <MenuItem icone={<BsClipboardData size={20}/>} texto="Orçamentos" url="/orcamentos/orcamentos" />
         </div>
       )}
 
