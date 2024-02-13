@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import api from '../../api';
 import Link from "next/link";
 import InputMask from "react-input-mask";
+import { CgSpinnerTwo } from "react-icons/cg";
+import { useRouter } from 'next/router';
 
 import { 
   IconTrashX, 
@@ -14,21 +16,27 @@ import { BiEdit } from "react-icons/bi";
 import { FaTrashAlt } from "react-icons/fa";
 
 export default function Clientes() {
-
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
   const [clientes, setClientes]=useState([]);
   const [deletando, setDeletando] = useState(false);
 
-  useEffect(()=>{
-    getClientes()
-  }, [])
+  useEffect(() => {
+    // Simulando um atraso de 2 segundos para carregar os dados
+    setTimeout(() => {
+      getClientes();
+    }, 2000);
+  }, []);
 
-  async function getClientes(){
-    const response = await api.get('/api/Clientes')
-    .then(response => {
+  async function getClientes() {
+    try {
+      const response = await api.get('/api/Clientes');
       setClientes(response.data.result);
-    }).catch(error => {
-       toast.error("Erro ao carregar dados. " + error)
-    })
+    } catch (error) {
+      toast.error("Erro ao carregar dados. " + error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   async function handleDeleteClick(event: React.MouseEvent<HTMLButtonElement>, idCliente: string) {
@@ -36,22 +44,37 @@ export default function Clientes() {
     try {
       const response = await api.delete(`/api/Clientes/${idCliente}`);
       toast.success("Registro deletado com sucesso.");
-      // if (response.status === 200) {
-      //   setClientes(prevClientes => prevClientes.filter(c => c.clienteId !== idCliente));
-      //   toast.success("Registro deletado com sucesso.");
-      // } else {
-      //   toast.error("Erro ao deletar registro.");
-      // }
     } catch (error) {
       toast.error("Erro ao deletar registro.");
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <CgSpinnerTwo className="animate-spin text-teal-600" size={100} />
+      </div>
+    );
+  }
+
+  const handleNovoClienteClick = () => {
+    setIsLoading(true);
+    setTimeout(() => {
+      router.push('/clientes/clientes');
+    }, 2000);
+  };
+
   return (
     <Page titulo="Listagem de Clientes">
       <form className="container max-w-full">
-        <Link href="/clientes/clientes">
-          <button type="button" className="rounded-md bg-teal-600 hover:bg-teal-800 px-3 py-2 text-sm font-semibold leading-6 text-white">Novo Cliente</button>     
+        <Link href="">
+          <button onClick={handleNovoClienteClick} className="rounded-md bg-teal-600 hover:bg-teal-800 px-3 py-2 text-sm font-semibold leading-6 text-white" disabled={isLoading}>
+            {isLoading ? (
+              <CgSpinnerTwo className="animate-spin text-white" size={20} />
+            ) : (
+              'Novo Cliente'
+            )}
+          </button>    
         </Link>
         <div className="mt-6 mx-auto pt-4 shadow rounded-md bg-slate-50">
           <div className="mt-6 overflow-auto rounded-lg shadow hidden md:block">

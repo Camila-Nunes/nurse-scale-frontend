@@ -8,12 +8,13 @@ import { toast } from "react-toastify";
 import Link from "next/link";
 import moment from 'moment';
 import axios from 'axios';
-
+import { CgSpinnerTwo } from "react-icons/cg";
 
 export default function Editarpaciente() {
     const [clientes, setClientes] = useState([]);
     const router = useRouter();
     const { id } = router.query;
+    const [isLoading, setIsLoading] = useState(true);
     const [registro, setRegistro] = useState<any>(null);
     const [cep, setCep] = useState('');
 
@@ -61,7 +62,6 @@ export default function Editarpaciente() {
     };
     
     useEffect(() => {
-        
         const fetchRegistro = async () => {
             try {
                 const response = await api.get(`/api/Pacientes/` + id); 
@@ -70,17 +70,30 @@ export default function Editarpaciente() {
             
             } catch (error) {
             console.error('Erro ao obter os dados do registro:', error);
+            }finally {
+                setIsLoading(false);
             }};
 
             if (id) {
-                fetchRegistro();
+                setIsLoading(true);
+                setTimeout(() => {
+                    fetchRegistro();
+                }, 1000);
             }
         }, [id]
     );
 
     useEffect(()=>{
         getClientes()
-    }, [clientes])
+    }, [clientes]);
+
+    if (isLoading || !registro) {
+        return (
+          <div className="flex justify-center items-center h-screen">
+            <CgSpinnerTwo className="animate-spin text-teal-600" size={100} />
+          </div>
+        );
+    };
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } : any = event.target;

@@ -10,6 +10,8 @@ import { BiEdit } from "react-icons/bi";
 import { FaTrashAlt } from "react-icons/fa";
 import Pagination from "@/components/Pagination";
 import BuscaPacienteFiltro from "@/components/BuscaPacienteFiltro";
+import { CgSpinnerTwo } from "react-icons/cg";
+import { useRouter } from "next/router";
 
 interface FiltrosState {
   pacienteId: string;
@@ -20,7 +22,7 @@ const initialState: FiltrosState = {
 };
 
 export default function Pacientes() {
-
+  const [isLoading, setIsLoading] = useState(true);
   const [pacientes, setPacientes]=useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPaginas, setTotalPaginas] = useState(1);
@@ -28,9 +30,12 @@ export default function Pacientes() {
   const [pacienteId, setPacienteId] = useState('');
   const [filtros, setFiltros] = useState<FiltrosState>(initialState);
   const itensPorPagina = 10;
+  const router = useRouter();
 
   useEffect(()=>{
-    getPacientes(currentPage, 10)
+    setTimeout(() => {
+      getPacientes(currentPage, 10)
+    }, 2000);
   }, [currentPage]);
 
   useEffect(()=>{
@@ -48,12 +53,14 @@ export default function Pacientes() {
   };
 
   async function getPacientes(page: number, pageSize: number){
-    const response = await api.get(`/api/Pacientes?page=${page}&pageSize=${pageSize}`)
-    .then(response => {
+    try {
+      const response = await api.get(`/api/Enfermeiros?page=${page}&pageSize=${pageSize}`)
       setPacientes(response.data.result);
-    }).catch(error => {
-      toast.error("Erro ao carregar dados. " + error)
-    })
+    } catch (error) {
+      toast.error("Erro ao carregar dados. " + error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   async function handleDeleteClick(event: React.MouseEvent<HTMLButtonElement>, idPaciente: string) {
@@ -61,12 +68,6 @@ export default function Pacientes() {
     try {
       const response = await api.delete(`/api/Pacientes/${idPaciente}`);
       toast.success("Registro deletado com sucesso.");
-      // if (response.status === 200) {
-      //   setPacientes(prevPacientes => prevPacientes.filter(p => p.pacienteId !== idPaciente));
-      //   toast.success("Registro deletado com sucesso.");
-      // } else {
-      //   toast.error("Erro ao deletar registro.");
-      // }
     } catch (error) {
       toast.error("Erro ao deletar registro.");
     }
@@ -129,13 +130,31 @@ export default function Pacientes() {
       toast.error(`Erro ao chamar a API.`);
     }
   };
+
+  const handleNovoPacienteClick = () => {
+    setIsLoading(true);
+    router.push('/pacientes/pacientes'); // ou qualquer rota que corresponda à página de cadastro
+  };
   
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <CgSpinnerTwo className="animate-spin text-teal-600" size={100} />
+      </div>
+    );
+  }
   
   return (
     <Page titulo="Listagem de Pacientes">
       <form className="container max-w-full">
-        <Link href="/pacientes/pacientes">
-          <button type="button" className="rounded-md bg-teal-600 hover:bg-teal-800 px-3 py-2 text-sm font-semibold leading-6 text-white">Novo Paciente</button>     
+        <Link href="">
+          <button onClick={handleNovoPacienteClick} className="rounded-md bg-teal-600 hover:bg-teal-800 px-3 py-2 text-sm font-semibold leading-6 text-white" disabled={isLoading}>
+            {isLoading ? (
+              <CgSpinnerTwo className="animate-spin text-white" size={20} />
+            ) : (
+              'Novo Paciente'
+            )}
+          </button>    
         </Link>
         
         <div className="mt-6 mx-auto pt-4 shadow rounded-md bg-slate-50">

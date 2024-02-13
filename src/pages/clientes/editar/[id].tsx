@@ -5,14 +5,14 @@ import api from '../../../api';
 import InputMask from "react-input-mask";
 import { toast } from "react-toastify";
 import Link from "next/link";
-
-import CidadeSelect from "@/components/CidadeSelect";
+import { CgSpinnerTwo } from "react-icons/cg";
 import EstadoEditadoSelect from "@/components/EstadoEditadoSelect";
 import CidadeEditadaSelect from "@/components/CidadeEditadaSelect";
 
 export default function EditarCliente() {
     const router = useRouter();
     const { id } = router.query;
+    const [isLoading, setIsLoading] = useState(true);
     const [registro, setRegistro] = useState<any>(null); // Defina o tipo adequado para o seu registro
     const [estado, setEstado] = useState('');
     const [cidade, setCidade] = useState<string>(''); // Defina o tipo adequado para a sua cidade
@@ -25,14 +25,28 @@ export default function EditarCliente() {
                 setCidade(response.data.result.cidade);
             } catch (error) {
             console.error('Erro ao obter os dados do registro:', error);
-            }};
+            }finally {
+            setIsLoading(false);
+          }
+        };
 
-            if (id) {
+        if (id) {
+            setIsLoading(true);
+            setTimeout(() => {
                 fetchRegistro();
-            }
+            }, 1000);
+        }
 
         }, [id]
     );
+
+    if (isLoading || !registro) {
+        return (
+          <div className="flex justify-center items-center h-screen">
+            <CgSpinnerTwo className="animate-spin text-teal-600" size={100} />
+          </div>
+        );
+    }
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } : any = event.target;

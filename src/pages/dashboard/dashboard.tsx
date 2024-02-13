@@ -10,8 +10,7 @@ import api from '@/api';
 import { toast } from 'react-toastify';
 import { TbPigMoney } from "react-icons/tb";
 import { FaArrowCircleUp, FaArrowCircleDown } from "react-icons/fa";
-import { MdOutlineCreditCardOff } from "react-icons/md";
-import { BsCreditCard2Front } from "react-icons/bs";
+import { MdAttachMoney, MdOutlineMoneyOffCsred } from "react-icons/md";
 import AnoSelect from '@/components/AnoSelect';
 
 interface DashboardProps {
@@ -142,8 +141,8 @@ const Dashboard: React.FC<DashboardProps> = ({ meses }) => {
           <div className="grid grid-cols-4 gap-4 mt-8">
             <Card title="Entradas" icon={FaArrowCircleUp} quantity={quantityAtendimentosEntradasMes} value={entradasMes} color="bg-teal-600"/>
             <Card title="Saídas" icon={FaArrowCircleDown} quantity={quantityAtendimentosMes} value={atendimentosNoMes} color="bg-red-800"/>
-            <Card title="Atendimentos Pagos" icon={BsCreditCard2Front} quantity={quantityAtendimentosPagos} value={atendimentosPagos} color="bg-teal-700"/>
-            <Card title="Atendimentos Não Pagos" icon={MdOutlineCreditCardOff} quantity={quantityAtendimentosNaoPagos} value={faltaPagar} color="bg-sky-800"/>
+            <Card title="Atendimentos Pagos" icon={MdAttachMoney} quantity={quantityAtendimentosPagos} value={atendimentosPagos} color="bg-teal-700"/>
+            <Card title="Atendimentos Não Pagos" icon={MdOutlineMoneyOffCsred} quantity={quantityAtendimentosNaoPagos} value={faltaPagar} color="bg-sky-800"/>
           </div>
         </div>  
         <div className="sm:grid-cols-12">
