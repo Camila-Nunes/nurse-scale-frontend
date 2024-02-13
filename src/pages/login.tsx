@@ -3,6 +3,7 @@ import api from "@/api";
 import { useState } from 'react';
 import { toast } from "react-toastify";
 import { useRouter } from 'next/router';
+import { redirect } from 'next/navigation';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -21,9 +22,9 @@ export default function Login() {
       const response = await api.post('/api/Usuarios/login', login);
       console.log(response.data);
       toast.success("Usuário logado com sucesso.");
-      ///const { token } = response.data;
-      //localStorage.setItem('jwt-Token', token);
-      router.push('/');
+      const { token } = response.data;
+      localStorage.setItem('jwt-Token', token);
+      router.push('/dashboard/dashboard');
     } catch (error) {
       toast.error("Erro ao efetuar o login. Verifique usuário e senha.");
     }

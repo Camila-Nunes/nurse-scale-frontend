@@ -41,9 +41,6 @@ export default function ListarAtendimentos() {
   const [enfermeiroId, setEnfermeiroId] = useState('');
   const [pacienteId, setPacienteId] = useState('');
   const [itensPorPagina, setItensPorPagina] = useState(10);
-
-  //const itensPorPagina = 10;
-
   const [filtros, setFiltros] = useState<FiltrosState>(initialState);
 
   const handleDateChange = (selectedDate: Date) => {
