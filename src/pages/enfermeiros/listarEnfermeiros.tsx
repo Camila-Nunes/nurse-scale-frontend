@@ -161,7 +161,6 @@ export default function ListarEnfermeiros() {
   const handleNovoEnfermeiroClick = () => {
     setIsLoading(true);
     setTimeout(() => {
-      // Aqui você pode realizar qualquer lógica adicional antes de redirecionar para a página de cadastro
       router.push('/enfermeiros/enfermeiros'); // ou qualquer rota que corresponda à página de cadastro
     }, 2000);
   };
@@ -169,9 +168,6 @@ export default function ListarEnfermeiros() {
   return (
     <Page titulo="Listagem de Enfermeiros">
       <form className="container max-w-full">
-        {/* <Link href="/enfermeiros/enfermeiros"> 
-          <button type="button" className="rounded-md bg-teal-600 hover:bg-teal-800 px-3 py-2 text-sm font-semibold leading-6 text-white">Novo Enfermeiro</button>  
-        </Link> */}
         <Link href="">
           <button onClick={handleNovoEnfermeiroClick} className="rounded-md bg-teal-600 hover:bg-teal-800 px-3 py-2 text-sm font-semibold leading-6 text-white" disabled={isLoading}>
             {isLoading ? (

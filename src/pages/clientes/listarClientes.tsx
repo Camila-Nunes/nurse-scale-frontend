@@ -35,7 +35,7 @@ export default function Clientes() {
     } catch (error) {
       toast.error("Erro ao carregar dados. " + error);
     } finally {
-      setIsLoading(false); // Marca o carregamento como concluído, independentemente do resultado
+      setIsLoading(false);
     }
   };
 
@@ -44,12 +44,6 @@ export default function Clientes() {
     try {
       const response = await api.delete(`/api/Clientes/${idCliente}`);
       toast.success("Registro deletado com sucesso.");
-      // if (response.status === 200) {
-      //   setClientes(prevClientes => prevClientes.filter(c => c.clienteId !== idCliente));
-      //   toast.success("Registro deletado com sucesso.");
-      // } else {
-      //   toast.error("Erro ao deletar registro.");
-      // }
     } catch (error) {
       toast.error("Erro ao deletar registro.");
     }
@@ -66,17 +60,13 @@ export default function Clientes() {
   const handleNovoClienteClick = () => {
     setIsLoading(true);
     setTimeout(() => {
-      // Aqui você pode realizar qualquer lógica adicional antes de redirecionar para a página de cadastro
-      router.push('/clientes/clientes'); // ou qualquer rota que corresponda à página de cadastro
+      router.push('/clientes/clientes');
     }, 2000);
   };
 
   return (
     <Page titulo="Listagem de Clientes">
       <form className="container max-w-full">
-        <Link href="/clientes/clientes">
-          <button type="button" className="rounded-md bg-teal-600 hover:bg-teal-800 px-3 py-2 text-sm font-semibold leading-6 text-white">Novo Cliente</button>     
-        </Link>
         <Link href="">
           <button onClick={handleNovoClienteClick} className="rounded-md bg-teal-600 hover:bg-teal-800 px-3 py-2 text-sm font-semibold leading-6 text-white" disabled={isLoading}>
             {isLoading ? (

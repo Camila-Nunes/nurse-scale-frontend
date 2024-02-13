@@ -59,7 +59,7 @@ export default function Pacientes() {
     } catch (error) {
       toast.error("Erro ao carregar dados. " + error);
     } finally {
-      setIsLoading(false); // Marca o carregamento como concluído, independentemente do resultado
+      setIsLoading(false);
     }
   };
 
@@ -68,12 +68,6 @@ export default function Pacientes() {
     try {
       const response = await api.delete(`/api/Pacientes/${idPaciente}`);
       toast.success("Registro deletado com sucesso.");
-      // if (response.status === 200) {
-      //   setPacientes(prevPacientes => prevPacientes.filter(p => p.pacienteId !== idPaciente));
-      //   toast.success("Registro deletado com sucesso.");
-      // } else {
-      //   toast.error("Erro ao deletar registro.");
-      // }
     } catch (error) {
       toast.error("Erro ao deletar registro.");
     }
