@@ -4,6 +4,7 @@ import api from '../../api';
 import Link from "next/link";
 import InputMask from "react-input-mask";
 import { CgSpinnerTwo } from "react-icons/cg";
+import { useRouter } from 'next/router';
 
 import { 
   IconTrashX, 
@@ -15,6 +16,7 @@ import { BiEdit } from "react-icons/bi";
 import { FaTrashAlt } from "react-icons/fa";
 
 export default function Clientes() {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [clientes, setClientes]=useState([]);
   const [deletando, setDeletando] = useState(false);
@@ -61,11 +63,28 @@ export default function Clientes() {
     );
   }
 
+  const handleNovoClienteClick = () => {
+    setIsLoading(true);
+    setTimeout(() => {
+      // Aqui você pode realizar qualquer lógica adicional antes de redirecionar para a página de cadastro
+      router.push('/clientes/clientes'); // ou qualquer rota que corresponda à página de cadastro
+    }, 2000);
+  };
+
   return (
     <Page titulo="Listagem de Clientes">
       <form className="container max-w-full">
         <Link href="/clientes/clientes">
           <button type="button" className="rounded-md bg-teal-600 hover:bg-teal-800 px-3 py-2 text-sm font-semibold leading-6 text-white">Novo Cliente</button>     
+        </Link>
+        <Link href="">
+          <button onClick={handleNovoClienteClick} className="rounded-md bg-teal-600 hover:bg-teal-800 px-3 py-2 text-sm font-semibold leading-6 text-white" disabled={isLoading}>
+            {isLoading ? (
+              <CgSpinnerTwo className="animate-spin text-white" size={20} />
+            ) : (
+              'Novo Cliente'
+            )}
+          </button>    
         </Link>
         <div className="mt-6 mx-auto pt-4 shadow rounded-md bg-slate-50">
           <div className="mt-6 overflow-auto rounded-lg shadow hidden md:block">
