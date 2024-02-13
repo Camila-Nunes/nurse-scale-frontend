@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import api from '../../api';
 import Link from "next/link";
 import InputMask from "react-input-mask";
+import { CgSpinnerTwo } from "react-icons/cg";
 
 import { 
   IconTrashX, 
@@ -14,21 +15,26 @@ import { BiEdit } from "react-icons/bi";
 import { FaTrashAlt } from "react-icons/fa";
 
 export default function Clientes() {
-
+  const [isLoading, setIsLoading] = useState(true);
   const [clientes, setClientes]=useState([]);
   const [deletando, setDeletando] = useState(false);
 
-  useEffect(()=>{
-    getClientes()
-  }, [])
+  useEffect(() => {
+    // Simulando um atraso de 2 segundos para carregar os dados
+    setTimeout(() => {
+      getClientes();
+    }, 2000);
+  }, []);
 
-  async function getClientes(){
-    const response = await api.get('/api/Clientes')
-    .then(response => {
+  async function getClientes() {
+    try {
+      const response = await api.get('/api/Clientes');
       setClientes(response.data.result);
-    }).catch(error => {
-       toast.error("Erro ao carregar dados. " + error)
-    })
+    } catch (error) {
+      toast.error("Erro ao carregar dados. " + error);
+    } finally {
+      setIsLoading(false); // Marca o carregamento como concluído, independentemente do resultado
+    }
   };
 
   async function handleDeleteClick(event: React.MouseEvent<HTMLButtonElement>, idCliente: string) {
@@ -46,6 +52,14 @@ export default function Clientes() {
       toast.error("Erro ao deletar registro.");
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <CgSpinnerTwo className="animate-spin text-teal-600" size={100} />
+      </div>
+    );
+  }
 
   return (
     <Page titulo="Listagem de Clientes">

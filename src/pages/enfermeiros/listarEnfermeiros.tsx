@@ -10,6 +10,7 @@ import { BiEdit } from "react-icons/bi";
 import { FaTrashAlt } from "react-icons/fa";
 import Pagination from "@/components/Pagination";
 import BuscaEnfermeiroFiltro from "@/components/BuscaEnfermeiroFiltro";
+import { CgSpinnerTwo } from "react-icons/cg";
 
 interface FiltrosState {
   enfermeiroId: string;
@@ -32,10 +33,14 @@ export default function ListarEnfermeiros() {
   const [totalItems, setTotalItems] = useState(0);
   const [enfermeiroId, setEnfermeiroId] = useState('');
   const [filtros, setFiltros] = useState<FiltrosState>(initialState);
+  const [isLoading, setIsLoading] = useState(true);
   const itensPorPagina = 10;
 
-  useEffect(()=>{
-    getEnfermeiros(currentPage, 10)
+  useEffect(() => {
+    // Simulando um atraso de 2 segundos para carregar os dados
+    setTimeout(() => {
+      getEnfermeiros(currentPage, 10)
+    }, 2000);
   }, [currentPage]);
 
   useEffect(()=>{
@@ -57,12 +62,14 @@ export default function ListarEnfermeiros() {
   };
 
   async function getEnfermeiros(page: number, pageSize: number){
-    const response = await api.get(`/api/Enfermeiros?page=${page}&pageSize=${pageSize}`)
-    .then(response => {
+    try {
+      const response = await api.get(`/api/Enfermeiros?page=${page}&pageSize=${pageSize}`)
       setEnfermeiros(response.data.result);
-    }).catch(error => {
-      toast.error("Erro ao carregar dados.", error)
-    })
+    } catch (error) {
+      toast.error("Erro ao carregar dados. " + error);
+    } finally {
+      setIsLoading(false); // Marca o carregamento como concluído, independentemente do resultado
+    }
   };
 
   async function handleEditClick (id: string){
@@ -143,12 +150,36 @@ export default function ListarEnfermeiros() {
     }));
   };
   
-  
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <CgSpinnerTwo className="animate-spin text-teal-600" size={100} />
+      </div>
+    );
+  }
+
+  const handleNovoEnfermeiroClick = () => {
+    setIsLoading(true);
+    setTimeout(() => {
+      // Aqui você pode realizar qualquer lógica adicional antes de redirecionar para a página de cadastro
+      router.push('/enfermeiros/enfermeiros'); // ou qualquer rota que corresponda à página de cadastro
+    }, 2000);
+  };
+
   return (
     <Page titulo="Listagem de Enfermeiros">
       <form className="container max-w-full">
-        <Link href="/enfermeiros/enfermeiros"> 
+        {/* <Link href="/enfermeiros/enfermeiros"> 
           <button type="button" className="rounded-md bg-teal-600 hover:bg-teal-800 px-3 py-2 text-sm font-semibold leading-6 text-white">Novo Enfermeiro</button>  
+        </Link> */}
+        <Link href="">
+          <button onClick={handleNovoEnfermeiroClick} className="rounded-md bg-teal-600 hover:bg-teal-800 px-3 py-2 text-sm font-semibold leading-6 text-white" disabled={isLoading}>
+            {isLoading ? (
+              <CgSpinnerTwo className="animate-spin text-white" size={20} />
+            ) : (
+              'Novo Enfermeiro'
+            )}
+          </button>    
         </Link>
         <div className="mt-2 mx-auto pt-4 shadow rounded-md bg-slate-50">
           <div className="grid grid-cols-1 gap-x-10 gap-y-8 sm:grid-cols-12">
