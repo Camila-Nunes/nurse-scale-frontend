@@ -4,7 +4,7 @@ const api = axios.create({
   //baseURL: 'SUA_BASE_URL_AQUI',
   //baseURL: 'https://localhost:55759' // Substitua pela URL do seu backend
   //baseURL: 'https://camilanunes-001-site3.ctempurl.com'
-  baseURL: 'nuersescales.com.br'
+  baseURL: 'https://nuersescales.com.br/'
 });
 
 api.interceptors.request.use((config) => {
