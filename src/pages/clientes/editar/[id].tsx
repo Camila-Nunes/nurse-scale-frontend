@@ -21,8 +21,8 @@ export default function EditarCliente() {
         const fetchRegistro = async () => {
             try {
                 const response = await api.get(`/api/Clientes/` + id); 
-                setRegistro(response.data.data.result);
-                setCidade(response.data.data.result.cidade);
+                setRegistro(response.data.result);
+                setCidade(response.data.result.cidade);
             } catch (error) {
             console.error('Erro ao obter os dados do registro:', error);
             }finally {
