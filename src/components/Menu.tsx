@@ -10,7 +10,7 @@ import {
     IconDashboard
 } from "@tabler/icons-react";
 import { BiSolidChevronDown, BiChevronUp } from "react-icons/bi";
-import { BsCalendarPlusFill, BsClipboardData } from "react-icons/bs";
+import { BsCalendarPlusFill, BsClipboardData, BsCalculator } from "react-icons/bs";
 import { FaUserPlus } from "react-icons/fa";
 import MenuItem from "./MenuItem";
 import { useState } from "react";
@@ -39,7 +39,9 @@ export default function Menu() {
       {showAdministrativo && (
         <div className="pl-6 mr-6">
           <MenuItem icone={<BsCalendarPlusFill size={20}/>} texto="Atendimentos" url="/atendimentos/listarAtendimentos" />
+          <MenuItem icone={<BsCalculator size={20}/>} texto="Cálculo Taxa Administrativa" url="/calculos/calculo-taxa-administrativa" />
           <MenuItem icone={<BsClipboardData size={20}/>} texto="Orçamentos" url="/orcamentos/orcamentos" />
+          <MenuItem icone={<BsClipboardData size={20}/>} texto="Tabela Dinâmica" url="/administrativo/tabela-dinamica" />
         </div>
       )}
 
@@ -60,9 +62,9 @@ export default function Menu() {
       </div>
       {showFinanceiro && (
         <div className="pl-6 mr-6">
+          <MenuItem icone={<IconReportMoney />} texto="Adiantamento" url="/adiantamentos/listarAdiantamentos" />
           <MenuItem icone={<IconBusinessplan />} texto="Fluxo de Caixa" url="/fluxo-de-caixa/fluxo-de-caixa" />
           <MenuItem icone={<IconWallet />} texto="Pagamentos" url="/pagamentos/listarPagamentos" />
-          <MenuItem icone={<IconReportMoney />} texto="Adiantamento" url="/adiantamentos/listarAdiantamentos" />
         </div>
       )}
       <div className="flex justify-between items-center gap-16 text-sm text-zinc-500 pl-3 pt-2" onClick={toggleConfiguracoes}>
@@ -71,7 +73,7 @@ export default function Menu() {
       </div>
       {showConfiguracoes && (
         <div className="pl-6 mr-6">
-          <MenuItem icone={<FaUserPlus size={22} />} texto="Cadastro de Usuários" url="/usuarios/usuarios" />
+          <MenuItem icone={<FaUserPlus size={22} />} texto="Usuários" url="/usuarios/listar-usuarios" />
         </div>
       )}
     </div>

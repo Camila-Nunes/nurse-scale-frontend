@@ -21,7 +21,7 @@ const initialState: FiltrosState = {
   pacienteId: ''
 };
 
-export default function Pacientes() {
+export default function ListarPacientes() {
   const [isLoading, setIsLoading] = useState(true);
   const [pacientes, setPacientes]=useState([]);
   const [currentPage, setCurrentPage] = useState(1);

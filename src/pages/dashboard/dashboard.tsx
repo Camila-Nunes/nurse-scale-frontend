@@ -139,8 +139,8 @@ const Dashboard: React.FC<DashboardProps> = ({ meses }) => {
         {/* <button onClick={(e) => handleDashboardSubmit(e)}>Carregar Dashboard</button> */}
         <div className="sm:grid-cols-12">
           <div className="grid grid-cols-4 gap-4 mt-8">
-            <Card title="Entradas" icon={FaArrowCircleUp} quantity={quantityAtendimentosEntradasMes} value={entradasMes} color="bg-teal-600"/>
-            <Card title="Saídas" icon={FaArrowCircleDown} quantity={quantityAtendimentosMes} value={atendimentosNoMes} color="bg-red-800"/>
+            <Card title="Total Negociado com Empresas" icon={FaArrowCircleUp} quantity={quantityAtendimentosEntradasMes} value={entradasMes} color="bg-teal-600"/>
+            <Card title="Total Negociado com Profissionais" icon={FaArrowCircleDown} quantity={quantityAtendimentosMes} value={atendimentosNoMes} color="bg-red-800"/>
             <Card title="Atendimentos Pagos" icon={MdAttachMoney} quantity={quantityAtendimentosPagos} value={atendimentosPagos} color="bg-teal-700"/>
             <Card title="Atendimentos Não Pagos" icon={MdOutlineMoneyOffCsred} quantity={quantityAtendimentosNaoPagos} value={faltaPagar} color="bg-sky-800"/>
           </div>

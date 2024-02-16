@@ -44,7 +44,7 @@ export default function Usuarios() {
         transition: Slide,
         icon: true,
       });
-      router.push("/usuarios/listarUsuarios");
+      router.push("/usuarios/listar-usuarios");
     } catch (error) {
       console.error(error);
       toast.error("Erro ao salvar usuário: " + nome, {
@@ -55,13 +55,13 @@ export default function Usuarios() {
   };
 
   async function handleCancel (){
-    router.push(`/usuarios/listarUsuarios`);
+    router.push(`/usuarios/listar-usuarios`);
   };
 
   return (
     <Page titulo="Cadastro de Usuários">
       <form onSubmit={handleSubmit} className="container max-w-full">
-          <Link href="/usuarios/listarUsuarios">
+          <Link href="/usuarios/listar-usuarios">
               <button type="button" className="rounded-md bg-teal-600 hover:bg-teal-800 px-10 py-2 text-sm font-semibold leading-6 text-white">Voltar</button>     
           </Link>
           <div className="container mx-auto">
