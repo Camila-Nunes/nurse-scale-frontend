@@ -38,7 +38,7 @@ export default function Menu() {
       </div>
       {showAdministrativo && (
         <div className="pl-6 mr-6">
-          <MenuItem icone={<BsCalendarPlusFill size={20}/>} texto="Atendimentos" url="/atendimentos/listarAtendimentos" />
+          <MenuItem icone={<BsCalendarPlusFill size={20}/>} texto="Atendimentos" url="/atendimentos/listar-atendimentos" />
           <MenuItem icone={<BsCalculator size={20}/>} texto="Cálculo Taxa Administrativa" url="/calculos/calculo-taxa-administrativa" />
           <MenuItem icone={<BsClipboardData size={20}/>} texto="Orçamentos" url="/orcamentos/orcamentos" />
           <MenuItem icone={<BsClipboardData size={20}/>} texto="Tabela Dinâmica" url="/administrativo/tabela-dinamica" />
@@ -51,9 +51,9 @@ export default function Menu() {
       </div>
       {showCadastros && (
         <div className="pl-6 mr-6">
-          <MenuItem icone={<IconAmbulance />} texto="Clientes" url="/clientes/listarClientes" />
-          <MenuItem icone={<IconNurse />} texto="Enfermeiros" url="/enfermeiros/listarEnfermeiros" />
-          <MenuItem icone={<IconBed />} texto="Pacientes" url="/pacientes/listarPacientes" />
+          <MenuItem icone={<IconAmbulance />} texto="Clientes" url="/clientes/listar-clientes" />
+          <MenuItem icone={<IconNurse />} texto="Enfermeiros" url="/enfermeiros/listar-enfermeiros" />
+          <MenuItem icone={<IconBed />} texto="Pacientes" url="/pacientes/listar-pacientes" />
         </div>
       )}
       <div className="flex justify-between items-center gap-16 text-sm text-zinc-500 pl-3 pt-2" onClick={toggleFinanceiro}>
@@ -62,9 +62,9 @@ export default function Menu() {
       </div>
       {showFinanceiro && (
         <div className="pl-6 mr-6">
-          <MenuItem icone={<IconReportMoney />} texto="Adiantamento" url="/adiantamentos/listarAdiantamentos" />
+          <MenuItem icone={<IconReportMoney />} texto="Adiantamento" url="/adiantamentos/listar-adiantamentos" />
           <MenuItem icone={<IconBusinessplan />} texto="Fluxo de Caixa" url="/fluxo-de-caixa/fluxo-de-caixa" />
-          <MenuItem icone={<IconWallet />} texto="Pagamentos" url="/pagamentos/listarPagamentos" />
+          <MenuItem icone={<IconWallet />} texto="Pagamentos" url="/pagamentos/listar-pagamentos" />
         </div>
       )}
       <div className="flex justify-between items-center gap-16 text-sm text-zinc-500 pl-3 pt-2" onClick={toggleConfiguracoes}>

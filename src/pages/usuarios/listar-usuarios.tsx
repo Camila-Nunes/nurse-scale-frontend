@@ -27,7 +27,8 @@ export default function ListaUsuarios() {
     async function getUsuarios(){
         try {
           const response = await api.get(`/api/Usuarios`)
-          setUsuarios(response.data.result);
+          setUsuarios(response.data.data.result);
+          toast.success(response.data.mensagem);
         } catch (error) {
           toast.error("Erro ao carregar dados. " + error);
         } finally {

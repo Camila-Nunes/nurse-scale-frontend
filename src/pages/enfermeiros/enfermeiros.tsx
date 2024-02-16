@@ -49,7 +49,7 @@ export default function Enfermeiros() {
         try {
             const response = await api.post('/api/Enfermeiros', enfermeiro);
             toast.success("Registro salvo com sucesso.");
-            router.push("/enfermeiros/listarEnfermeiros");
+            router.push("/enfermeiros/listar-enfermeiros");
         } catch (error) {
             console.error(error);
             toast.error("Não foi possível salvar o registro.");
@@ -57,13 +57,13 @@ export default function Enfermeiros() {
     };
 
     async function handleCancel (){
-        router.push(`/enfermeiros/listarEnfermeiros`);
+        router.push(`/enfermeiros/listar-enfermeiros`);
     };
 
     return (
         <Page titulo="Cadastro de Enfermeiros">
             <form onSubmit={handleSubmit} className="container max-w-full">
-                <Link href="/enfermeiros/listarEnfermeiros"> 
+                <Link href="/enfermeiros/listar-enfermeiros"> 
                     <button type="button" className="rounded-md bg-teal-600 hover:bg-teal-800 px-10 py-2 text-sm font-semibold leading-6 text-white">Voltar</button>   
                 </Link>
                 <div className="container mx-auto">

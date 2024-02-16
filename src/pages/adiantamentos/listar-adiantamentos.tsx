@@ -100,7 +100,7 @@ export default function ListarAdiantamentos() {
           <Link href="">
             <button type="button" className="rounded-md bg-teal-600 hover:bg-teal-900 px-3 py-2 text-sm font-semibold leading-6 text-white" onClick={openModal}>Novo Adiantamento</button>    
           </Link>  
-          <Link href={`/adiantamentos/adiantamentosSomados`}>
+          <Link href={`/adiantamentos/adiantamentos-somados`}>
             <button type="button" className="rounded-md bg-cyan-700 hover:bg-cyan-900 px-3 py-2 text-sm font-semibold leading-6 text-white">Somar Adiantamentos</button>     
           </Link> 
 

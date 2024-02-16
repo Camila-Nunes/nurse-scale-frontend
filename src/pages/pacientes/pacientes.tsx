@@ -34,7 +34,7 @@ export default function Pacientes() {
     };
 
     async function handleCancel (){
-        router.push(`/pacientes/listarPacientes`);
+        router.push(`/pacientes/listar-pacientes`);
     };
 
     const handleCepSubmit: React.MouseEventHandler<HTMLButtonElement> = async (event) => {
@@ -78,7 +78,7 @@ export default function Pacientes() {
             const response = await api.post('/api/Pacientes', paciente);
             console.log(response.data);
             toast.success(`Paciente ${paciente.nome} salvo com sucesso.`);
-            router.push("/pacientes/listarPacientes");
+            router.push("/pacientes/listar-pacientes");
         } catch (error) {
             console.error(error);
             toast.error(`Erro ao salvar paciente: ${paciente.nome}.`);
@@ -92,7 +92,7 @@ export default function Pacientes() {
     return (
         <Page titulo="Cadastro de Pacientes">
             <form onSubmit={handleSubmit} className="container max-w-full">
-                <Link href="/pacientes/listarPacientes">
+                <Link href="/pacientes/listar-pacientes">
                     <button type="button" className="rounded-md bg-teal-600 hover:bg-teal-800 px-10 py-2 text-sm font-semibold leading-6 text-white">Voltar</button>     
                 </Link>
                 <div className="container mx-auto">

@@ -40,7 +40,7 @@ export default function Clientes() {
         transition: Slide,
         icon: false
       });
-      router.push("/clientes/listarClientes");
+      router.push("/clientes/listar-clientes");
     } catch (error) {
       console.error(error);
       toast.error("Erro ao salvar cliente: " + cliente.nomeFantasia, {
@@ -50,13 +50,13 @@ export default function Clientes() {
     }};
 
     async function handleCancel (){
-        router.push(`/clientes/listarClientes`);
+        router.push(`/clientes/listar-clientes`);
     };
 
     return (
         <Page titulo="Cadastro de Clientes">
             <form onSubmit={handleSubmit} className="container max-w-full">
-                <Link href="/clientes/listarClientes">
+                <Link href="/clientes/listar-clientes">
                     <button type="button" className="rounded-md bg-teal-600 hover:bg-teal-800 px-10 py-2 text-sm font-semibold leading-6 text-white">Voltar</button>     
                 </Link>
                 <div className="container mx-auto">

@@ -75,7 +75,7 @@ export default function AdiantamentosSomados() {
     <Page titulo="Adiantamentos Somados por mês">
       <form className="container max-w-full">
         <div className="flex gap-3">
-          <Link href="/adiantamentos/listarAdiantamentos">
+          <Link href="/adiantamentos/listar-atendimentos">
             <button type="button" className="text-sm font-semibold bg-transparent hover:bg-red-900 text-red-900 hover:text-white py-2 px-4 border border-red-900 hover:border-transparent rounded-md">Voltar</button>    
           </Link>
         </div>
