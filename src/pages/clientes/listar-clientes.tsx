@@ -31,7 +31,7 @@ export default function Clientes() {
   async function getClientes() {
     try {
       const response = await api.get('/api/Clientes');
-      setClientes(response.data.result);
+      setClientes(response.data.data.result);
     } catch (error) {
       toast.error("Erro ao carregar dados. " + error);
     } finally {

@@ -7,9 +7,10 @@ import { Slide, toast } from "react-toastify";
 
 export default function Usuarios() {
   const [nome, setNome] = useState('');
+  const [sobrenome, setSobrenome] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
-  const [confirmarSenha, setConfirmarSenha] = useState('');
+  const [confirmaSenha, setConfirmaSenha] = useState('');
   const [tipoUsuario, setTipoUsuario] = useState('');
   const [foto, setFoto] = useState<File | null>(null);
 
@@ -28,11 +29,12 @@ export default function Usuarios() {
 
     const usuario = {
       nome,
+      sobrenome,
       email,
       senha,
-      confirmarSenha,
-      tipoUsuario
-      //,foto
+      confirmaSenha,
+      tipoUsuario,
+      foto
     }
 
   try {
@@ -118,8 +120,8 @@ export default function Usuarios() {
                           type="text"
                           name="confirmarSenha"
                           id="confirmarSenha"
-                          value={confirmarSenha}
-                          onChange={(e) => setConfirmarSenha(e.target.value.toUpperCase())}
+                          value={confirmaSenha}
+                          onChange={(e) => setConfirmaSenha(e.target.value.toUpperCase())}
                           autoComplete="confirmarSenha"
                           className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-teal-500 sm:text-sm sm:leading-6"
                       />
