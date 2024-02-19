@@ -11,6 +11,7 @@ import {
 } from "@tabler/icons-react";
 import { BiSolidChevronDown, BiChevronUp } from "react-icons/bi";
 import { BsCalendarPlusFill, BsClipboardData, BsCalculator } from "react-icons/bs";
+import { FaTableList } from "react-icons/fa6";
 import { FaUserPlus } from "react-icons/fa";
 import MenuItem from "./MenuItem";
 import { useState } from "react";
@@ -41,7 +42,7 @@ export default function Menu() {
           <MenuItem icone={<BsCalendarPlusFill size={20}/>} texto="Atendimentos" url="/atendimentos/listar-atendimentos" />
           <MenuItem icone={<BsCalculator size={20}/>} texto="Cálculo Taxa Administrativa" url="/calculos/calculo-taxa-administrativa" />
           <MenuItem icone={<BsClipboardData size={20}/>} texto="Orçamentos" url="/orcamentos/orcamentos" />
-          <MenuItem icone={<BsClipboardData size={20}/>} texto="Tabela Dinâmica" url="/administrativo/tabela-dinamica" />
+          <MenuItem icone={<FaTableList size={20}/>} texto="Tabela Dinâmica" url="/administrativo/tabela-dinamica" />
         </div>
       )}
 
