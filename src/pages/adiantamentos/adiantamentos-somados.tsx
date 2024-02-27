@@ -3,10 +3,7 @@ import { useEffect, useState } from "react";
 import api from '../../api';
 import { toast } from "react-toastify";
 import Link from "next/link";
-import { BiEdit } from "react-icons/bi";
-import { FaTrashAlt } from "react-icons/fa";
 import Pagination from "@/components/Pagination";
-import Modal from "@/components/Modal";
 
 const itensPorPagina = 10;
 
