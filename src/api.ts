@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://nursescale-dev.onrender.com/'
+  baseURL: 'https://camilanunes-001-site3.ctempurl.com'
   
 });
 
