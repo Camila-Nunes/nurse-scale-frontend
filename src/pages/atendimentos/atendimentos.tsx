@@ -117,7 +117,7 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
                 transition: Slide,
                 icon: true
             });
-            router.push("/atendimentos/listarAtendimentos");
+            router.push("/atendimentos/listar-atendimentos");
         } catch (error) {
             console.error(error);
             toast.error("Erro ao salvar atendimento.", {
@@ -128,13 +128,13 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
     };
     
     async function handleCancel (){
-        router.push(`/atendimentos/listarAtendimentos`);
+        router.push(`/atendimentos/listar-atendimentos`);
     };
 
     return (
         <Page titulo="Cadastro de Atendimentos">
             <form onSubmit={handleSubmit} className="container max-w-full">
-                <Link href="/atendimentos/listarAtendimentos">
+                <Link href="/atendimentos/listar-atendimentos">
                     <button type="button" className="rounded-md bg-teal-600 px-10 py-2 text-sm font-semibold leading-6 text-white">Voltar</button>     
                 </Link>
                 <div className="container mx-auto">

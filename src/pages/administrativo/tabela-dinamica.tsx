@@ -1,6 +1,53 @@
+import api from "@/api";
 import Page from "@/components/Page";
+import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import { CgSpinnerTwo } from "react-icons/cg";
 
 export default function TabelaDinamica() {
+
+    const [resumoEmpresas, setResumoEmpresas]=useState([]);
+    const [resumoAtendimentos, setResumoAtendimentos]=useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(()=>{
+        getResumoEmpresa()
+      }, []);
+
+      useEffect(()=>{
+        getResumoAtendimentos()
+      }, []);
+
+    async function getResumoEmpresa() {
+        try {
+            const response = await api.get('/api/TabelaDinamica/resumo-por-empresa');
+            setResumoEmpresas(response.data);
+        } catch (error) {
+            toast.error("Erro ao carregar dados. " + error);
+        } finally {
+            setIsLoading(false);
+        }
+    };  
+
+    async function getResumoAtendimentos() {
+        try {
+            const response = await api.get('/api/TabelaDinamica/resumo-por-atendimento');
+            setResumoAtendimentos(response.data);
+        } catch (error) {
+            toast.error("Erro ao carregar dados. " + error);
+        } finally {
+            setIsLoading(false);
+        }
+    }; 
+
+    if (isLoading) {
+        return (
+          <div className="flex justify-center items-center h-screen">
+            <CgSpinnerTwo className="animate-spin text-teal-600" size={100} />
+          </div>
+        );
+      }
+
     return (
         <Page titulo="Tabela Dinâmica">
             <form className="container max-w-full">
@@ -17,11 +64,17 @@ export default function TabelaDinamica() {
                                             </tr>
                                         </thead> 
                                         <tbody className="divide-y divide-gray-100">
-                                            <tr className="border-b border-gray-200">
-                                                <td className="text-left w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">PLENO</td>
-                                                <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">R$ 50.000,00</td>
-                                            </tr>
-                                        </tbody>  
+                                            {resumoEmpresas && resumoEmpresas.map((resumoEmpresa: any) => (
+                                                <tr key={resumoEmpresa.clienteId} className="border-b border-gray-200">
+                                                    <td className="text-left w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">
+                                                        {resumoEmpresa.nome_Fantasia}
+                                                    </td>
+                                                    <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">
+                                                        R$ {isNaN(parseFloat(resumoEmpresa.valor_Empresa)) ? 'Valor inválido' : parseFloat(resumoEmpresa.valor_Empresa).toFixed(2)}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody> 
                                     </table>             
                                 </div>
                                 <div className="sm:col-span-4 px-5">
@@ -33,11 +86,17 @@ export default function TabelaDinamica() {
                                             </tr>
                                         </thead> 
                                         <tbody className="divide-y divide-gray-100">
-                                            <tr className="border-b border-gray-200">
-                                                <td className="text-left w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">PLENO</td>
-                                                <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">R$ 25.000,00</td>
-                                            </tr>
-                                        </tbody>  
+                                            {resumoEmpresas && resumoEmpresas.map((resumoEmpresa: any) => (
+                                                <tr key={resumoEmpresa.clienteId} className="border-b border-gray-200">
+                                                    <td className="text-left w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">
+                                                        {resumoEmpresa.nome_Fantasia}
+                                                    </td>
+                                                    <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">
+                                                        R$ {isNaN(parseFloat(resumoEmpresa.valor_Profissional)) ? 'Valor inválido' : parseFloat(resumoEmpresa.valor_Profissional).toFixed(2)}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody> 
                                     </table>             
                                 </div>
                                 <div className="sm:col-span-4 px-5">
@@ -69,32 +128,22 @@ export default function TabelaDinamica() {
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-100">
-                                            <tr className="border-b border-gray-200">
-                                                <td className="text-left w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">PLENO</td>
-                                                <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">Total: 26</td>
-                                                <td className="text-left w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">Assistência A</td>
-                                                <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">R$ 10.000,00</td>
-                                            </tr>
-                                            <tr className="border-b border-gray-200">
-                                                <td className="text-left w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200"></td>
-                                                <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200"></td>
-                                                <td className="text-left w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">Assistência B</td>
-                                                <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">R$ 15.000,00</td>
-                                            </tr>
-                                            
-                                            <tr className="border-b border-gray-200">
-                                                <td className="text-left w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">Empresa2</td>
-                                                <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">Total: 15</td>
-                                                <td className="text-left w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">Assistência A</td>
-                                                <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">R$ 8.000,00</td>
-                                            </tr>
-                                            <tr className="border-b border-gray-200">
-                                                <td className="text-left w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200"></td>
-                                                <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200"></td>
-                                                <td className="text-left w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">Assistência B</td>
-                                                <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">R$ 7.000,00</td>
-                                            </tr>
-                                            
+                                            {resumoAtendimentos && resumoAtendimentos.map((resumoAtendimento: any) => (
+                                                <tr key={resumoAtendimento.clienteId} className="border-b border-gray-200">
+                                                    <td className="text-left w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">
+                                                        {resumoAtendimento.nome_Fantasia}
+                                                    </td>
+                                                    <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">
+                                                        {resumoAtendimento.total}
+                                                    </td>
+                                                    <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">
+                                                        {resumoAtendimento.tipo_Assistencia}
+                                                    </td>
+                                                    <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">
+                                                        R$ {isNaN(parseFloat(resumoAtendimento.valor_Profissional)) ? 'Valor inválido' : parseFloat(resumoAtendimento.valor_Profissional).toFixed(2)}
+                                                    </td>
+                                                </tr>
+                                            ))}
                                         </tbody>
                                     </table>
                                 </div>
