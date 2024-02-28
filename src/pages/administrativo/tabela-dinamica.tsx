@@ -1,26 +1,53 @@
+"use client"
+
+import { useEffect, useState } from "react";
+import { format, startOfMonth, endOfMonth } from 'date-fns';
 import api from "@/api";
 import Page from "@/components/Page";
-import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { CgSpinnerTwo } from "react-icons/cg";
+import FiltroMes from "@/components/FiltroMes";
+import AnoSelect from "@/components/AnoSelect";
+import { GetStaticProps } from 'next';
 
-export default function TabelaDinamica() {
+interface TabelaDinamicaProps {
+    meses: string[];
+}
 
+const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
     const [resumoEmpresas, setResumoEmpresas]=useState([]);
     const [resumoAtendimentos, setResumoAtendimentos]=useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [selectedMonth, setSelectedMonth] = useState(format(new Date(), 'MMMM'));
+    const [selectedYear, setSelectedYear] = useState(0);
+
+    const getMonthNumber = (monthName: string) => {
+        const monthIndex = meses.indexOf(monthName);
+        return monthIndex + 1;
+    };
+
+    const loadTabelaDinamicaData = async (monthIndex: number) => {
+        try {
+          await Promise.all([
+            getResumoAtendimentos(monthIndex, selectedYear),
+            getResumoEmpresa(monthIndex, selectedYear),
+
+          ]);
+        } catch (error) {
+          toast.error('Erro ao carregar dados.');
+        }
+      };
 
     useEffect(()=>{
-        getResumoEmpresa()
+        const currentMonthIndex = getMonthNumber(selectedMonth);
+        const currentYear = new Date().getFullYear();
+        setSelectedYear(currentYear);
+        loadTabelaDinamicaData(currentMonthIndex);
       }, []);
 
-      useEffect(()=>{
-        getResumoAtendimentos()
-      }, []);
-
-    async function getResumoEmpresa() {
+    async function getResumoEmpresa(mes: number, ano: number) {
         try {
-            const response = await api.get('/api/TabelaDinamica/resumo-por-empresa');
+            const response = await api.get(`/api/TabelaDinamica/resumo-por-empresa?mes=${mes}&ano=${ano}`);
             setResumoEmpresas(response.data);
         } catch (error) {
             toast.error("Erro ao carregar dados. " + error);
@@ -29,16 +56,26 @@ export default function TabelaDinamica() {
         }
     };  
 
-    async function getResumoAtendimentos() {
+    async function getResumoAtendimentos(mes: number, ano: number) {
         try {
-            const response = await api.get('/api/TabelaDinamica/resumo-por-atendimento');
+            const response = await api.get(`/api/TabelaDinamica/resumo-por-atendimento?mes=${mes}&ano=${ano}`);
             setResumoAtendimentos(response.data);
         } catch (error) {
             toast.error("Erro ao carregar dados. " + error);
         } finally {
             setIsLoading(false);
         }
-    }; 
+    };
+    
+    const handleTabelaDinamicaSubmit = async (selectedMonth: string, monthIndex: number) => {
+        setSelectedMonth(selectedMonth);
+        loadTabelaDinamicaData(monthIndex);
+      };
+    
+      const handleSelectYear = (year: number) => {
+        console.log({year});
+        setSelectedYear(year);
+      };
 
     if (isLoading) {
         return (
@@ -51,8 +88,12 @@ export default function TabelaDinamica() {
     return (
         <Page titulo="Tabela Dinâmica">
             <form className="container max-w-full">
-                <div className="mt-6 mx-auto pt-4 shadow rounded-md bg-slate-50">
-                    <div className="mt-6 overflow-auto rounded-lg shadow hidden md:block">
+                <div className='flex justify-start gap-6'>
+                    <FiltroMes meses={meses} onChange={handleTabelaDinamicaSubmit} />
+                    <AnoSelect onSelectYear={handleSelectYear} />
+                </div>
+                <div className="mt-4 mx-auto shadow rounded-md bg-slate-50">
+                    <div className="mt-2 overflow-auto rounded-lg shadow hidden md:block">
                         <div className="border-b border-gray-900/10 pb-12">
                             <div className="mt-10 grid grid-cols-1 sm:grid-cols-12">
                                 <div className="sm:col-span-4 px-5">
@@ -155,3 +196,16 @@ export default function TabelaDinamica() {
         </Page>
     )
 }
+
+export const getStaticProps: GetStaticProps<TabelaDinamicaProps> = async () => {
+    // Gere os meses dinamicamente ou carregue de uma API
+    const meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+  
+    return {
+      props: {
+        meses,
+      },
+    };
+  };
+  
+  export default TabelaDinamica;
