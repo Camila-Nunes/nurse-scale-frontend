@@ -1,91 +1,121 @@
-"use client"
-
-import { useEffect, useState } from "react";
-import { format, startOfMonth, endOfMonth } from 'date-fns';
+import React, { useEffect, useState } from "react";
+import { format } from "date-fns";
+import { useRouter } from "next/router";
 import api from "@/api";
 import Page from "@/components/Page";
 import { toast } from "react-toastify";
 import { CgSpinnerTwo } from "react-icons/cg";
 import FiltroMes from "@/components/FiltroMes";
 import AnoSelect from "@/components/AnoSelect";
-import { GetStaticProps } from 'next';
+import { GetStaticProps } from "next";
 
 interface TabelaDinamicaProps {
-    meses: string[];
+  meses: string[];
 }
 
 const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
-    const [resumoEmpresas, setResumoEmpresas]=useState([]);
-    const [resumoAtendimentos, setResumoAtendimentos]=useState([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [selectedMonth, setSelectedMonth] = useState(format(new Date(), 'MMMM'));
-    const [selectedYear, setSelectedYear] = useState(0);
+  const [resumoEmpresas, setResumoEmpresas] = useState([]);
+  const [resumoProfissionais, setResumoProfissionais] = useState([]);
+  const [resumoAtendimentos, setResumoAtendimentos] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedMonth, setSelectedMonth] = useState(
+    format(new Date(), "MMMM")
+  );
+  const [selectedYear, setSelectedYear] = useState<number>(
+    new Date().getFullYear()
+  );
 
-    const getMonthNumber = (monthName: string) => {
-        const monthIndex = meses.indexOf(monthName);
-        return monthIndex + 1;
-    };
+  const router = useRouter();
 
-    const loadTabelaDinamicaData = async (monthIndex: number) => {
-        try {
-          await Promise.all([
-            getResumoAtendimentos(monthIndex, selectedYear),
-            getResumoEmpresa(monthIndex, selectedYear),
+  const getMonthNumber = (monthName: string) => {
+    const monthIndex = meses.indexOf(monthName);
+    return monthIndex + 1;
+  };
 
-          ]);
-        } catch (error) {
-          toast.error('Erro ao carregar dados.');
-        }
-      };
+  const loadTabelaDinamicaData = async (monthIndex: number) => {
+    try {
+      await Promise.all([
+        getResumoAtendimentos(monthIndex, selectedYear),
+        getResumoEmpresa(monthIndex, selectedYear),
+      ]);
+    } catch (error) {
+      toast.error("Erro ao carregar dados.");
+    }
+  };
 
-    useEffect(()=>{
-        const currentMonthIndex = getMonthNumber(selectedMonth);
-        const currentYear = new Date().getFullYear();
-        setSelectedYear(currentYear);
-        loadTabelaDinamicaData(currentMonthIndex);
-      }, []);
+  useEffect(() => {
+    const currentMonthIndex = getMonthNumber(selectedMonth);
+    loadTabelaDinamicaData(currentMonthIndex);
+  }, [selectedMonth, selectedYear]);
 
-    async function getResumoEmpresa(mes: number, ano: number) {
-        try {
-            const response = await api.get(`/api/TabelaDinamica/resumo-por-empresa?mes=${mes}&ano=${ano}`);
-            setResumoEmpresas(response.data);
-        } catch (error) {
-            toast.error("Erro ao carregar dados. " + error);
-        } finally {
-            setIsLoading(false);
-        }
-    };  
+  async function getResumoEmpresa(mes: number, ano: number) {
+    try {
+      const response = await api.get(
+        `/api/TabelaDinamica/resumo-por-empresa?mes=${mes}&ano=${ano}`
+      );
+      setResumoEmpresas(response.data);
+      setResumoProfissionais(response.data);
+    } catch (error) {
+      toast.error("Erro ao carregar dados. " + error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
-    async function getResumoAtendimentos(mes: number, ano: number) {
-        try {
-            const response = await api.get(`/api/TabelaDinamica/resumo-por-atendimento?mes=${mes}&ano=${ano}`);
-            setResumoAtendimentos(response.data);
-        } catch (error) {
-            toast.error("Erro ao carregar dados. " + error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-    
-    const handleTabelaDinamicaSubmit = async (selectedMonth: string, monthIndex: number) => {
-        setSelectedMonth(selectedMonth);
-        loadTabelaDinamicaData(monthIndex);
-      };
-    
-      const handleSelectYear = (year: number) => {
-        console.log({year});
-        setSelectedYear(year);
-      };
+  async function getResumoAtendimentos(mes: number, ano: number) {
+    try {
+      const response = await api.get(
+        `/api/TabelaDinamica/resumo-por-atendimento?mes=${mes}&ano=${ano}`
+      );
+      setResumoAtendimentos(response.data);
+    } catch (error) {
+      toast.error("Erro ao carregar dados. " + error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
-    if (isLoading) {
-        return (
-          <div className="flex justify-center items-center h-screen">
-            <CgSpinnerTwo className="animate-spin text-teal-600" size={100} />
-          </div>
-        );
-      }
+  const handleTabelaDinamicaSubmit = (
+    selectedMonth: string,
+    monthIndex: number
+  ) => {
+    setSelectedMonth(selectedMonth);
+    loadTabelaDinamicaData(monthIndex);
+  };
 
+  const handleSelectYear = (year: number) => {
+    setSelectedYear(year);
+  };
+
+  const handlePrevMonth = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    const currentIndex = meses.indexOf(selectedMonth);
+    const newIndex = (currentIndex - 1 + meses.length) % meses.length;
+    handleMonthChange(meses[newIndex]);
+  };
+
+  const handleNextMonth = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    const currentIndex = meses.indexOf(selectedMonth);
+    const newIndex = (currentIndex + 1) % meses.length;
+    handleMonthChange(meses[newIndex]);
+  };
+
+  const handleMonthChange = (newSelectedMonth: string) => {
+    setSelectedMonth(newSelectedMonth);
+    const monthIndex = getMonthNumber(newSelectedMonth);
+    loadTabelaDinamicaData(monthIndex);
+  };
+
+  if (isLoading) {
     return (
+      <div className="flex justify-center items-center h-screen">
+        <CgSpinnerTwo className="animate-spin text-teal-600" size={100} />
+      </div>
+    );
+  }
+
+  return (
         <Page titulo="Tabela Dinâmica">
             <form className="container max-w-full">
                 <div className='flex justify-start gap-6'>
@@ -105,8 +135,8 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
                                             </tr>
                                         </thead> 
                                         <tbody className="divide-y divide-gray-100">
-                                            {resumoEmpresas && resumoEmpresas.map((resumoEmpresa: any) => (
-                                                <tr key={resumoEmpresa.clienteId} className="border-b border-gray-200">
+                                            {resumoEmpresas && resumoEmpresas.map((resumoEmpresa: any, index: number) => (
+                                                <tr key={index} className="border-b border-gray-200">
                                                     <td className="text-left w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">
                                                         {resumoEmpresa.nome_Fantasia}
                                                     </td>
@@ -127,13 +157,13 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
                                             </tr>
                                         </thead> 
                                         <tbody className="divide-y divide-gray-100">
-                                            {resumoEmpresas && resumoEmpresas.map((resumoEmpresa: any) => (
-                                                <tr key={resumoEmpresa.clienteId} className="border-b border-gray-200">
+                                        {resumoProfissionais && resumoProfissionais.map((resumoProfissional: any, index: number) => (
+                                                <tr key={index} className="border-b border-gray-200">
                                                     <td className="text-left w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">
-                                                        {resumoEmpresa.nome_Fantasia}
+                                                        {resumoProfissional.nome_Fantasia}
                                                     </td>
                                                     <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">
-                                                        R$ {isNaN(parseFloat(resumoEmpresa.valor_Profissional)) ? 'Valor inválido' : parseFloat(resumoEmpresa.valor_Profissional).toFixed(2)}
+                                                        R$ {isNaN(parseFloat(resumoProfissional.valor_Profissional)) ? 'Valor inválido' : parseFloat(resumoProfissional.valor_Profissional).toFixed(2)}
                                                     </td>
                                                 </tr>
                                             ))}
@@ -169,8 +199,8 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-100">
-                                            {resumoAtendimentos && resumoAtendimentos.map((resumoAtendimento: any) => (
-                                                <tr key={resumoAtendimento.clienteId} className="border-b border-gray-200">
+                                            {resumoAtendimentos && resumoAtendimentos.map((resumoAtendimento: any, index: number) => (
+                                                <tr key={index} className="border-b border-gray-200">
                                                     <td className="text-left w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">
                                                         {resumoAtendimento.nome_Fantasia}
                                                     </td>
@@ -194,18 +224,29 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
                 </div> 
             </form>
         </Page>
-    )
-}
+    );
+};
 
 export const getStaticProps: GetStaticProps<TabelaDinamicaProps> = async () => {
-    // Gere os meses dinamicamente ou carregue de uma API
-    const meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-  
-    return {
-      props: {
-        meses,
-      },
-    };
+  const meses = [
+    "Janeiro",
+    "Fevereiro",
+    "Março",
+    "Abril",
+    "Maio",
+    "Junho",
+    "Julho",
+    "Agosto",
+    "Setembro",
+    "Outubro",
+    "Novembro",
+    "Dezembro",
+  ];
+  return {
+    props: {
+      meses,
+    },
   };
-  
-  export default TabelaDinamica;
+};
+
+export default TabelaDinamica;
