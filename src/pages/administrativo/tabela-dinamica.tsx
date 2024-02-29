@@ -230,9 +230,9 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
                   <table className="w-full">
                     <thead className="text-left text-white border-b-2 border-gray-200 bg-teal-600">
                       <tr>
-                        <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right border-r uppercase">Imposto(Nota Fiscal)</th>
-                        <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right border-r uppercase">Margem Líquida</th>
-                        <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right border-r uppercase">Porcentagem Líquida</th>
+                        <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right border-r uppercase bg-cyan-600">Imposto(Nota Fiscal)</th>
+                        <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right border-r uppercase bg-green-700">Margem Líquida</th>
+                        <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right border-r uppercase bg-sky-800">Porcentagem Líquida</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
