@@ -25,17 +25,6 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
     const [valorAliquota, setValorAliquota] = useState('');
     const [aliquotaPorcento, setAliquotaPorcento] = useState(0);
 
-    useEffect(() => {
-      const valorNumerico = parseFloat(valorAliquota);
-  
-      if (!isNaN(valorNumerico)) {
-        const porcentagem = (valorNumerico / 100);
-        setAliquotaPorcento(porcentagem);
-      } else {
-        setAliquotaPorcento(0);
-      }
-    }, [valorAliquota]);
-
   const [selectedMonth, setSelectedMonth] = useState(
     format(new Date(), "MMMM")
   );
