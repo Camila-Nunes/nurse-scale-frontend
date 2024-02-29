@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import NumberFormat from 'react-number-format';
 import { format } from "date-fns";
 import { useRouter } from "next/router";
 import api from "@/api";
@@ -9,6 +10,7 @@ import FiltroMes from "@/components/FiltroMes";
 import AnoSelect from "@/components/AnoSelect";
 import { GetStaticProps } from "next";
 import { BsDatabaseX } from "react-icons/bs";
+import InputMask from "react-input-mask";
 
 interface TabelaDinamicaProps {
   meses: string[];
@@ -120,6 +122,12 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
     );
   }
 
+  const handleInputChange = (values: { value: string; floatValue: number }) => {
+    // values.value contém o valor formatado
+    // values.floatValue contém o valor numérico
+    console.log(values);
+  };
+
   return (
     <Page titulo="Tabela Dinâmica">
     <form className="container max-w-full">
@@ -131,17 +139,20 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
         <div className="mt-2 overflow-auto rounded-lg shadow hidden md:block">
           <div className="border-b border-gray-900/10 pb-12">
             <div className="mt-10 grid grid-cols-1 sm:grid-cols-12">
-              <div className="sm:col-span-4 px-5">
+              <div className="sm:col-span-2 px-5">
                 <label htmlFor="rg" className="block text-sm font-medium leading-6 text-gray-900 uppercase">Alíquota</label>
                 <div className="mt-2">
-                  <input
-                  id="aliquota"
-                  name="aliquota"
-                  type="number"
-                  autoComplete="aliquota"
-                  className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                  <InputMask mask="99,99%" 
+                    type="text"
+                    name="aliquota"
+                    id="aliquota"
+                    autoComplete="aliquota"
+                    className="font-bold block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   />
                 </div>
+              </div>  
+              <div className="sm:col-span-3 px-5 mt-6">
+                <button type="button" className="rounded-md bg-teal-600 px-10 py-2 text-sm font-semibold leading-6 text-white hover:bg-teal-700">Alterar Alíquota</button>
               </div>
             </div>
             <div className="mt-10 grid grid-cols-1 sm:grid-cols-12">
