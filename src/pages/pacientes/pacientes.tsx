@@ -6,6 +6,8 @@ import InputMask from "react-input-mask";
 import { toast } from "react-toastify";
 import { useRouter } from 'next/router';
 import axios from 'axios';
+import ComboBoxClientes from "@/components/ComboBoxClientes ";
+
 
 export default function Pacientes() {
     const [clientes, setClientes] = useState([]);
@@ -88,6 +90,11 @@ export default function Pacientes() {
     useEffect(()=>{
         getClientes()
     }, [clientes])
+
+    const handleSelectCliente = (selectedClienteId: string, nomeFantasia: string) => {
+        setClienteId(selectedClienteId);
+        console.log(selectedClienteId);
+      };
 
     return (
         <Page titulo="Cadastro de Pacientes">
@@ -185,18 +192,7 @@ export default function Pacientes() {
                             <div className="sm:col-span-2">
                                 <label htmlFor="empresa" className="block text-sm font-medium leading-6 text-gray-900">Empresa</label>
                                 <div className="mt-2">
-                                    <select
-                                        id="empresa"
-                                        name="empresa"
-                                        autoComplete="empresa"
-                                        value={clienteId}
-                                        onChange={(e) => setClienteId(e.target.value)}
-                                        className="block w-full rounded-md border-0 py-2 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6">
-                                        <option value="Selecione uma Empresa">Selecione uma Empresa</option>
-                                        {clientes && clientes.map((cliente: any) => (
-                                            <option value={cliente.clienteId} key={cliente.clienteId}>{cliente.nomeFantasia}</option> 
-                                        ))}             
-                                    </select>
+                                    <ComboBoxClientes onSelectCliente={handleSelectCliente} />
                                 </div>
                             </div>
                             <hr className="col-span-full" />

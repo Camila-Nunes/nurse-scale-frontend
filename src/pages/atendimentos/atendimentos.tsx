@@ -41,6 +41,7 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
             valorEmpresa !== '' &&
             valorProfissional !== ''
         );
+
     };
 
     useEffect(() => {
@@ -70,7 +71,7 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
     const handleSelectCliente = (selectedClienteId: string, nomeFantasia: string) => {
         setClienteId(selectedClienteId);
         console.log(selectedClienteId);
-    };
+      };
 
     const handlePacienteSelecionado = (id: string) => {
         setPacienteId(id);
@@ -113,6 +114,7 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
 
         try {
             const response = await api.post('/api/Atendimentos', atendimento);
+            console.log(atendimento);
             toast.success(`Atendimento salvo com sucesso.`, {
                 transition: Slide,
                 icon: true
@@ -213,7 +215,7 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
                             </div>
 
                             <div className="sm:col-span-2">
-                                <label htmlFor="valorEmpresa" className="block text-sm font-medium leading-6 text-gray-900">Assistência</label>
+                                <label htmlFor="valorEmpresa" className="block text-sm font-medium leading-6 text-gray-900">Tipo Atendimento</label>
                                 <div className="mt-2">
                                     <select
                                     id="assistencia"
@@ -222,6 +224,7 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
                                     onChange={(e) => setAssistencia(e.target.value)}
                                     className="block w-full rounded-md border-0 py-2 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
                                     >
+                                        <option>Selecione um tipo</option>
                                         <option value="PLANTAO 6 Hrs">PLANTÃO 6 Hrs</option>
                                         <option value="PLANTAO 12 Hrs">PLANTÃO 12 Hrs</option>
                                         <option value="PLANTAO 8 Hrs">PLANTÃO 8 Hrs</option>

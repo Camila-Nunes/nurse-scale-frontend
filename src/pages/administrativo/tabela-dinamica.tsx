@@ -8,6 +8,7 @@ import { CgSpinnerTwo } from "react-icons/cg";
 import FiltroMes from "@/components/FiltroMes";
 import AnoSelect from "@/components/AnoSelect";
 import { GetStaticProps } from "next";
+import { BsDatabaseX } from "react-icons/bs";
 
 interface TabelaDinamicaProps {
   meses: string[];
@@ -120,115 +121,127 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
   }
 
   return (
-        <Page titulo="Tabela Dinâmica">
-            <form className="container max-w-full">
-                <div className='flex justify-start gap-6'>
-                    <FiltroMes meses={meses} onChange={handleTabelaDinamicaSubmit} />
-                    <AnoSelect onSelectYear={handleSelectYear} />
+    <Page titulo="Tabela Dinâmica">
+    <form className="container max-w-full">
+      <div className='flex justify-items-start gap-6'>
+        <FiltroMes meses={meses} onChange={handleTabelaDinamicaSubmit} />
+        <AnoSelect onSelectYear={handleSelectYear} />
+      </div>
+      <div className="mt-4 mx-auto shadow rounded-md bg-slate-50">
+        <div className="mt-2 overflow-auto rounded-lg shadow hidden md:block">
+          <div className="border-b border-gray-900/10 pb-12">
+            <div className="mt-10 grid grid-cols-1 sm:grid-cols-12">
+              {(resumoEmpresas && resumoEmpresas.length > 0) ? (
+                <div className="sm:col-span-4 px-5">
+                  <table className="w-full rounded-md">
+                    <thead className="text-left text-white border-b-2 border-gray-200 bg-teal-600">
+                      <tr>
+                        <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r uppercase">Empresa</th>
+                        <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right border-r uppercase">Total Negociado Empresa</th>
+                      </tr>
+                    </thead> 
+                    <tbody className="divide-y divide-gray-100">
+                      {resumoEmpresas.map((resumoEmpresa: any, index: number) => (
+                        <tr key={index} className="border-b border-gray-200">
+                          <td className="text-left w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">
+                            {resumoEmpresa.nome_Fantasia}
+                          </td>
+                          <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">
+                            R$ {isNaN(parseFloat(resumoEmpresa.valor_Empresa)) ? 'Valor inválido' : parseFloat(resumoEmpresa.valor_Empresa).toFixed(2)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody> 
+                  </table>             
                 </div>
-                <div className="mt-4 mx-auto shadow rounded-md bg-slate-50">
-                    <div className="mt-2 overflow-auto rounded-lg shadow hidden md:block">
-                        <div className="border-b border-gray-900/10 pb-12">
-                            <div className="mt-10 grid grid-cols-1 sm:grid-cols-12">
-                                <div className="sm:col-span-4 px-5">
-                                    <table className="w-full rounded-md">
-                                        <thead className="text-left text-white border-b-2 border-gray-200 bg-teal-600">
-                                            <tr>
-                                            <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r uppercase">Empresa</th>
-                                            <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right border-r uppercase">Total Negociado Empresa</th>
-                                            </tr>
-                                        </thead> 
-                                        <tbody className="divide-y divide-gray-100">
-                                            {resumoEmpresas && resumoEmpresas.map((resumoEmpresa: any, index: number) => (
-                                                <tr key={index} className="border-b border-gray-200">
-                                                    <td className="text-left w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">
-                                                        {resumoEmpresa.nome_Fantasia}
-                                                    </td>
-                                                    <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">
-                                                        R$ {isNaN(parseFloat(resumoEmpresa.valor_Empresa)) ? 'Valor inválido' : parseFloat(resumoEmpresa.valor_Empresa).toFixed(2)}
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody> 
-                                    </table>             
-                                </div>
-                                <div className="sm:col-span-4 px-5">
-                                    <table className="w-full">
-                                        <thead className="text-left text-white border-b-2 border-gray-200 bg-teal-600">
-                                            <tr>
-                                            <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r uppercase">Empresa</th>
-                                            <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right border-r uppercase">Total Negociado Profissional</th>
-                                            </tr>
-                                        </thead> 
-                                        <tbody className="divide-y divide-gray-100">
-                                        {resumoProfissionais && resumoProfissionais.map((resumoProfissional: any, index: number) => (
-                                                <tr key={index} className="border-b border-gray-200">
-                                                    <td className="text-left w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">
-                                                        {resumoProfissional.nome_Fantasia}
-                                                    </td>
-                                                    <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">
-                                                        R$ {isNaN(parseFloat(resumoProfissional.valor_Profissional)) ? 'Valor inválido' : parseFloat(resumoProfissional.valor_Profissional).toFixed(2)}
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody> 
-                                    </table>             
-                                </div>
-                                <div className="sm:col-span-4 px-5">
-                                    <table className="w-full">
-                                        <thead className="text-left text-white border-b-2 border-gray-200 bg-teal-600">
-                                            <tr>
-                                            <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right border-r uppercase">Bruto</th>
-                                            <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right border-r uppercase">Liquido</th>
-                                            <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right border-r uppercase">Imposto</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-gray-100">
-                                        <tr className="border-b border-gray-200">
-                                                <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">R$ 25.000,00</td>
-                                                <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">R$ 20.000,00</td>
-                                                <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">R$ 5.000,00</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>             
-                                </div>
-                                <div className="sm:col-span-12 px-5 mt-10">
-                                    <table className="w-full">
-                                        <thead className="text-left text-white border-b-2 border-gray-200 bg-teal-600">
-                                            <tr>
-                                                <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r uppercase">Empresa</th>
-                                                <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r uppercase">Modalidade</th>
-                                                <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r uppercase">Valor de Produção</th>
-                                                <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r uppercase">Projeção de Faturamento</th>
-                                                <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r uppercase">Qtd. Procedimentos Realizados</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-gray-100">
-                                            {resumoAtendimentos && resumoAtendimentos.map((resumoAtendimento: any, index: number) => (
-                                                <tr key={index} className="border-b border-gray-200">
-                                                    <td className="text-left w-72 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">{resumoAtendimento.nome_Fantasia}</td>
-                                                    <td className="text-right w-72 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">{resumoAtendimento.tipo_Assistencia}</td>
-                                                    <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">
-                                                        R$ {isNaN(parseFloat(resumoAtendimento.valor_Profissional)) ? 'Valor inválido' : parseFloat(resumoAtendimento.valor_Profissional).toFixed(2)}
-                                                    </td>
-                                                    <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">
-                                                        R$ {isNaN(parseFloat(resumoAtendimento.valor_Empresa)) ? 'Valor inválido' : parseFloat(resumoAtendimento.valor_Empresa).toFixed(2)}
-                                                    </td>
-                                                    <td className="text-right w-12 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">{resumoAtendimento.total}</td>
-                                                    
-                                                    
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>    
-                    </div>
-                </div> 
-            </form>
-        </Page>
-    );
+              ) : null}
+              {(resumoProfissionais && resumoProfissionais.length > 0) ? (
+                <div className="sm:col-span-4 px-5">
+                  <table className="w-full">
+                    <thead className="text-left text-white border-b-2 border-gray-200 bg-teal-600">
+                      <tr>
+                        <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r uppercase">Empresa</th>
+                        <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right border-r uppercase">Total Negociado Profissional</th>
+                      </tr>
+                    </thead> 
+                    <tbody className="divide-y divide-gray-100">
+                      {resumoProfissionais.map((resumoProfissional: any, index: number) => (
+                        <tr key={index} className="border-b border-gray-200">
+                          <td className="text-left w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">
+                            {resumoProfissional.nome_Fantasia}
+                          </td>
+                          <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">
+                            R$ {isNaN(parseFloat(resumoProfissional.valor_Profissional)) ? 'Valor inválido' : parseFloat(resumoProfissional.valor_Profissional).toFixed(2)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody> 
+                  </table>             
+                </div>
+              ) : null}
+              {(resumoAtendimentos && resumoAtendimentos.length > 0) ? (
+                <div className="sm:col-span-4 px-5">
+                  <table className="w-full">
+                    <thead className="text-left text-white border-b-2 border-gray-200 bg-teal-600">
+                      <tr>
+                        <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right border-r uppercase">Bruto</th>
+                        <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right border-r uppercase">Liquido</th>
+                        <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right border-r uppercase">Imposto</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      <tr className="border-b border-gray-200">
+                        <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">R$ 25.000,00</td>
+                        <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">R$ 20.000,00</td>
+                        <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">R$ 5.000,00</td>
+                        </tr>
+                    </tbody>
+                  </table>             
+                </div>
+              ) : null}
+              {(resumoAtendimentos && resumoAtendimentos.length > 0) ? (
+                <div className="sm:col-span-12 px-5 mt-10">
+                  <table className="w-full">
+                    <thead className="text-left text-white border-b-2 border-gray-200 bg-teal-600">
+                      <tr>
+                        <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r uppercase">Empresa</th>
+                        <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r uppercase">Modalidade</th>
+                        <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r uppercase">Valor de Produção</th>
+                        <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r uppercase">Projeção de Faturamento</th>
+                        <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r uppercase">Qtd. Procedimentos Realizados</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {resumoAtendimentos && resumoAtendimentos.map((resumoAtendimento: any, index: number) => (
+                        <tr key={index} className="border-b border-gray-200">
+                          <td className="text-left w-72 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">{resumoAtendimento.nome_Fantasia}</td>
+                          <td className="text-right w-72 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">{resumoAtendimento.tipo_Assistencia}</td>
+                          <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">
+                              R$ {isNaN(parseFloat(resumoAtendimento.valor_Profissional)) ? 'Valor inválido' : parseFloat(resumoAtendimento.valor_Profissional).toFixed(2)}
+                          </td>
+                          <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">
+                              R$ {isNaN(parseFloat(resumoAtendimento.valor_Empresa)) ? 'Valor inválido' : parseFloat(resumoAtendimento.valor_Empresa).toFixed(2)}
+                          </td>
+                          <td className="text-right w-12 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">{resumoAtendimento.total}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : null}
+              {(resumoEmpresas.length === 0 && resumoProfissionais.length === 0 && resumoAtendimentos.length === 0) && (
+                <div className="sm:col-span-12 flex flex-col items-center justify-center">
+                  <p className="text-center text-gray-700 mb-2">Não há dados a serem exibidos para o mês de  {selectedMonth}.</p>
+                  <span className="text-9xl text-gray-800 mt-40"><BsDatabaseX /></span>
+                </div>
+              )}
+            </div>  
+          </div>
+        </div>                
+      </div>
+    </form>
+  </Page>
+  );
 };
 
 export const getStaticProps: GetStaticProps<TabelaDinamicaProps> = async () => {
