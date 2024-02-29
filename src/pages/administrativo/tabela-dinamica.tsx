@@ -179,7 +179,7 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
             </div>
             <div className="mt-10 grid grid-cols-1 sm:grid-cols-12">
               {(resumoEmpresas && resumoEmpresas.length > 0) ? (
-                <div className="sm:col-span-3 px-5">
+                <div className="sm:col-span-4 px-5">
                   <table className="w-full rounded-md">
                     <thead className="text-left text-white border-b-2 border-gray-200 bg-teal-600">
                       <tr>
