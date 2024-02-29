@@ -131,6 +131,20 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
         <div className="mt-2 overflow-auto rounded-lg shadow hidden md:block">
           <div className="border-b border-gray-900/10 pb-12">
             <div className="mt-10 grid grid-cols-1 sm:grid-cols-12">
+              <div className="sm:col-span-4 px-5">
+                <label htmlFor="rg" className="block text-sm font-medium leading-6 text-gray-900 uppercase">Alíquota</label>
+                <div className="mt-2">
+                  <input
+                  id="aliquota"
+                  name="aliquota"
+                  type="number"
+                  autoComplete="aliquota"
+                  className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="mt-10 grid grid-cols-1 sm:grid-cols-12">
               {(resumoEmpresas && resumoEmpresas.length > 0) ? (
                 <div className="sm:col-span-4 px-5">
                   <table className="w-full rounded-md">
