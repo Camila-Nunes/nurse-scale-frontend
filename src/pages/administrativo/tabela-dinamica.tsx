@@ -20,10 +20,11 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
     const [resumoEmpresas, setResumoEmpresas] = useState([]);
     const [resumoProfissionais, setResumoProfissionais] = useState([]);
     const [resumoAtendimentos, setResumoAtendimentos] = useState([]);
+    const [resumoImpostos, setResumoImpostos] = useState([]);
     const [isLoadingEmpresas, setIsLoadingEmpresas] = useState(true);
     const [isLoadingAtendimentos, setIsLoadingAtendimentos] = useState(true);
     const [valorAliquota, setValorAliquota] = useState('');
-    const [aliquotaPorcento, setAliquotaPorcento] = useState(0);
+    
 
   const [selectedMonth, setSelectedMonth] = useState(
     format(new Date(), "MMMM")
@@ -41,6 +42,7 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
     const currentMonthIndex = getMonthNumber(selectedMonth);
     loadResumoEmpresas(currentMonthIndex, selectedYear);
     loadResumoAtendimentos(currentMonthIndex, selectedYear);
+    loadResumoImpostos(currentMonthIndex, selectedYear);
     loadValorAliquota();
   }, [selectedMonth, selectedYear]);
 
@@ -68,6 +70,19 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
       toast.error("Erro ao carregar dados. " + error);
     } finally {
         setIsLoadingAtendimentos(false);
+    }
+  }
+
+  async function loadResumoImpostos(mes: number, ano: number) {
+    try {
+      const response = await api.get(
+        `/api/TabelaDinamica/resumo-imposto?mes=${mes}&ano=${ano}`
+      );
+      setResumoImpostos(response.data);
+    } catch (error) {
+      toast.error("Erro ao carregar dados. " + error);
+    } finally {
+        setIsLoadingEmpresas(false);
     }
   }
 
@@ -180,7 +195,7 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
             <div className="mt-10 grid grid-cols-1 sm:grid-cols-12">
               {(resumoEmpresas && resumoEmpresas.length > 0) ? (
                 <div className="sm:col-span-4 px-5">
-                  <table className="w-full rounded-md">
+                  <table className="w-full border border-collapse">
                     <thead className="text-left text-white border-b-2 border-gray-200 bg-teal-600">
                       <tr>
                         <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r uppercase">Empresa</th>
@@ -190,11 +205,11 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
                     <tbody className="divide-y divide-gray-100">
                       {resumoEmpresas.map((resumoEmpresa: any, index: number) => (
                         <tr key={index} className="border-b border-gray-200">
-                          <td className="text-left w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">
-                            {resumoEmpresa.nome_Fantasia}
+                          <td className="text-left w-24 p-3 text-sm font-semibold text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">
+                            {resumoEmpresa.nomeFantasia}
                           </td>
-                          <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">
-                            R$ {isNaN(parseFloat(resumoEmpresa.valor_Empresa)) ? 'Valor inválido' : parseFloat(resumoEmpresa.valor_Empresa).toFixed(2)}
+                          <td className="text-right w-24 p-3 text-sm font-semibold text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">
+                            R$ {isNaN(parseFloat(resumoEmpresa.valorEmpresa)) ? 'Valor inválido' : parseFloat(resumoEmpresa.valorEmpresa).toFixed(2)}
                           </td>
                         </tr>
                       ))}
@@ -204,7 +219,7 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
               ) : null}
               {(resumoProfissionais && resumoProfissionais.length > 0) ? (
                 <div className="sm:col-span-4 px-5">
-                  <table className="w-full">
+                  <table className="w-full border border-collapse">
                     <thead className="text-left text-white border-b-2 border-gray-200 bg-teal-600">
                       <tr>
                         <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r uppercase">Empresa</th>
@@ -214,11 +229,11 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
                     <tbody className="divide-y divide-gray-100">
                       {resumoProfissionais.map((resumoProfissional: any, index: number) => (
                         <tr key={index} className="border-b border-gray-200">
-                          <td className="text-left w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">
-                            {resumoProfissional.nome_Fantasia}
+                          <td className="text-left w-24 p-3 text-sm font-semibold text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">
+                            {resumoProfissional.nomeFantasia}
                           </td>
-                          <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">
-                            R$ {isNaN(parseFloat(resumoProfissional.valor_Profissional)) ? 'Valor inválido' : parseFloat(resumoProfissional.valor_Profissional).toFixed(2)}
+                          <td className="text-right w-24 p-3 text-sm font-semibold text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">
+                            R$ {isNaN(parseFloat(resumoProfissional.valorProfissional)) ? 'Valor inválido' : parseFloat(resumoProfissional.valorProfissional).toFixed(2)}
                           </td>
                         </tr>
                       ))}
@@ -228,7 +243,7 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
               ) : null}
               {(resumoAtendimentos && resumoAtendimentos.length > 0) ? (
                 <div className="sm:col-span-4 px-5">
-                  <table className="w-full">
+                  <table className="w-full border border-collapse">
                     <thead className="text-left text-white border-b-2 border-gray-200 bg-teal-600">
                       <tr>
                         <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right border-r uppercase bg-cyan-600">Imposto(Nota Fiscal)</th>
@@ -237,18 +252,26 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
-                      <tr className="border-b border-gray-200">
-                        <td className="text-right w-24 p-3 text-sm font-semibold text-cyan-600 whitespace-nowrap border-r border-b border-gray-200 uppercase">R$ 25.000,00</td>
-                        <td className="text-right w-24 p-3 text-sm font-semibold text-green-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">R$ 20.000,00</td>
-                        <td className="text-right w-24 p-3 text-sm font-semibold text-sky-800 whitespace-nowrap border-r border-b border-gray-200 uppercase">R$ 5.000,00</td>
+                      {resumoImpostos.map((resumoImposto: any, index: number) => (
+                        <tr key={index} className="border-b border-gray-200">
+                          <td className="text-right w-24 p-3 text-sm  font-semibold text-cyan-600 whitespace-nowrap border-r border-b border-gray-200 uppercase">
+                          R$ {isNaN(parseFloat(resumoImposto.imposto)) ? 'Valor inválido' : parseFloat(resumoImposto.imposto).toFixed(2)}
+                          </td>
+                          <td className="text-right w-24 p-3 text-sm font-semibold text-green-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">
+                            R$ {isNaN(parseFloat(resumoImposto.margem)) ? 'Valor inválido' : parseFloat(resumoImposto.margem).toFixed(2)}
+                          </td>
+                          <td className="text-right w-24 p-3 text-sm font-semibold text-sky-800 whitespace-nowrap border-r border-b border-gray-200 uppercase">
+                            {isNaN(parseFloat(resumoImposto.porcentagemLiquida)) ? 'Valor inválido' : parseFloat(resumoImposto.porcentagemLiquida).toFixed(2)}%
+                          </td>
                         </tr>
-                    </tbody>
+                      ))}
+                    </tbody> 
                   </table>             
                 </div>
               ) : null}
               {(resumoAtendimentos && resumoAtendimentos.length > 0) ? (
                 <div className="sm:col-span-12 px-5 mt-10">
-                  <table className="w-full">
+                  <table className="w-full border border-collapse">
                     <thead className="text-left text-white border-b-2 border-gray-200 bg-teal-600">
                       <tr>
                         <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r uppercase">Empresa</th>
@@ -261,15 +284,15 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
                     <tbody className="divide-y divide-gray-100">
                       {resumoAtendimentos && resumoAtendimentos.map((resumoAtendimento: any, index: number) => (
                         <tr key={index} className="border-b border-gray-200">
-                          <td className="text-left w-72 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">{resumoAtendimento.nome_Fantasia}</td>
-                          <td className="text-right w-72 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">{resumoAtendimento.tipo_Assistencia}</td>
-                          <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">
+                          <td className="text-left w-72 p-3 text-sm font-semibold text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">{resumoAtendimento.nome_Fantasia}</td>
+                          <td className="text-right w-72 p-3 text-sm font-semibold text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">{resumoAtendimento.tipo_Assistencia}</td>
+                          <td className="text-right w-24 p-3 text-sm font-semibold text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">
                               R$ {isNaN(parseFloat(resumoAtendimento.valor_Profissional)) ? 'Valor inválido' : parseFloat(resumoAtendimento.valor_Profissional).toFixed(2)}
                           </td>
-                          <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">
+                          <td className="text-right w-24 p-3 text-sm font-semibold text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">
                               R$ {isNaN(parseFloat(resumoAtendimento.valor_Empresa)) ? 'Valor inválido' : parseFloat(resumoAtendimento.valor_Empresa).toFixed(2)}
                           </td>
-                          <td className="text-right w-12 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">{resumoAtendimento.total}</td>
+                          <td className="text-right w-12 p-3 text-sm font-semibold text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">{resumoAtendimento.total}</td>
                         </tr>
                       ))}
                     </tbody>
