@@ -14,10 +14,12 @@ interface TabelaDinamicaProps {
 }
 
 const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
-  const [resumoEmpresas, setResumoEmpresas] = useState([]);
-  const [resumoProfissionais, setResumoProfissionais] = useState([]);
-  const [resumoAtendimentos, setResumoAtendimentos] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+    const [resumoEmpresas, setResumoEmpresas] = useState([]);
+    const [resumoProfissionais, setResumoProfissionais] = useState([]);
+    const [resumoAtendimentos, setResumoAtendimentos] = useState([]);
+    const [isLoadingEmpresas, setIsLoadingEmpresas] = useState(true);
+    const [isLoadingAtendimentos, setIsLoadingAtendimentos] = useState(true);
+
   const [selectedMonth, setSelectedMonth] = useState(
     format(new Date(), "MMMM")
   );
@@ -32,23 +34,25 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
     return monthIndex + 1;
   };
 
-  const loadTabelaDinamicaData = async (monthIndex: number) => {
-    try {
-      await Promise.all([
-        getResumoAtendimentos(monthIndex, selectedYear),
-        getResumoEmpresa(monthIndex, selectedYear),
-      ]);
-    } catch (error) {
-      toast.error("Erro ao carregar dados.");
-    }
-  };
+//   const loadTabelaDinamicaData = async (monthIndex: number) => {
+//     try {
+//       await Promise.all([
+//         getResumoAtendimentos(monthIndex, selectedYear),
+//         getResumoEmpresa(monthIndex, selectedYear),
+//       ]);
+//     } catch (error) {
+//       toast.error("Erro ao carregar dados.");
+//     }
+//   };
 
   useEffect(() => {
     const currentMonthIndex = getMonthNumber(selectedMonth);
-    loadTabelaDinamicaData(currentMonthIndex);
+    //loadTabelaDinamicaData(currentMonthIndex);
+    loadResumoEmpresas(currentMonthIndex, selectedYear);
+    loadResumoAtendimentos(currentMonthIndex, selectedYear);
   }, [selectedMonth, selectedYear]);
 
-  async function getResumoEmpresa(mes: number, ano: number) {
+  async function loadResumoEmpresas(mes: number, ano: number) {
     try {
       const response = await api.get(
         `/api/TabelaDinamica/resumo-por-empresa?mes=${mes}&ano=${ano}`
@@ -58,11 +62,11 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
     } catch (error) {
       toast.error("Erro ao carregar dados. " + error);
     } finally {
-      setIsLoading(false);
+        setIsLoadingEmpresas(false);
     }
   }
 
-  async function getResumoAtendimentos(mes: number, ano: number) {
+  async function loadResumoAtendimentos(mes: number, ano: number) {
     try {
       const response = await api.get(
         `/api/TabelaDinamica/resumo-por-atendimento?mes=${mes}&ano=${ano}`
@@ -71,7 +75,7 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
     } catch (error) {
       toast.error("Erro ao carregar dados. " + error);
     } finally {
-      setIsLoading(false);
+        setIsLoadingAtendimentos(false);
     }
   }
 
@@ -80,7 +84,7 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
     monthIndex: number
   ) => {
     setSelectedMonth(selectedMonth);
-    loadTabelaDinamicaData(monthIndex);
+    //loadTabelaDinamicaData(monthIndex);
   };
 
   const handleSelectYear = (year: number) => {
@@ -104,10 +108,10 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
   const handleMonthChange = (newSelectedMonth: string) => {
     setSelectedMonth(newSelectedMonth);
     const monthIndex = getMonthNumber(newSelectedMonth);
-    loadTabelaDinamicaData(monthIndex);
+    //loadTabelaDinamicaData(monthIndex);
   };
 
-  if (isLoading) {
+  if (isLoadingEmpresas || isLoadingAtendimentos) {
     return (
       <div className="flex justify-center items-center h-screen">
         <CgSpinnerTwo className="animate-spin text-teal-600" size={100} />
@@ -130,17 +134,17 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
                                     <table className="w-full rounded-md">
                                         <thead className="text-left text-white border-b-2 border-gray-200 bg-teal-600">
                                             <tr>
-                                            <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Empresa</th>
-                                            <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right border-r">Total Empresa</th>
+                                            <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r uppercase">Empresa</th>
+                                            <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right border-r uppercase">Total Negociado Empresa</th>
                                             </tr>
                                         </thead> 
                                         <tbody className="divide-y divide-gray-100">
                                             {resumoEmpresas && resumoEmpresas.map((resumoEmpresa: any, index: number) => (
                                                 <tr key={index} className="border-b border-gray-200">
-                                                    <td className="text-left w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">
+                                                    <td className="text-left w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">
                                                         {resumoEmpresa.nome_Fantasia}
                                                     </td>
-                                                    <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">
+                                                    <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">
                                                         R$ {isNaN(parseFloat(resumoEmpresa.valor_Empresa)) ? 'Valor inválido' : parseFloat(resumoEmpresa.valor_Empresa).toFixed(2)}
                                                     </td>
                                                 </tr>
@@ -152,17 +156,17 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
                                     <table className="w-full">
                                         <thead className="text-left text-white border-b-2 border-gray-200 bg-teal-600">
                                             <tr>
-                                            <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Empresa</th>
-                                            <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right border-r">Total Profissional</th>
+                                            <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r uppercase">Empresa</th>
+                                            <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right border-r uppercase">Total Negociado Profissional</th>
                                             </tr>
                                         </thead> 
                                         <tbody className="divide-y divide-gray-100">
                                         {resumoProfissionais && resumoProfissionais.map((resumoProfissional: any, index: number) => (
                                                 <tr key={index} className="border-b border-gray-200">
-                                                    <td className="text-left w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">
+                                                    <td className="text-left w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">
                                                         {resumoProfissional.nome_Fantasia}
                                                     </td>
-                                                    <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">
+                                                    <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">
                                                         R$ {isNaN(parseFloat(resumoProfissional.valor_Profissional)) ? 'Valor inválido' : parseFloat(resumoProfissional.valor_Profissional).toFixed(2)}
                                                     </td>
                                                 </tr>
@@ -174,16 +178,16 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
                                     <table className="w-full">
                                         <thead className="text-left text-white border-b-2 border-gray-200 bg-teal-600">
                                             <tr>
-                                            <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right border-r">Bruto</th>
-                                            <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right border-r">Liquido</th>
-                                            <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right border-r">Imposto</th>
+                                            <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right border-r uppercase">Bruto</th>
+                                            <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right border-r uppercase">Liquido</th>
+                                            <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right border-r uppercase">Imposto</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-100">
                                         <tr className="border-b border-gray-200">
-                                                <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">R$ 25.000,00</td>
-                                                <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">R$ 20.000,00</td>
-                                                <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">R$ 5.000,00</td>
+                                                <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">R$ 25.000,00</td>
+                                                <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">R$ 20.000,00</td>
+                                                <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">R$ 5.000,00</td>
                                             </tr>
                                         </tbody>
                                     </table>             
@@ -192,27 +196,27 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
                                     <table className="w-full">
                                         <thead className="text-left text-white border-b-2 border-gray-200 bg-teal-600">
                                             <tr>
-                                                <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Empresa</th>
-                                                <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Procedimentos</th>
-                                                <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Tipo de Atendimento</th>
-                                                <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right border-r">Soma Total</th>
+                                                <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r uppercase">Empresa</th>
+                                                <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r uppercase">Modalidade</th>
+                                                <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r uppercase">Valor de Produção</th>
+                                                <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r uppercase">Projeção de Faturamento</th>
+                                                <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r uppercase">Qtd. Procedimentos Realizados</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-100">
                                             {resumoAtendimentos && resumoAtendimentos.map((resumoAtendimento: any, index: number) => (
                                                 <tr key={index} className="border-b border-gray-200">
-                                                    <td className="text-left w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">
-                                                        {resumoAtendimento.nome_Fantasia}
-                                                    </td>
-                                                    <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">
-                                                        {resumoAtendimento.total}
-                                                    </td>
-                                                    <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">
-                                                        {resumoAtendimento.tipo_Assistencia}
-                                                    </td>
-                                                    <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">
+                                                    <td className="text-left w-72 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">{resumoAtendimento.nome_Fantasia}</td>
+                                                    <td className="text-right w-72 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">{resumoAtendimento.tipo_Assistencia}</td>
+                                                    <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">
                                                         R$ {isNaN(parseFloat(resumoAtendimento.valor_Profissional)) ? 'Valor inválido' : parseFloat(resumoAtendimento.valor_Profissional).toFixed(2)}
                                                     </td>
+                                                    <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">
+                                                        R$ {isNaN(parseFloat(resumoAtendimento.valor_Empresa)) ? 'Valor inválido' : parseFloat(resumoAtendimento.valor_Empresa).toFixed(2)}
+                                                    </td>
+                                                    <td className="text-right w-12 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">{resumoAtendimento.total}</td>
+                                                    
+                                                    
                                                 </tr>
                                             ))}
                                         </tbody>
