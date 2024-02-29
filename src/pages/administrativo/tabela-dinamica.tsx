@@ -23,6 +23,18 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
     const [isLoadingEmpresas, setIsLoadingEmpresas] = useState(true);
     const [isLoadingAtendimentos, setIsLoadingAtendimentos] = useState(true);
     const [valorAliquota, setValorAliquota] = useState('');
+    const [aliquotaPorcento, setAliquotaPorcento] = useState(0);
+
+    useEffect(() => {
+      const valorNumerico = parseFloat(valorAliquota);
+  
+      if (!isNaN(valorNumerico)) {
+        const porcentagem = (valorNumerico / 100);
+        setAliquotaPorcento(porcentagem);
+      } else {
+        setAliquotaPorcento(0);
+      }
+    }, [valorAliquota]);
 
   const [selectedMonth, setSelectedMonth] = useState(
     format(new Date(), "MMMM")
@@ -178,7 +190,7 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
             </div>
             <div className="mt-10 grid grid-cols-1 sm:grid-cols-12">
               {(resumoEmpresas && resumoEmpresas.length > 0) ? (
-                <div className="sm:col-span-4 px-5">
+                <div className="sm:col-span-3 px-5">
                   <table className="w-full rounded-md">
                     <thead className="text-left text-white border-b-2 border-gray-200 bg-teal-600">
                       <tr>
