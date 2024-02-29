@@ -4,7 +4,7 @@ import { format } from "date-fns";
 import { useRouter } from "next/router";
 import api from "@/api";
 import Page from "@/components/Page";
-import { toast } from "react-toastify";
+import { Slide, toast } from "react-toastify";
 import { CgSpinnerTwo } from "react-icons/cg";
 import FiltroMes from "@/components/FiltroMes";
 import AnoSelect from "@/components/AnoSelect";
@@ -22,6 +22,7 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
     const [resumoAtendimentos, setResumoAtendimentos] = useState([]);
     const [isLoadingEmpresas, setIsLoadingEmpresas] = useState(true);
     const [isLoadingAtendimentos, setIsLoadingAtendimentos] = useState(true);
+    const [valorAliquota, setValorAliquota] = useState('');
 
   const [selectedMonth, setSelectedMonth] = useState(
     format(new Date(), "MMMM")
@@ -30,29 +31,16 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
     new Date().getFullYear()
   );
 
-  const router = useRouter();
-
   const getMonthNumber = (monthName: string) => {
     const monthIndex = meses.indexOf(monthName);
     return monthIndex + 1;
   };
 
-//   const loadTabelaDinamicaData = async (monthIndex: number) => {
-//     try {
-//       await Promise.all([
-//         getResumoAtendimentos(monthIndex, selectedYear),
-//         getResumoEmpresa(monthIndex, selectedYear),
-//       ]);
-//     } catch (error) {
-//       toast.error("Erro ao carregar dados.");
-//     }
-//   };
-
   useEffect(() => {
     const currentMonthIndex = getMonthNumber(selectedMonth);
-    //loadTabelaDinamicaData(currentMonthIndex);
     loadResumoEmpresas(currentMonthIndex, selectedYear);
     loadResumoAtendimentos(currentMonthIndex, selectedYear);
+    loadValorAliquota();
   }, [selectedMonth, selectedYear]);
 
   async function loadResumoEmpresas(mes: number, ano: number) {
@@ -87,7 +75,6 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
     monthIndex: number
   ) => {
     setSelectedMonth(selectedMonth);
-    //loadTabelaDinamicaData(monthIndex);
   };
 
   const handleSelectYear = (year: number) => {
@@ -111,7 +98,6 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
   const handleMonthChange = (newSelectedMonth: string) => {
     setSelectedMonth(newSelectedMonth);
     const monthIndex = getMonthNumber(newSelectedMonth);
-    //loadTabelaDinamicaData(monthIndex);
   };
 
   if (isLoadingEmpresas || isLoadingAtendimentos) {
@@ -120,17 +106,50 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
         <CgSpinnerTwo className="animate-spin text-teal-600" size={100} />
       </div>
     );
-  }
-
-  const handleInputChange = (values: { value: string; floatValue: number }) => {
-    // values.value contém o valor formatado
-    // values.floatValue contém o valor numérico
-    console.log(values);
   };
+
+  const handleInputChange = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+  
+    try {
+      const valorFormatado = valorAliquota.replace(/[^\d,.]/g, '');
+      const valorFormatadoPonto = valorFormatado.replace(',', '.');
+      const response = await api.post(`/api/TabelaDinamica/alterar-aliquota?valorAliquota=${valorFormatadoPonto}`);
+      setValorAliquota(response.data);
+      
+      toast.success('Alíquota inserida ou atualizada com sucesso', {
+        transition: Slide,
+        icon: true,
+      });
+    } catch (error) {
+      console.error(error);
+      toast.error("Erro ao salvar dados.", {
+        transition: Slide,
+        icon: true,
+      });
+    }
+  };
+  
+  const handleValorChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setValorAliquota(event.target.value);
+  };
+
+  async function loadValorAliquota() {
+    try {
+      const response = await api.get(
+        `/api/TabelaDinamica/buscar-aliquota`
+      );
+      setValorAliquota(response.data);
+    } catch (error) {
+      toast.error("Erro ao carregar dados. " + error);
+    } finally {
+        setIsLoadingAtendimentos(false);
+    }
+  }
 
   return (
     <Page titulo="Tabela Dinâmica">
-    <form className="container max-w-full">
+    <form className="container max-w-full" onSubmit={handleInputChange}>
       <div className='flex justify-items-start gap-6'>
         <FiltroMes meses={meses} onChange={handleTabelaDinamicaSubmit} />
         <AnoSelect onSelectYear={handleSelectYear} />
@@ -138,7 +157,7 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
       <div className="mt-4 mx-auto shadow rounded-md bg-slate-50">
         <div className="mt-2 overflow-auto rounded-lg shadow hidden md:block">
           <div className="border-b border-gray-900/10 pb-12">
-            <div className="mt-10 grid grid-cols-1 sm:grid-cols-12">
+            <div className="grid grid-cols-1 sm:grid-cols-12">
               <div className="sm:col-span-2 px-5">
                 <label htmlFor="rg" className="block text-sm font-medium leading-6 text-gray-900 uppercase">Alíquota</label>
                 <div className="mt-2">
@@ -146,13 +165,15 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
                     type="text"
                     name="aliquota"
                     id="aliquota"
+                    value={valorAliquota}
+                    onChange={handleValorChange}
                     autoComplete="aliquota"
                     className="font-bold block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   />
                 </div>
               </div>  
               <div className="sm:col-span-3 px-5 mt-6">
-                <button type="button" className="rounded-md bg-teal-600 px-10 py-2 text-sm font-semibold leading-6 text-white hover:bg-teal-700">Alterar Alíquota</button>
+                <button type="submit" className="rounded-md bg-teal-600 px-10 py-2 text-sm font-semibold leading-6 text-white hover:bg-teal-700">Alterar Alíquota</button>
               </div>
             </div>
             <div className="mt-10 grid grid-cols-1 sm:grid-cols-12">
