@@ -230,16 +230,16 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
                   <table className="w-full">
                     <thead className="text-left text-white border-b-2 border-gray-200 bg-teal-600">
                       <tr>
-                        <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right border-r uppercase">Bruto</th>
-                        <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right border-r uppercase">Liquido</th>
-                        <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right border-r uppercase">Imposto</th>
+                        <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right border-r uppercase">Imposto(Nota Fiscal)</th>
+                        <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right border-r uppercase">Margem Líquida</th>
+                        <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right border-r uppercase">Porcentagem Líquida</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
                       <tr className="border-b border-gray-200">
-                        <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">R$ 25.000,00</td>
-                        <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">R$ 20.000,00</td>
-                        <td className="text-right w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">R$ 5.000,00</td>
+                        <td className="text-right w-24 p-3 text-sm font-semibold text-cyan-600 whitespace-nowrap border-r border-b border-gray-200 uppercase">R$ 25.000,00</td>
+                        <td className="text-right w-24 p-3 text-sm font-semibold text-green-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">R$ 20.000,00</td>
+                        <td className="text-right w-24 p-3 text-sm font-semibold text-sky-800 whitespace-nowrap border-r border-b border-gray-200 uppercase">R$ 5.000,00</td>
                         </tr>
                     </tbody>
                   </table>             
