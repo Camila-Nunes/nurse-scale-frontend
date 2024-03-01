@@ -25,10 +25,10 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
     const [isLoadingAtendimentos, setIsLoadingAtendimentos] = useState(true);
     const [valorAliquota, setValorAliquota] = useState('');
     
-
   const [selectedMonth, setSelectedMonth] = useState(
     format(new Date(), "MMMM")
   );
+  
   const [selectedYear, setSelectedYear] = useState<number>(
     new Date().getFullYear()
   );
