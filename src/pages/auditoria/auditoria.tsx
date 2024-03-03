@@ -81,10 +81,10 @@ const Auditoria: React.FC<AuditoriaProps> = ({ meses }) => {
                   <th className="p-3 text-sm font-semibold tracking-wide ext-left uppercase">Profissional</th>
                   <th className="p-3 text-sm font-semibold tracking-wide ext-left uppercase">Mês</th>
                   <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right uppercase">Atendimentos Realizados</th>
-                  <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right uppercase">Saldo Devedor aos Profissionais</th>
+                  <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right uppercase">Saldo Devedor ao Profissional</th>
                   <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right uppercase">Checagem</th>
                   <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right uppercase">Valor Antecipado</th>
-                  <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right uppercase">Saldo Devedor ao Profissional</th>
+                  <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right uppercase">Saldo Devedor Atual ao Profissional</th>
                   <th></th>
                 </tr>
               </thead>
@@ -95,16 +95,24 @@ const Auditoria: React.FC<AuditoriaProps> = ({ meses }) => {
                   <td className="font-semibold text-left w-10 p-3 text-sm text-gray-700 whitespace-nowrap uppercase">{resumoAuditoriaEmpresa.nomeMes}</td>
                   <td className="font-semibold text-right w-80 p-3 text-sm text-gray-700 whitespace-nowrap">{resumoAuditoriaEmpresa.atendimentosRealizados}</td>
                   <td className="font-semibold text-right w-80 p-3 text-sm text-gray-700 whitespace-nowrap">
-                   R$ {isNaN(parseFloat(resumoAuditoriaEmpresa.saldoDevedorProfissional)) ? 'Valor inválido' : parseFloat(resumoAuditoriaEmpresa.saldoDevedorProfissional).toFixed(2)}
+                    <span className={`inline-block px-4 py-1 font-semibold rounded ${isNaN(parseFloat(resumoAuditoriaEmpresa.saldoDevedorProfissional)) ? 'bg-red-500 text-white' : 'bg-blue-800 text-white'}`}>
+                      R$ {isNaN(parseFloat(resumoAuditoriaEmpresa.saldoDevedorProfissional)) ? 'Valor inválido' : parseFloat(resumoAuditoriaEmpresa.saldoDevedorProfissional).toFixed(2)}
+                    </span>
                   </td>
                   <td className="font-semibold text-right w-80 p-3 text-sm text-gray-700 whitespace-nowrap">
-                   R$ {isNaN(parseFloat(resumoAuditoriaEmpresa.saldoDevedorProfissional)) ? 'Valor inválido' : parseFloat(resumoAuditoriaEmpresa.saldoDevedorProfissional).toFixed(2)}
+                    <span className={`inline-block px-4 py-1 font-semibold rounded ${isNaN(parseFloat(resumoAuditoriaEmpresa.saldoDevedorProfissional)) ? 'bg-red-500 text-white' : 'bg-blue-600 text-white'}`}>
+                      R$ {isNaN(parseFloat(resumoAuditoriaEmpresa.saldoDevedorProfissional)) ? 'Valor inválido' : parseFloat(resumoAuditoriaEmpresa.saldoDevedorProfissional).toFixed(2)}
+                    </span>
                   </td>
                   <td className="font-semibold text-right w-96 p-3 text-sm text-gray-700 whitespace-nowrap">
-                    R$ {isNaN(parseFloat(resumoAuditoriaEmpresa.valorAdiantado)) ? 'Valor inválido' : parseFloat(resumoAuditoriaEmpresa.valorAdiantado).toFixed(2)}
+                    <span className={`inline-block px-4 py-1 font-semibold rounded ${isNaN(parseFloat(resumoAuditoriaEmpresa.valorAdiantado)) ? 'bg-red-500 text-white' : 'bg-green-800 text-white'}`}>
+                      R$ {isNaN(parseFloat(resumoAuditoriaEmpresa.valorAdiantado)) ? 'Valor inválido' : parseFloat(resumoAuditoriaEmpresa.valorAdiantado).toFixed(2)}
+                    </span>
                   </td>
                   <td className="font-semibold text-right w-96 p-3 text-sm text-gray-700 whitespace-nowrap">
-                    R$ {isNaN(parseFloat(resumoAuditoriaEmpresa.saldoDevedorProfissionalAtual)) ? 'Valor inválido' : parseFloat(resumoAuditoriaEmpresa.saldoDevedorProfissionalAtual).toFixed(2)}  
+                    <span className={`inline-block px-4 py-1 font-semibold rounded ${isNaN(parseFloat(resumoAuditoriaEmpresa.saldoDevedorProfissionalAtual)) ? 'bg-red-500 text-white' : 'bg-red-800 text-white'}`}>
+                      R$ {isNaN(parseFloat(resumoAuditoriaEmpresa.saldoDevedorProfissionalAtual)) ? 'Valor inválido' : parseFloat(resumoAuditoriaEmpresa.saldoDevedorProfissionalAtual).toFixed(2)}
+                    </span>
                   </td>    
                 </tr>
                 ))}
