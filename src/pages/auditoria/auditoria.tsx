@@ -79,6 +79,7 @@ const Auditoria: React.FC<AuditoriaProps> = ({ meses }) => {
               <thead className="text-left text-white border-b-2 border-gray-200 bg-teal-600">
                 <tr>
                   <th className="p-3 text-sm font-semibold tracking-wide ext-left uppercase">Profissional</th>
+                  <th className="p-3 text-sm font-semibold tracking-wide ext-left uppercase">Mês</th>
                   <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right uppercase">Atendimentos Realizados</th>
                   <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right uppercase">Saldo Devedor aos Profissionais</th>
                   <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right uppercase">Checagem</th>
@@ -90,18 +91,19 @@ const Auditoria: React.FC<AuditoriaProps> = ({ meses }) => {
               <tbody className="divide-y divide-gray-100">
                 {resumoAuditoriaEmpresas.map((resumoAuditoriaEmpresa: any, index: number) => (
                 <tr key={index} className="border-b border-gray-200">
-                  <td className="text-left w-72 p-3 text-sm text-gray-700 whitespace-nowrap">{resumoAuditoriaEmpresa.profissional}</td>
-                  <td className="text-right w-72 p-3 text-sm text-gray-700 whitespace-nowrap">{resumoAuditoriaEmpresa.atendimentosRealizados}</td>
-                  <td className="text-right w-72 p-3 text-sm text-gray-700 whitespace-nowrap">
+                  <td className="font-semibold text-left w-96 p-3 text-sm text-gray-700 whitespace-nowrap">{resumoAuditoriaEmpresa.profissional}</td>
+                  <td className="font-semibold text-left w-10 p-3 text-sm text-gray-700 whitespace-nowrap uppercase">{resumoAuditoriaEmpresa.nomeMes}</td>
+                  <td className="font-semibold text-right w-80 p-3 text-sm text-gray-700 whitespace-nowrap">{resumoAuditoriaEmpresa.atendimentosRealizados}</td>
+                  <td className="font-semibold text-right w-80 p-3 text-sm text-gray-700 whitespace-nowrap">
                    R$ {isNaN(parseFloat(resumoAuditoriaEmpresa.saldoDevedorProfissional)) ? 'Valor inválido' : parseFloat(resumoAuditoriaEmpresa.saldoDevedorProfissional).toFixed(2)}
                   </td>
-                  <td className="text-right w-72 p-3 text-sm text-gray-700 whitespace-nowrap">
+                  <td className="font-semibold text-right w-80 p-3 text-sm text-gray-700 whitespace-nowrap">
                    R$ {isNaN(parseFloat(resumoAuditoriaEmpresa.saldoDevedorProfissional)) ? 'Valor inválido' : parseFloat(resumoAuditoriaEmpresa.saldoDevedorProfissional).toFixed(2)}
                   </td>
-                  <td className="text-right w-72 p-3 text-sm text-gray-700 whitespace-nowrap">
+                  <td className="font-semibold text-right w-96 p-3 text-sm text-gray-700 whitespace-nowrap">
                     R$ {isNaN(parseFloat(resumoAuditoriaEmpresa.valorAdiantado)) ? 'Valor inválido' : parseFloat(resumoAuditoriaEmpresa.valorAdiantado).toFixed(2)}
                   </td>
-                  <td className="text-right w-72 p-3 text-sm text-gray-700 whitespace-nowrap">
+                  <td className="font-semibold text-right w-96 p-3 text-sm text-gray-700 whitespace-nowrap">
                     R$ {isNaN(parseFloat(resumoAuditoriaEmpresa.saldoDevedorProfissionalAtual)) ? 'Valor inválido' : parseFloat(resumoAuditoriaEmpresa.saldoDevedorProfissionalAtual).toFixed(2)}  
                   </td>    
                 </tr>

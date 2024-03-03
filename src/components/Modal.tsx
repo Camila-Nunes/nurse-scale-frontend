@@ -67,7 +67,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, atualizarAdiantamentos }
         return somaAdiantamentos;
       } else {
         setQtdLancamento('0')
-        return 0;
       }
     } catch (error) {
       console.error(error);
@@ -181,7 +180,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, atualizarAdiantamentos }
           <ModalAlert 
             isOpenModalAlert={modalAlertOpen} 
             onClose={() => setModalAlertOpen(false)} 
-            message={valorDif === '0'  && qtdLancamento === '0'? 'Esse registro está com o valor de diferença a ZERO. Não há mais valor para lançamento.' : `Esse registro tem somente ${numeral(valorDif).format('$0,0.00')} para ser lançado. Você deve lançar um valor menor ou igual a ${numeral(valorDif).format('$0,0.00')}`}
+            message={valorDif === '0'  && qtdLancamento !== '0'? 'Esse registro está com o valor de diferença a ZERO. Não há mais valor para lançamento.' : `Esse registro tem somente ${numeral(valorDif).format('$0,0.00')} para ser lançado. Você deve lançar um valor menor ou igual a ${numeral(valorDif).format('$0,0.00')}`}
           />
         </div>
       </div>

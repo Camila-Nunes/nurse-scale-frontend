@@ -26,17 +26,6 @@ export default function AdiantamentosSomados() {
 
     console.log("página corrente: " + currentPage + "itens por página: " + itensPorPagina);
   };
-
-  // async function getQtdAdiantamentos(){
-  //   const response = await api.get(`/api/AdiantamentosPagamentos/qtdAdiantamentos`)
-  //   .then(response => {
-  //     setTotalItems(response.data.totalItems);
-  //     setTotalPaginas(Math.ceil(response.data.totalItems / itensPorPagina));
-  //     console.log(response.data.totalItems);
-  //   }).catch(error => {
-  //      toast.error('Erro ao obter o total de itens:', error)
-  //   })
-  // };
   
   async function getAdiantamentos(page: number, pageSize: number){
     const response = await api.get(`api/AdiantamentosPagamentos/adiantamentos-somados?page=${page}&pageSize=${pageSize}`)
@@ -51,11 +40,6 @@ export default function AdiantamentosSomados() {
   useEffect(()=>{
     getAdiantamentos(currentPage, 10)
   }, [currentPage]);
-
-  // useEffect(()=>{
-  //   getQtdAdiantamentos()
-  // }, []);
-
   const handleNextPage = () => {
     setCurrentPage((prevPage) => prevPage + 1);
   };
