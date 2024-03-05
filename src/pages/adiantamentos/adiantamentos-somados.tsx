@@ -3,46 +3,41 @@ import { useEffect, useState } from "react";
 import api from '../../api';
 import { toast } from "react-toastify";
 import Link from "next/link";
-import { BiEdit } from "react-icons/bi";
-import { FaTrashAlt } from "react-icons/fa";
 import Pagination from "@/components/Pagination";
-import Modal from "@/components/Modal";
+import FiltroMes from "@/components/FiltroMes";
+import AnoSelect from "@/components/AnoSelect";
+import { GetStaticProps } from "next";
+import { format } from "date-fns";
 
-const itensPorPagina = 10;
+interface AdiantamentosSomadosProps {
+  meses: string[];
+}
 
-export default function AdiantamentosSomados() {
+const AdiantamentosSomados: React.FC<AdiantamentosSomadosProps> = ({ meses }) => {
   const [adiantamentos, setAdiantamentos]=useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPaginas, setTotalPaginas] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
-  
   const itensPorPagina = 10;
-
   const paginaAtual = Math.ceil((totalItems + 1)/itensPorPagina);
+  const [currentMonthIndex, setCurrentMonthIndex] = useState(0);
 
-  const atualizarAdiantamentos = () => {
-    getAdiantamentos(paginaAtual, itensPorPagina);
-    //getQtdAdiantamentos();
-    setCurrentPage(paginaAtual);
-    console.log(adiantamentos);
+  const [selectedMonth, setSelectedMonth] = useState(
+    format(new Date(), 'MMMM')
+  );
 
-    console.log("página corrente: " + currentPage + "itens por página: " + itensPorPagina);
+  const [selectedYear, setSelectedYear] = useState<number>(
+    new Date().getFullYear()
+  );
+
+  const getMonthNumber = (monthName: string) => {
+    const monthIndex = meses.indexOf(monthName);
+    return monthIndex + 1;
   };
 
-  // async function getQtdAdiantamentos(){
-  //   const response = await api.get(`/api/AdiantamentosPagamentos/qtdAdiantamentos`)
-  //   .then(response => {
-  //     setTotalItems(response.data.totalItems);
-  //     setTotalPaginas(Math.ceil(response.data.totalItems / itensPorPagina));
-  //     console.log(response.data.totalItems);
-  //   }).catch(error => {
-  //      toast.error('Erro ao obter o total de itens:', error)
-  //   })
-  // };
-  
-  async function getAdiantamentos(page: number, pageSize: number){
-    const response = await api.get(`api/AdiantamentosPagamentos/adiantamentos-somados?page=${page}&pageSize=${pageSize}`)
+  async function getAdiantamentos(page: number, pageSize: number, mes: number, ano: number){
+    const response = await api.get(`api/AdiantamentosPagamentos/adiantamentos-somados?page=${page}&pageSize=${pageSize}&mes=${mes}&ano=${ano}`)
     .then(response => {
       setAdiantamentos(response.data.result);
       console.log(response.data.result);
@@ -51,13 +46,11 @@ export default function AdiantamentosSomados() {
     })
   };
 
-  useEffect(()=>{
-    getAdiantamentos(currentPage, 10)
-  }, [currentPage]);
-
-  // useEffect(()=>{
-  //   getQtdAdiantamentos()
-  // }, []);
+  useEffect(() => {
+    const indexMonth = getMonthNumber(selectedMonth);
+    setCurrentMonthIndex(indexMonth); // Corrigir para armazenar o índice do mês, não o nome
+    getAdiantamentos(currentPage, 10, indexMonth, selectedYear);
+  }, [currentPage, selectedMonth, selectedYear]);
 
   const handleNextPage = () => {
     setCurrentPage((prevPage) => prevPage + 1);
@@ -71,13 +64,30 @@ export default function AdiantamentosSomados() {
     setCurrentPage(pagina);
   };
 
+  const handleAdiantamentosListadosSubmit = (
+    selectedMonth: string,
+    monthIndex: number
+  ) => {
+    setSelectedMonth(selectedMonth);
+  };
+
+  const handleSelectYear = (year: number) => {
+    setSelectedYear(year);
+  };
+
   return (
     <Page titulo="Adiantamentos Somados por mês">
       <form className="container max-w-full">
-        <div className="flex gap-3">
-          <Link href="/adiantamentos/listar-atendimentos">
-            <button type="button" className="text-sm font-semibold bg-transparent hover:bg-red-900 text-red-900 hover:text-white py-2 px-4 border border-red-900 hover:border-transparent rounded-md">Voltar</button>    
-          </Link>
+        <div className="flex justify-between gap-3 ">
+          <div className="flex gap-3">
+            <Link href="/adiantamentos/listar-adiantamentos">
+              <button type="button" className="text-sm font-semibold bg-transparent hover:bg-red-900 text-red-900 hover:text-white py-2 px-4 border border-red-900 hover:border-transparent rounded-md">Voltar</button>    
+            </Link>
+          </div>
+          <div className='flex justify-items-start gap-6'>
+            <FiltroMes meses={meses} onChange={handleAdiantamentosListadosSubmit} />
+            <AnoSelect onSelectYear={handleSelectYear} />
+          </div>
         </div>
         <div className="mt-5 bg-gray-200 rounded-lg p-4 mb-2 max-w-md">
             <h6 className="text-sm">Essa tela traz os valores somados dos adiantamentos agrupados por mês e por profissional</h6>
@@ -129,3 +139,27 @@ export default function AdiantamentosSomados() {
     </Page>
   )
 }
+
+export const getStaticProps: GetStaticProps<AdiantamentosSomadosProps> = async () => {
+  const meses = [
+    "Janeiro",
+    "Fevereiro",
+    "Março",
+    "Abril",
+    "Maio",
+    "Junho",
+    "Julho",
+    "Agosto",
+    "Setembro",
+    "Outubro",
+    "Novembro",
+    "Dezembro",
+  ];
+  return {
+    props: {
+      meses,
+    },
+  };
+};
+
+export default AdiantamentosSomados;

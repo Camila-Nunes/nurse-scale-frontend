@@ -22,6 +22,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, atualizarAdiantamentos }
   const [somaAdiantamentos, setSomaAdiantamentos] = useState([]);
   const [valorDif, setValorDif] = useState('');
   const [modalAlertOpen, setModalAlertOpen] = useState(false);
+  const [qtdLancamento, setQtdLancamento] = useState('');
+  
   
   const router = useRouter();
   const dataAtual = new Date().toISOString().split('T')[0];
@@ -55,16 +57,24 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, atualizarAdiantamentos }
       });
   
       const { data } = response;
-      const somaAdiantamentos = data[0];
   
-      setValorDif(somaAdiantamentos.valorDiferenca);
-      return somaAdiantamentos.valorDiferenca;
+      if (data && data.length > 0) {
+        const somaAdiantamentos = data[0].valorDiferenca
+        setQtdLancamento(data.length)  
+        setValorDif(numeral(somaAdiantamentos).format('$0,0.00')); // Formatar para exibição
+        setSomaAdiantamentos(somaAdiantamentos);
 
+        return somaAdiantamentos;
+      } else {
+        setQtdLancamento('0')
+      }
     } catch (error) {
+      console.error(error);
       toast.error('Erro ao carregar dados.');
       throw error;
     }
   }
+  
 
   const handleSave = async () => {
     const adiantamento = {
@@ -95,7 +105,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, atualizarAdiantamentos }
         icon: true,
       });
   
-      router.push('/adiantamentos/listarAdiantamentos');
+      router.push('/adiantamentos/listar-adiantamentos');
     } catch (error) {
       console.error(error);
       toast.error('Erro ao salvar o registro', {
@@ -170,7 +180,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, atualizarAdiantamentos }
           <ModalAlert 
             isOpenModalAlert={modalAlertOpen} 
             onClose={() => setModalAlertOpen(false)} 
-            message={valorDif === '0' ? 'Esse registro está com o valor de diferença a ZERO. Não há mais valor para lançamento.' : `Esse registro tem somente ${numeral(valorDif).format('$0,0.00')} para ser lançado. Você deve lançar um valor menor ou igual a ${numeral(valorDif).format('$0,0.00')}`}
+            message={valorDif === '0'  && qtdLancamento !== '0'? 'Esse registro está com o valor de diferença a ZERO. Não há mais valor para lançamento.' : `Esse registro tem somente ${numeral(valorDif).format('$0,0.00')} para ser lançado. Você deve lançar um valor menor ou igual a ${numeral(valorDif).format('$0,0.00')}`}
           />
         </div>
       </div>

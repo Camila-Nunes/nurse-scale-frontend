@@ -41,6 +41,7 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
             valorEmpresa !== '' &&
             valorProfissional !== ''
         );
+
     };
 
     useEffect(() => {
@@ -70,7 +71,7 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
     const handleSelectCliente = (selectedClienteId: string, nomeFantasia: string) => {
         setClienteId(selectedClienteId);
         console.log(selectedClienteId);
-    };
+      };
 
     const handlePacienteSelecionado = (id: string) => {
         setPacienteId(id);
@@ -113,11 +114,12 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
 
         try {
             const response = await api.post('/api/Atendimentos', atendimento);
+            console.log(atendimento);
             toast.success(`Atendimento salvo com sucesso.`, {
                 transition: Slide,
                 icon: true
             });
-            router.push("/atendimentos/listarAtendimentos");
+            router.push("/atendimentos/listar-atendimentos");
         } catch (error) {
             console.error(error);
             toast.error("Erro ao salvar atendimento.", {
@@ -128,13 +130,13 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
     };
     
     async function handleCancel (){
-        router.push(`/atendimentos/listarAtendimentos`);
+        router.push(`/atendimentos/listar-atendimentos`);
     };
 
     return (
         <Page titulo="Cadastro de Atendimentos">
             <form onSubmit={handleSubmit} className="container max-w-full">
-                <Link href="/atendimentos/listarAtendimentos">
+                <Link href="/atendimentos/listar-atendimentos">
                     <button type="button" className="rounded-md bg-teal-600 px-10 py-2 text-sm font-semibold leading-6 text-white">Voltar</button>     
                 </Link>
                 <div className="container mx-auto">
@@ -180,7 +182,64 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
                                 />
                                 </div>
                             </div>
-                            <div className="sm:col-span-3">
+
+                            <div className="sm:col-span-7">
+                                <label htmlFor="local" className="block text-sm font-medium leading-6 text-gray-900">Local de Atendimento</label>
+                                    <div className="mt-2">
+                                    <input
+                                        type="text"
+                                        name="localAtendimento"
+                                        id="localAtendimento"
+                                        value={localAtendimento}
+                                        onChange={(e) => setLocalAtendimento(e.target.value)}
+                                        autoComplete="localAtendimento"
+                                        className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                    />
+                                </div>
+                            </div>
+                            <div className="sm:col-span-1">
+                                <label htmlFor="uf-local" className="block text-sm font-medium leading-6 text-gray-900">UF</label>
+                                <div className="mt-2">
+                                    <select
+                                    id="estadoAtendimento"
+                                    name="estadoAtendimento"
+                                    autoComplete="estadoAtendimento"
+                                    onChange={(e) => setEstadoAtendimento(e.target.value)}
+                                    className="block w-full rounded-md border-0 py-2 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
+                                    >
+                                        <option>SP</option>
+                                        <option>RJ</option>
+                                        <option>ES</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="sm:col-span-2">
+                                <label htmlFor="valorEmpresa" className="block text-sm font-medium leading-6 text-gray-900">Tipo Atendimento</label>
+                                <div className="mt-2">
+                                    <select
+                                    id="assistencia"
+                                    name="assistencia"
+                                    autoComplete="assistencia"
+                                    onChange={(e) => setAssistencia(e.target.value)}
+                                    className="block w-full rounded-md border-0 py-2 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
+                                    >
+                                        <option>Selecione um tipo</option>
+                                        <option value="PLANTAO 6 Hrs">PLANTÃO 6 Hrs</option>
+                                        <option value="PLANTAO 12 Hrs">PLANTÃO 12 Hrs</option>
+                                        <option value="PLANTAO 8 Hrs">PLANTÃO 8 Hrs</option>
+                                        <option value="AVALIACAO">AVALIAÇÃO</option>
+                                        <option value="ADAPTACAO">ADAPTAÇÃO</option>
+                                        <option value="PONTUAL TEC">PONTUAL TEC</option>
+                                        <option value="PONTUAL ENF">PONTUAL ENF</option>
+                                        <option value="SUPERVISAO">SUPERVISÃO</option>
+                                        <option value="NUTRICIONISTA">NUTRICIONISTA</option>
+                                        <option value="MEDICO">MÉDICO</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="sm:col-span-2">
                                 <label htmlFor="uf-local" className="block text-sm font-medium leading-6 text-gray-900">Status</label>
                                 <div className="mt-2">
                                     <select
@@ -200,43 +259,6 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
                                 </div>
                             </div>
 
-                            <div className="sm:col-span-7">
-                                <label htmlFor="local" className="block text-sm font-medium leading-6 text-gray-900">Local de Atendimento</label>
-                                    <div className="mt-2">
-                                    <input
-                                        type="text"
-                                        name="localAtendimento"
-                                        id="localAtendimento"
-                                        value={localAtendimento}
-                                        onChange={(e) => setLocalAtendimento(e.target.value)}
-                                        autoComplete="localAtendimento"
-                                        className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                    />
-                                </div>
-                            </div>
-                            <div className="sm:col-span-2">
-                                <label htmlFor="uf-local" className="block text-sm font-medium leading-6 text-gray-900">UF</label>
-                                <div className="mt-2">
-                                    <select
-                                    id="estadoAtendimento"
-                                    name="estadoAtendimento"
-                                    autoComplete="estadoAtendimento"
-                                    onChange={(e) => setEstadoAtendimento(e.target.value)}
-                                    className="block w-full rounded-md border-0 py-2 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                                    >
-                                        <option>SP</option>
-                                        <option>RJ</option>
-                                        <option>ES</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div className="col-span-10">
-                                <label htmlFor="profissional" className="block text-sm font-medium leading-6 text-gray-900">Profissional</label>
-                                <div className="mt-2">
-                                    <BuscaEnfermeiro onEnfermeiroSelecionado={handleEnfermeiroSelecionado} />
-                                </div>
-                            </div>
                             <div className="sm:col-span-2">
                                 <label htmlFor="empresa" className="block text-sm font-medium leading-6 text-gray-900">Empresa</label>
                                 <div className="mt-2">
@@ -244,22 +266,14 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
                                 </div>
                             </div>
                             
-                            <div className="sm:col-span-5">
-                                <label htmlFor="assistencia" className="block text-sm font-medium leading-6 text-gray-900">Assitência</label>
-                                    <div className="mt-2">
-                                    <input
-                                        type="text"
-                                        name="assistencia"
-                                        id="assistencia"
-                                        value={assistencia}
-                                        onChange={(e) => setAssistencia(e.target.value)}
-                                        autoComplete="assistencia"
-                                        className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                    />
+                            <div className="col-span-5">
+                                <label htmlFor="profissional" className="block text-sm font-medium leading-6 text-gray-900">Profissional</label>
+                                <div className="mt-2">
+                                    <BuscaEnfermeiro onEnfermeiroSelecionado={handleEnfermeiroSelecionado} />
                                 </div>
-                            </div>
+                            </div>                            
                             
-                            <div className="sm:col-span-3">
+                            <div className="sm:col-span-2">
                                 <label htmlFor="valorEmpresa" className="block text-sm font-medium leading-6 text-gray-900">Valor Empresa</label>
                                 <div className="mt-2">
                                 <input
@@ -274,7 +288,7 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
                                 </div>
                             </div>
 
-                            <div className="sm:col-span-3">
+                            <div className="sm:col-span-2">
                                 <label htmlFor="valorProfissional" className="block text-sm font-medium leading-6 text-gray-900">Valor Profissional</label>
                                 <div className="mt-2">
                                 <input

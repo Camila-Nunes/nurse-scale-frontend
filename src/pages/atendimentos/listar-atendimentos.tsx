@@ -70,7 +70,7 @@ export default function ListarAtendimentos() {
   };
 
   async function getAtendimentos(page: number, pageSize: number){
-    const response = await api.get(`/api/Atendimentos?page=${page}&pageSize=${pageSize}`)
+    const response = await api.get(`/api/Atendimentos/todos-atendimentos?page=${page}&pageSize=${pageSize}`)
     .then(response => {
       setAtendimentos(response.data.result);
     }).catch(error => {

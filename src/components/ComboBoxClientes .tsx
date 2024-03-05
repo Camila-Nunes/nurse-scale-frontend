@@ -3,8 +3,8 @@ import api from '@/api';
 
 interface ComboboxClientesProps {
   onSelectCliente: (clienteId: string, nomeFantasia: string) => void;
-  isEditMode?: boolean; // Adiciona a propriedade isEditMode opcional
-  defaultValue?: string; // Adiciona a propriedade defaultValue opcional para a edição
+  isEditMode?: boolean;
+  defaultValue?: string;
 }
 
 interface Cliente {
@@ -35,7 +35,6 @@ const ComboBoxClientes: React.FC<ComboboxClientesProps> = ({
 
   useEffect(() => {
     if (isEditMode) {
-      // Se estiver em modo de edição, define o valor selecionado com base nos dados fornecidos
       setSelectedValue(defaultValue);
     }
   }, [isEditMode, defaultValue]);
@@ -47,6 +46,7 @@ const ComboBoxClientes: React.FC<ComboboxClientesProps> = ({
         const clienteId = e.target.value;
         const cliente = clientes.find((c) => c.clienteId === clienteId);
         if (cliente) {
+          setSelectedValue(clienteId);
           onSelectCliente(clienteId, cliente.nomeFantasia);
         }
       }}
@@ -60,7 +60,7 @@ const ComboBoxClientes: React.FC<ComboboxClientesProps> = ({
         </option>
       ))}
     </select>
-  );  
+  );
 };
 
 export default ComboBoxClientes;

@@ -20,9 +20,7 @@ const ModalAlert: React.FC<AlertModalProps> = ({ isOpenModalAlert, onClose, mess
         <div className="fixed inset-0 transition-opacity">
           <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
         </div>
-
         <span className="hidden md:inline-block md:align-middle md:h-screen"></span>&#8203;
-
         <div
           className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
           role="dialog"

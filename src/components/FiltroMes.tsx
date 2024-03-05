@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AiFillCaretLeft, AiFillCaretRight } from 'react-icons/ai';
-import { format, getMonth } from 'date-fns'; // Importar a função getMonth do date-fns
+import { format } from 'date-fns';
 
 interface FiltroMesProps {
   meses: string[];
@@ -12,21 +12,23 @@ const FiltroMes: React.FC<FiltroMesProps> = ({ meses, onChange }) => {
   const [selectedMonth, setSelectedMonth] = useState<string>(meses[currentDate.getMonth()] || '');
 
   useEffect(() => {
-    onChange(selectedMonth, meses.indexOf(selectedMonth) + 1);
+    const monthIndex = meses.indexOf(selectedMonth) + 1;
+    onChange(selectedMonth, monthIndex);
   }, [meses, onChange, selectedMonth]);
 
   const handleMonthChange = (newSelectedMonth: string) => {
     setSelectedMonth(newSelectedMonth);
-    onChange(newSelectedMonth, meses.indexOf(newSelectedMonth) + 1);
   };
 
-  const handlePrevMonth = () => {
+  const handlePrevMonth = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
     const currentIndex = meses.indexOf(selectedMonth);
     const newIndex = (currentIndex - 1 + meses.length) % meses.length;
     handleMonthChange(meses[newIndex]);
   };
 
-  const handleNextMonth = () => {
+  const handleNextMonth = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
     const currentIndex = meses.indexOf(selectedMonth);
     const newIndex = (currentIndex + 1) % meses.length;
     handleMonthChange(meses[newIndex]);
