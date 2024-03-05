@@ -148,7 +148,7 @@ const Dashboard: React.FC<DashboardProps> = ({ meses }) => {
         <div className="sm:grid-cols-12">
           <div className="grid grid-cols-2 gap-4 mt-8">
             <Card title="Lucro" icon={TbPigMoney} value={valorLucro} color="bg-sky-900"/>
-            <Card title="Lucro" value={valorLucro} color="bg-teal-600"/>
+            <Card title="Orçamento Minimo" value={150} color="bg-teal-600"/>
           </div>
         </div>
       </div>
