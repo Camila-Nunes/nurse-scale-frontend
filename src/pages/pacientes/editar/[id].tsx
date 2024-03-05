@@ -108,7 +108,7 @@ export default function Editarpaciente() {
         api.put(`/api/Pacientes/${id}`, registro)
         .then(() => {
             toast.success(`Paciente ${registro.nome} atualizado com sucesso.`)
-            router.push("/pacientes/listarPacientes");
+            router.push("/pacientes/listar-pacientes");
         })
         .catch((error) => {
             toast.error(`Erro ao atualizar paciente: ${registro.nome} `, error);
@@ -116,7 +116,7 @@ export default function Editarpaciente() {
     }; 
     
     async function handleCancel (){
-        router.push(`/pacientes/listarPacientes`);
+        router.push(`/pacientes/listar-pacientes`);
     };
 
     if (!registro) {
@@ -126,7 +126,7 @@ export default function Editarpaciente() {
   return (
     <Page titulo="Editar Paciente">
         <form onSubmit={handleSubmit} className="container max-w-full">
-            <Link href="/pacientes/listarPacientes">
+            <Link href="/pacientes/listar-pacientes">
                 <button type="button" className="rounded-md bg-teal-600 px-10 py-2 text-sm font-semibold leading-6 text-white">Voltar</button>   
             </Link>
             <div className="container mx-auto">

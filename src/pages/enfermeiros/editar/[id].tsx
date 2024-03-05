@@ -58,7 +58,7 @@ export default function EditarEnfermeiro() {
         .then(() => {
             console.log(registro);
             toast.success("Registro atualizado com sucesso.")
-            router.push("/enfermeiros/listarEnfermeiros");
+            router.push("/enfermeiros/listar-enfermeiros");
         })
         .catch((error) => {
             toast.error('Erro ao atualizar registro:', error);
@@ -66,7 +66,7 @@ export default function EditarEnfermeiro() {
     };  
 
     async function handleCancel (){
-        router.push(`/enfermeiros/listarEnfermeiros`);
+        router.push(`/enfermeiros/listar-enfermeiros`);
     };
 
     if (!registro) {
@@ -76,7 +76,7 @@ export default function EditarEnfermeiro() {
   return (
     <Page titulo="Editar Enfermeiros">
       <form onSubmit={handleSubmit} className="container max-w-full">
-        <Link href="/enfermeiros/listarEnfermeiros">
+        <Link href="/enfermeiros/listar-enfermeiros">
             <button type="button" className="rounded-md bg-teal-600 px-10 py-2 text-sm font-semibold leading-6 text-white">Voltar</button>
         </Link>
         <div className="container mx-auto">

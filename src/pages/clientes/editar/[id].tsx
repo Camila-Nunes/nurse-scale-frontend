@@ -62,7 +62,7 @@ export default function EditarCliente() {
         .then(() => {
             console.log(registro);
             toast.success("Registro atualizado com sucesso.")
-            router.push("/clientes/listarClientes");
+            router.push("/clientes/listar-clientes");
         })
         .catch((error) => {
             toast.error('Erro ao atualizar registro:', error);
@@ -70,7 +70,7 @@ export default function EditarCliente() {
     };  
 
     async function handleCancel (){
-        router.push(`/clientes/listarClientes`);
+        router.push(`/clientes/listar-clientes`);
     };
 
     if (!registro) {
@@ -80,7 +80,7 @@ export default function EditarCliente() {
   return (
     <Page titulo="Editar Cliente">
         <form onSubmit={handleSubmit} className="container max-w-full">
-            <Link href="/clientes/listarClientes">
+            <Link href="/clientes/listar-clientes">
                 <button type="button" className="rounded-md bg-teal-600 px-10 py-2 text-sm font-semibold leading-6 text-white">Voltar</button>     
             </Link>    
             <div className="container mx-auto">
