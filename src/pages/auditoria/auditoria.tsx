@@ -15,6 +15,7 @@ interface AuditoriaProps {
 const Auditoria: React.FC<AuditoriaProps> = ({ meses }) => {
   const [resumoAuditoriaEmpresas, setResumoAuditoriaEmpresas] = useState([]);
   const [isLoadingEmpresas, setIsLoadingEmpresas] = useState(true);
+  const [currentMonthIndex, setCurrentMonthIndex] = useState(0);
 
   const [selectedMonth, setSelectedMonth] = useState(
     format(new Date(), 'MMMM')
@@ -30,8 +31,9 @@ const Auditoria: React.FC<AuditoriaProps> = ({ meses }) => {
   };
 
   useEffect(() => {
-    const currentMonthIndex = getMonthNumber(selectedMonth);
-    loadResumoAuditoriaEmpresas(currentMonthIndex, selectedYear);
+    const indexMonth = getMonthNumber(selectedMonth);
+    setCurrentMonthIndex(indexMonth);
+    loadResumoAuditoriaEmpresas(indexMonth, selectedYear);
   }, [selectedMonth, selectedYear]);
 
   async function loadResumoAuditoriaEmpresas(mes: number, ano: number) {
