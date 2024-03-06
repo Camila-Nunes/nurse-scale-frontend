@@ -7,7 +7,6 @@ import { Slide, toast } from "react-toastify";
 
 export default function Usuarios() {
   const [nome, setNome] = useState('');
-  const [sobrenome, setSobrenome] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [confirmaSenha, setConfirmaSenha] = useState('');
@@ -29,7 +28,6 @@ export default function Usuarios() {
 
     const usuario = {
       nome,
-      sobrenome,
       email,
       senha,
       confirmaSenha,
