@@ -36,19 +36,20 @@ export default function ListaUsuarios() {
         }
       };
 
+      if (isLoading) {
+        return (
+          <div className="flex justify-center items-center h-screen">
+            <CgSpinnerTwo className="animate-spin text-teal-600" size={100} />
+          </div>
+        );
+      }
+
     return (
         <Page titulo="Listagem de Usuários">
             <form className="container max-w-full">
                 <Link href="">
-                    <button onClick={handleNovoUsuarioClick} className="rounded-md bg-teal-600 hover:bg-teal-800 px-3 py-2 text-sm font-semibold leading-6 text-white" disabled={isLoading}>
-                        {isLoading ? (
-                        <CgSpinnerTwo className="animate-spin text-white" size={20} />
-                        ) : (
-                        'Novo Usuário'
-                        )}
-                    </button>    
+                    <button onClick={handleNovoUsuarioClick} className="rounded-md bg-teal-600 hover:bg-teal-800 px-3 py-2 text-sm font-semibold leading-6 text-white">Novo Usuário</button>    
                 </Link>
-        
                 <div className="mt-6 mx-auto pt-4 shadow rounded-md bg-slate-50">
                     <div className="mt-6 overflow-y-auto rounded-lg shadow hidden md:block">
                         <table className="w-full">

@@ -306,8 +306,8 @@ export default function Pacientes() {
                         </div>   
                             
                             <div className="flex items-center justify-end gap-x-6 col-span-full">
-                                <button type="button" onClick={handleCancel} className="bg-transparent hover:bg-red-700 text-red-700 text-sm font-semibold py-2 px-4 rounded-md hover:text-white border border-red-700 hover:border-transparent">Cancelar</button>
-                                <button type="submit" className="rounded-md bg-teal-600 hover:bg-teal-800 px-8 py-2 text-sm font-semibold leading-6 text-white">Salvar</button>
+                                <button type="button" onClick={handleCancel} className="text-sm py-2 px-4 font-semibold leading-6 bg-transparent hover:bg-red-700 text-red-700 hover:text-white border border-red-700 hover:border-transparent rounded-md">Cancelar</button>
+                                <button type="submit" className="text-sm py-3 px-8 font-semibold leading-6 text-white bg-teal-600 border rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 sm:ml-3 sm:w-auto sm:text-sm">Salvar</button>
                             </div>
                         </div>
                     </div>    
