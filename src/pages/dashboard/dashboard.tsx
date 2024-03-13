@@ -5,12 +5,15 @@ import { format, startOfMonth, endOfMonth } from 'date-fns';
 import { GetStaticProps } from 'next';
 import FiltroMes from '@/components/FiltroMes';
 import Card from '@/components/Card';
+import CardPorcentagem from '@/components/CardPorcentagem';
 import Page from '@/components/Page';
 import api from '@/api';
 import { toast } from 'react-toastify';
-import { TbPigMoney } from "react-icons/tb";
-import { FaArrowCircleUp, FaArrowCircleDown } from "react-icons/fa";
-import { MdAttachMoney, MdOutlineMoneyOffCsred } from "react-icons/md";
+import { MdOutlineMoneyOffCsred, MdOutlinePercent } from "react-icons/md";
+import { GiLion } from "react-icons/gi";
+import { CgMathPercent } from "react-icons/cg";
+import { BiInjection } from "react-icons/bi";
+import { HiArrowCircleDown, HiArrowCircleUp } from "react-icons/hi";
 import AnoSelect from '@/components/AnoSelect';
 
 interface DashboardProps {
@@ -27,6 +30,15 @@ const Dashboard: React.FC<DashboardProps> = ({ meses }) => {
   const [entradasMes, setEntradasMes] = useState(0);
   const [faltaPagar, setFaltaPagar] = useState(0);
   const [valorLucro, setValorLucro] = useState(0);
+
+  const [mes, setMes] = useState(0);
+  const [ano, setAno] = useState(0);
+  const [total, setTotal] = useState(0);
+  const [valorEmpresa, setValorEmpresa] = useState(0);
+  const [valorProfissional, setValorProfissional] = useState(0);
+  const [imposto, setImposto] = useState(0);
+  const [margem, setMargem] = useState(0);
+  const [porcentagemLiquida, setPorcentagemLiquida] = useState(0);
 
   const [quantityAtendimentosMes, setQuantityAtendimentosMes] = useState(0);
   const [quantityAtendimentosPagos, setQuantityAtendimentosPagos] = useState(0);
@@ -46,6 +58,7 @@ const Dashboard: React.FC<DashboardProps> = ({ meses }) => {
         getEntradasMes(monthIndex, selectedYear),
         getQtdAtendimentosNaoPagosMes(monthIndex, selectedYear),
         getLucrosMes(monthIndex, selectedYear),
+        getReumosMes(monthIndex, selectedYear),
       ]);
     } catch (error) {
       toast.error('Erro ao carregar o dashboard.');
@@ -58,6 +71,25 @@ const Dashboard: React.FC<DashboardProps> = ({ meses }) => {
     setSelectedYear(currentYear);
     loadDashboardData(currentMonthIndex);
   }, []);
+
+  async function getReumosMes(mes: number, ano: number) {
+    try {
+      const response = await api.get(`api/Dashboard/dashboard-resumos?mes=${mes}&ano=${ano}`);
+      const { total, valorEmpresa, valorProfissional, imposto, margem, porcentagemLiquida } = response.data;
+  
+      setTotal(total);
+      setValorEmpresa(valorEmpresa);
+      setValorProfissional(valorProfissional);
+      setImposto(imposto);
+      setMargem(margem);
+      setPorcentagemLiquida(porcentagemLiquida);
+      setTotal(total);
+
+    } catch (error) {
+      toast.error('Erro ao obter o total de itens.');
+    }
+  };
+
 
   async function getQtdAtendimentosMes(mes: number, ano: number) {
     try {
@@ -130,7 +162,7 @@ const Dashboard: React.FC<DashboardProps> = ({ meses }) => {
 
   return (
     <Page titulo="Dashboard">
-      <div className="container mx-auto p-8">
+      <div className="container max-w-full">
         <div className='flex justify-end gap-6'>
           <FiltroMes meses={meses} onChange={handleDashboardSubmit} />
           <AnoSelect onSelectYear={handleSelectYear} />
@@ -138,19 +170,21 @@ const Dashboard: React.FC<DashboardProps> = ({ meses }) => {
         
         {/* <button onClick={(e) => handleDashboardSubmit(e)}>Carregar Dashboard</button> */}
         <div className="sm:grid-cols-12">
-          <div className="grid grid-cols-4 gap-4 mt-8">
-            <Card title="Total Negociado com Empresas" icon={FaArrowCircleUp} quantity={quantityAtendimentosEntradasMes} value={entradasMes} color="bg-teal-600"/>
-            <Card title="Total Negociado com Profissionais" icon={FaArrowCircleDown} quantity={quantityAtendimentosMes} value={atendimentosNoMes} color="bg-red-800"/>
-            <Card title="Atendimentos Pagos" icon={MdAttachMoney} quantity={quantityAtendimentosPagos} value={atendimentosPagos} color="bg-teal-700"/>
-            <Card title="Atendimentos Não Pagos" icon={MdOutlineMoneyOffCsred} quantity={quantityAtendimentosNaoPagos} value={faltaPagar} color="bg-sky-800"/>
+          <div className="grid grid-cols-6 gap-4 mt-8">
+            <Card title="Projeção de Faturamento" icon={HiArrowCircleUp} value={valorEmpresa} color="bg-teal-600"/>
+            <Card title="Projeção de Produção" icon={HiArrowCircleDown} value={valorProfissional} color="bg-teal-700"/>
+            <Card title="Imposto(Nota Fiscal)" icon={GiLion} value={imposto} color="bg-teal-800"/>
+            <Card title="Margem Total Líquida" icon={MdOutlineMoneyOffCsred} value={margem} color="bg-teal-900"/>
+            <CardPorcentagem title="Porcentagem Total Líquida" icon={MdOutlinePercent} value={porcentagemLiquida} color="bg-emerald-700"/>
+            <Card title="Total Atendimentos" icon={BiInjection} quantity={total} color="bg-emerald-800"/>
           </div>
         </div>  
-        <div className="sm:grid-cols-12">
+        {/* <div className="sm:grid-cols-12">
           <div className="grid grid-cols-2 gap-4 mt-8">
             <Card title="Lucro" icon={TbPigMoney} value={valorLucro} color="bg-sky-900"/>
             <Card title="Orçamento Minimo" value={150} color="bg-teal-600"/>
           </div>
-        </div>
+        </div> */}
       </div>
     </Page>
   );

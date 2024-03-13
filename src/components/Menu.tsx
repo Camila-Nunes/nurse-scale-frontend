@@ -43,7 +43,7 @@ export default function Menu() {
           <MenuItem icone={<BsCalendarPlusFill size={20}/>} texto="Atendimentos" url="/atendimentos/listar-atendimentos" />
           <MenuItem icone={<BsCalculator size={20}/>} texto="Cálculo Taxa Administrativa" url="/calculos/calculo-taxa-administrativa" />
           <MenuItem icone={<BsClipboardData size={20}/>} texto="Orçamentos" url="/orcamentos/orcamentos" />
-          <MenuItem icone={<TbMoneybag size={20}/>} texto="Faturamento" url="/administrativo/tabela-dinamica" />
+          <MenuItem icone={<TbMoneybag size={20}/>} texto="Faturamento" url="/administrativo/faturamento" />
           <MenuItem icone={<BiSearchAlt size={20}/>} texto="Auditoria" url="/auditoria/auditoria" />
         </div>
       )}
