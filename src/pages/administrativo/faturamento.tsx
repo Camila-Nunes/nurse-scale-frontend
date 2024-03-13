@@ -12,11 +12,11 @@ import { GetStaticProps } from "next";
 import { BsDatabaseX } from "react-icons/bs";
 import InputMask from "react-input-mask";
 
-interface TabelaDinamicaProps {
+interface FaturamentoProps {
   meses: string[];
 }
 
-const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
+const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
     const [resumoEmpresas, setResumoEmpresas] = useState([]);
     const [resumoProfissionais, setResumoProfissionais] = useState([]);
     const [resumoAtendimentos, setResumoAtendimentos] = useState([]);
@@ -164,34 +164,35 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
   }
 
   return (
-    <Page titulo="Tabela Dinâmica">
+    <Page titulo="Faturamento">
     <form className="container max-w-full" onSubmit={handleInputChange}>
-      <div className='flex justify-items-start gap-6'>
-        <FiltroMes meses={meses} onChange={handleTabelaDinamicaSubmit} />
-        <AnoSelect onSelectYear={handleSelectYear} />
+      <div className='flex justify-between gap-6'>
+        <div className="flex justify-center sm:col-span-4 px-5 space-x-4 items-center">
+          <label htmlFor="rg" className="mt-2 block text-sm font-medium leading-6 text-gray-900 uppercase">Alíquota</label>
+          <div className="mt-2">
+            <InputMask mask="99,99%" 
+              type="text"
+              name="aliquota"
+              id="aliquota"
+              value={valorAliquota}
+              onChange={handleValorChange}
+              autoComplete="aliquota"
+              className="font-bold block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+            />
+          </div>
+          <button type="submit" className="rounded-md bg-teal-600 px-10 py-2 mt-2 text-sm font-semibold leading-6 text-white hover:bg-teal-700">Alterar Alíquota</button>
+        </div>
+
+
+        
+        <div className='flex justify-items-start gap-6'>
+          <FiltroMes meses={meses} onChange={handleTabelaDinamicaSubmit} />
+          <AnoSelect onSelectYear={handleSelectYear} /> 
+        </div>
       </div>
       <div className="mt-4 mx-auto shadow rounded-md bg-slate-50">
         <div className="mt-2 overflow-auto rounded-lg shadow hidden md:block">
           <div className="border-b border-gray-900/10 pb-12">
-            <div className="grid grid-cols-1 sm:grid-cols-12">
-              <div className="sm:col-span-2 px-5">
-                <label htmlFor="rg" className="block text-sm font-medium leading-6 text-gray-900 uppercase">Alíquota</label>
-                <div className="mt-2">
-                  <InputMask mask="99,99%" 
-                    type="text"
-                    name="aliquota"
-                    id="aliquota"
-                    value={valorAliquota}
-                    onChange={handleValorChange}
-                    autoComplete="aliquota"
-                    className="font-bold block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                  />
-                </div>
-              </div>  
-              <div className="sm:col-span-3 px-5 mt-6">
-                <button type="submit" className="rounded-md bg-teal-600 px-10 py-2 text-sm font-semibold leading-6 text-white hover:bg-teal-700">Alterar Alíquota</button>
-              </div>
-            </div>
             <div className="mt-10 grid grid-cols-1 sm:grid-cols-12">
               {(resumoEmpresas && resumoEmpresas.length > 0) ? (
                 <div className="sm:col-span-4 px-5">
@@ -276,8 +277,8 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
                       <tr>
                         <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r uppercase">Empresa</th>
                         <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r uppercase">Modalidade</th>
-                        <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r uppercase">Valor de Produção</th>
                         <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r uppercase">Projeção de Faturamento</th>
+                        <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r uppercase">Valor de Produção</th>
                         <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r uppercase">Qtd. Procedimentos Realizados</th>
                       </tr>
                     </thead>
@@ -287,10 +288,10 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
                           <td className="text-left w-72 p-3 text-sm font-semibold text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">{resumoAtendimento.nome_Fantasia}</td>
                           <td className="text-right w-72 p-3 text-sm font-semibold text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">{resumoAtendimento.tipo_Assistencia}</td>
                           <td className="text-right w-24 p-3 text-sm font-semibold text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">
-                              R$ {isNaN(parseFloat(resumoAtendimento.valor_Profissional)) ? 'Valor inválido' : parseFloat(resumoAtendimento.valor_Profissional).toFixed(2)}
+                              R$ {isNaN(parseFloat(resumoAtendimento.valor_Empresa)) ? 'Valor inválido' : parseFloat(resumoAtendimento.valor_Empresa).toFixed(2)}
                           </td>
                           <td className="text-right w-24 p-3 text-sm font-semibold text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">
-                              R$ {isNaN(parseFloat(resumoAtendimento.valor_Empresa)) ? 'Valor inválido' : parseFloat(resumoAtendimento.valor_Empresa).toFixed(2)}
+                              R$ {isNaN(parseFloat(resumoAtendimento.valor_Profissional)) ? 'Valor inválido' : parseFloat(resumoAtendimento.valor_Profissional).toFixed(2)}
                           </td>
                           <td className="text-right w-12 p-3 text-sm font-semibold text-gray-700 whitespace-nowrap border-r border-b border-gray-200 uppercase">{resumoAtendimento.total}</td>
                         </tr>
@@ -314,7 +315,7 @@ const TabelaDinamica: React.FC<TabelaDinamicaProps> = ({ meses }) => {
   );
 };
 
-export const getStaticProps: GetStaticProps<TabelaDinamicaProps> = async () => {
+export const getStaticProps: GetStaticProps<FaturamentoProps> = async () => {
   const meses = [
     "Janeiro",
     "Fevereiro",
@@ -336,4 +337,4 @@ export const getStaticProps: GetStaticProps<TabelaDinamicaProps> = async () => {
   };
 };
 
-export default TabelaDinamica;
+export default Faturamento;
