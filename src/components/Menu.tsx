@@ -70,7 +70,7 @@ export default function Menu() {
           <MenuItem icone={<IconWallet />} texto="Pagamentos" url="/pagamentos/listar-pagamentos" />
         </div>
       )}
-      <div className="flex justify-between items-center gap-16 text-sm text-zinc-500 pl-3 pt-2" onClick={toggleConfiguracoes}>
+      {/* <div className="flex justify-between items-center gap-16 text-sm text-zinc-500 pl-3 pt-2" onClick={toggleConfiguracoes}>
         <span className="text-base text-zinc-500 pl-3 pt-4">Configurações</span>
         <span className="text-base text-zinc-500 pl-3 pr-10 pt-4">{showConfiguracoes ? <BiChevronUp /> : <BiSolidChevronDown />}</span>
       </div>
@@ -78,7 +78,7 @@ export default function Menu() {
         <div className="pl-6 mr-6">
           <MenuItem icone={<FaUserPlus size={22} />} texto="Usuários" url="/usuarios/listar-usuarios" />
         </div>
-      )}
+      )} */}
     </div>
   );
 }
