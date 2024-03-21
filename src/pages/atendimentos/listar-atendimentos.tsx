@@ -13,22 +13,22 @@ import Pagination from "@/components/Pagination";
 import BuscaPacienteFiltro from "@/components/BuscaPacienteFiltro";
 
 interface FiltrosState {
-  data: string;
-  atendimento: number;
-  empresaId: string;
-  pacienteId: string;
-  enfermeiroId: string;
-  statusAtendimento: string;
+  Data: string;
+  Atendimento: number;
+  Empresa: string;
+  Paciente: string;
+  Enfermeiro: string;
+  StatusAtendimento: string;
   DiaPago: string;
 }
 
 const initialState: FiltrosState = {
-  data: '',
-  atendimento: 0,
-  empresaId: '',
-  pacienteId: '',
-  enfermeiroId: '',
-  statusAtendimento: '',
+  Data: '',
+  Atendimento: 0,
+  Empresa: '',
+  Paciente: '',
+  Enfermeiro: '',
+  StatusAtendimento: '',
   DiaPago: '',
 };
 
@@ -59,7 +59,7 @@ export default function ListarAtendimentos() {
 
   useEffect(()=>{
     getAtendimentos(currentPage, 10)
-  }, [currentPage]);
+  }, []);
 
   useEffect(()=>{
     getQtdAtendimentos()
@@ -88,13 +88,29 @@ export default function ListarAtendimentos() {
     }
   };
 
-  const handleNextPage = () => {
-    setCurrentPage((prevPage) => prevPage + 1);
-  };
+  const handleNextPage = async () => {
+    const nextPage = currentPage + 1;
+    try {
+        const response = await api.post(`/api/Atendimentos/filtro?page=${nextPage}&pageSize=${itensPorPagina}`, filtros);
+        const { data } = response;
+        setAtendimentos(response.data); // Define os dados filtrados da próxima página
+        setCurrentPage(nextPage); // Atualiza o estado da página atual
+    } catch (error) {
+        toast.error('Erro ao chamar a API.');
+    }
+};
 
-  const handlePrevPage = () => {
-    setCurrentPage((prevPage) => prevPage - 1);
-  };
+const handlePrevPage = async () => {
+  const prevPage = currentPage - 1;
+  try {
+      const response = await api.post(`/api/Atendimentos/filtro?page=${prevPage}&pageSize=${itensPorPagina}`, filtros);
+      const { data } = response;
+      setAtendimentos(data); // Define os dados filtrados da página anterior
+      setCurrentPage(prevPage); // Atualiza o estado da página atual
+  } catch (error) {
+      toast.error('Erro ao chamar a API.');
+  }
+};
 
   const handleEnfermeiroSelecionado = (id: string) => {
     const novoId = id.trim();
@@ -155,10 +171,24 @@ export default function ListarAtendimentos() {
     }
   
     try {
-      const response = await api.post(`/api/Atendimentos/filtro?page=${page}&pageSize=${pageSize}`, filtros);
-      console.log(response);
-      setAtendimentos(response.data);
+      // Fazendo as duas chamadas concorrentemente
+      const [countResponse, filteredResponse] = await Promise.all([
+        api.post(`/api/Atendimentos/quantidade-registros-filtrados-por-mes`, filtros),
+        api.post(`/api/Atendimentos/filtro?page=${page}&pageSize=${pageSize}`, {
+          ...filtros,
+          page: page,
+          pageSize: pageSize
+        })
+      ]);
+  
+      // Extrai os dados de cada resposta
+      const { totalItems } = countResponse.data;
+      const { data } = filteredResponse.data;
+  
+      // Atualiza os estados com os dados recebidos
+      setAtendimentos(filteredResponse.data);
       setCurrentPage(page);
+      setTotalPaginas(Math.ceil(totalItems / pageSize));
     } catch (error) {
       toast.error('Erro ao chamar a API.');
     }
@@ -166,8 +196,11 @@ export default function ListarAtendimentos() {
   
   const resetarFiltros = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    setFiltros(initialState);
-    getAtendimentos(currentPage, 10);
+    setFiltros(initialState); // Redefine os filtros para o estado inicial
+    setCurrentPage(1); // Volta para a primeira página
+    // Chame a função para buscar os atendimentos com os filtros resetados
+    getAtendimentos(1, 10);
+    // Redefina outros estados relevantes para seus valores iniciais, se houver
     setPacienteId('');
     setEnfermeiroId('');
   };
