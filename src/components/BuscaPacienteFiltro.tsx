@@ -31,14 +31,18 @@ const BuscaPacienteFiltro: React.FC<BuscaPacienteFiltroProps> = ({ onPacienteSel
   };
 
   useEffect(() => {
-    // Verifica se o campo está vazio ao ser limpo
-    if (limparFiltros && nome === '') {
+    // Verifica se o campo está vazio ao ser limpo ou se limparCampos for true
+    if (limparFiltros || nome === '') {
       setPacientes([]);
       setId('');
       setPacienteSelecionado(null);
       setShowDropdown(false);
+      // Redefina o estado nome para o valor inicial se limparCampos for true
+      if (limparFiltros) {
+        setNome(valorInicial || '');
+      }
     }
-  }, [limparFiltros, nome]);
+  }, [limparFiltros, nome, valorInicial]);
 
   const handleNomeChange = (event: ChangeEvent<HTMLInputElement>) => {
     const novoNome = event.target.value;

@@ -42,6 +42,8 @@ export default function ListarAtendimentos() {
   const [pacienteId, setPacienteId] = useState('');
   const [itensPorPagina, setItensPorPagina] = useState(10);
   const [filtros, setFiltros] = useState<FiltrosState>(initialState);
+  const [limparCampos, setLimparCampos] = useState<boolean>(false);
+  const [valorInicial, setValorInicial] = useState<string>('');
 
   const handleDateChange = (selectedDate: Date) => {
     console.log('Selected Date:', selectedDate);
@@ -203,6 +205,8 @@ const handlePrevPage = async () => {
     // Redefina outros estados relevantes para seus valores iniciais, se houver
     setPacienteId('');
     setEnfermeiroId('');
+    // Defina limparCampos como true para limpar os campos Empresa e Paciente
+    setLimparCampos(true);
   };
 
   return (
@@ -215,7 +219,7 @@ const handlePrevPage = async () => {
           <div className="grid grid-cols-1 gap-x-10 gap-y-8 sm:grid-cols-12">
             <div className="sm:col-span-2">
               <label htmlFor="paciente" className="block text-sm font-medium leading-6 text-gray-900">Data</label>
-              <div className="mt-2">
+              <div>
                 <MonthFilter onChange={handleDateChange} />
               </div>
             </div>
@@ -227,7 +231,7 @@ const handlePrevPage = async () => {
                   name="atendimento"
                   id="atendimento"
                   autoComplete="given-name"
-                  value={filtros.atendimento}
+                  value={filtros.Atendimento}
                   onChange={handleFilterChange}
                   className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
@@ -242,8 +246,12 @@ const handlePrevPage = async () => {
             <div className="sm:col-span-2">
               <label htmlFor="paciente" className="block text-sm font-medium leading-6 text-gray-900">Paciente</label>
               <div className="mt-2">
-                <BuscaPacienteFiltro onPacienteSelecionado={handlePacienteSelecionado} limparFiltros={true} />
-              </div>
+                <BuscaPacienteFiltro 
+                  onPacienteSelecionado={handlePacienteSelecionado} 
+                  valorInicial={limparCampos ? '' : valorInicial} // Use limparCampos para definir o valor inicial
+                  limparFiltros={limparCampos} // Passe limparCampos como prop limparFiltros
+                />
+              </div>  
             </div>
             <div className="sm:col-span-2">
               <label htmlFor="paciente" className="block text-sm font-medium leading-6 text-gray-900">Enfermeiro</label>
@@ -257,7 +265,7 @@ const handlePrevPage = async () => {
                 <select
                     id="statusAtendimento"
                     name="statusAtendimento"
-                    value={filtros.statusAtendimento}
+                    value={filtros.StatusAtendimento}
                     onChange={handleFilterChange}
                     autoComplete="statusAtendimento"
                     className="block w-full rounded-md border-0 py-2 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
