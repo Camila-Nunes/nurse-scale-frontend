@@ -1,5 +1,6 @@
 import Page from "@/components/Page";
 import { useEffect, useState } from "react";
+import { format, startOfMonth, endOfMonth } from 'date-fns';
 import api from '../../api';
 import Link from "next/link";
 import { FaTrashAlt, FaSpinner } from "react-icons/fa";
@@ -11,6 +12,12 @@ import ComboBoxClientes from "@/components/ComboBoxClientes ";
 import MonthFilter from "@/components/MonthFilter";
 import Pagination from "@/components/Pagination";
 import BuscaPacienteFiltro from "@/components/BuscaPacienteFiltro";
+import FiltroMes from "@/components/FiltroMes";
+import { GetStaticProps } from 'next';
+
+interface ListarAtendimentosProps {
+  meses: string[];
+}
 
 interface FiltrosState {
   Data: string;
@@ -32,7 +39,7 @@ const initialState: FiltrosState = {
   DiaPago: '',
 };
 
-export default function ListarAtendimentos() {
+const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
   const [clienteId, setClienteId] = useState<string>('');
   const [atendimentos, setAtendimentos]=useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -45,8 +52,33 @@ export default function ListarAtendimentos() {
   const [limparCampos, setLimparCampos] = useState<boolean>(false);
   const [valorInicial, setValorInicial] = useState<string>('');
 
-  const handleDateChange = (selectedDate: Date) => {
-    console.log('Selected Date:', selectedDate);
+  const [Data, setData] = useState<string>('');
+  const [Atendimento, setAtendimento] = useState(0);
+  const [Empresa, setEmpresa] = useState<string>('');
+  const [Paciente,setPaciente] = useState<string>('');
+  const [Enfermeiro, setEnfermeiro] = useState<string>('');
+  const [StatusAtendimento, setStatusAtendimento] = useState<string>('');
+  const [DiaPago, setDiaPago] = useState<string>('');
+  const [selectedMonth, setSelectedMonth] = useState(format(new Date(), 'MMMM'));
+
+  const handleAtendimentosSubmit = async (selectedMonth: string, monthIndex: number) => {
+    setSelectedMonth(selectedMonth);
+    //loadAtendimentosData(monthIndex);
+  };
+
+  // const loadAtendimentosData = async (monthIndex: number) => {
+  //   try {
+  //     await Promise.all([
+  //       getAtendimentos()  
+  //     ]);
+  //   } catch (error) {
+  //     toast.error('Erro ao carregar o dashboard.');
+  //   }
+  // };
+
+  const getMonthNumber = (monthName: string) => {
+    const monthIndex = meses.indexOf(monthName);
+    return monthIndex + 1;
   };
 
   async function getQtdAtendimentos(){
@@ -60,7 +92,9 @@ export default function ListarAtendimentos() {
   };
 
   useEffect(()=>{
-    getAtendimentos(currentPage, 10)
+    getAtendimentos(currentPage, 10);
+    const currentMonthIndex = getMonthNumber(selectedMonth);
+    //loadAtendimentosData(currentMonthIndex);
   }, []);
 
   useEffect(()=>{
@@ -120,7 +154,7 @@ const handlePrevPage = async () => {
     setEnfermeiroId(novoId);
     setFiltros((prevFiltros) => ({
       ...prevFiltros,
-      enfermeiroId: novoId,
+      enfermeiro: novoId,
     }));
   
     console.log(novoId);
@@ -130,7 +164,7 @@ const handlePrevPage = async () => {
     setPacienteId(id || '');
     setFiltros((prevFiltros) => ({
       ...prevFiltros,
-      pacienteId: id || '',
+      paciente: id || '',
     }));
   
     console.log(id);
@@ -140,7 +174,7 @@ const handlePrevPage = async () => {
     setClienteId(selectedClienteId);
     setFiltros((prevFiltros) => ({
       ...prevFiltros,
-      empresa: selectedClienteId,
+      Empresa: selectedClienteId,
     }));
   
     console.log(selectedClienteId);
@@ -198,16 +232,34 @@ const handlePrevPage = async () => {
   
   const resetarFiltros = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    setFiltros(initialState); // Redefine os filtros para o estado inicial
+  
+    // Resetar os filtros individualmente
+    setData('');
+    setAtendimento(0);
+    setEmpresa('');
+    setPaciente('');
+    setEnfermeiro('');
+    setStatusAtendimento('');
+    setDiaPago('');
+  
+    // Atualizar o estado de todos os filtros de uma vez
+    setFiltros({
+      Data: '',
+      Atendimento: 0,
+      Empresa: '',
+      Paciente: '',
+      Enfermeiro: '',
+      StatusAtendimento: '',
+      DiaPago: ''
+    });
+  
     setCurrentPage(1); // Volta para a primeira página
     // Chame a função para buscar os atendimentos com os filtros resetados
-    getAtendimentos(1, 10);
-    // Redefina outros estados relevantes para seus valores iniciais, se houver
-    setPacienteId('');
-    setEnfermeiroId('');
+    getAtendimentos(1, totalItems);
     // Defina limparCampos como true para limpar os campos Empresa e Paciente
     setLimparCampos(true);
   };
+  
 
   return (
     <Page titulo="Atendimentos">
@@ -216,13 +268,8 @@ const handlePrevPage = async () => {
           <button type="button" className="rounded-md bg-teal-600 px-3 py-2 text-sm font-semibold leading-6 text-white">Novo Atendimento</button>     
         </Link>
         <div className="mt-2 mx-auto pt-4 shadow rounded-md bg-slate-50">
-          <div className="grid grid-cols-1 gap-x-10 gap-y-8 sm:grid-cols-12">
-            <div className="sm:col-span-2">
-              <label htmlFor="paciente" className="block text-sm font-medium leading-6 text-gray-900">Data</label>
-              <div>
-                <MonthFilter onChange={handleDateChange} />
-              </div>
-            </div>
+          <div className="grid grid-cols-1 gap-x-10 gap-y-8 sm:grid-cols-12">           
+            <FiltroMes meses={meses} onChange={handleAtendimentosSubmit} />
             <div className="sm:col-span-1">
               <label htmlFor="paciente" className="block text-sm font-medium leading-6 text-gray-900">Atendimento</label>
               <div className="mt-2">
@@ -231,7 +278,7 @@ const handlePrevPage = async () => {
                   name="atendimento"
                   id="atendimento"
                   autoComplete="given-name"
-                  value={filtros.Atendimento}
+                  value={Atendimento}
                   onChange={handleFilterChange}
                   className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
@@ -259,13 +306,13 @@ const handlePrevPage = async () => {
                 <BuscaEnfermeiroFiltro onEnfermeiroSelecionado={handleEnfermeiroSelecionado} />
               </div>
             </div>
-            <div className="sm:col-span-1">
+            <div className="sm:col-span-2">
               <label htmlFor="statusAtendimento" className="block text-sm font-medium leading-6 text-gray-900">Status</label>
               <div className="mt-2">
                 <select
                     id="statusAtendimento"
                     name="statusAtendimento"
-                    value={filtros.StatusAtendimento}
+                    value={StatusAtendimento}
                     onChange={handleFilterChange}
                     autoComplete="statusAtendimento"
                     className="block w-full rounded-md border-0 py-2 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
@@ -284,7 +331,7 @@ const handlePrevPage = async () => {
                 <select
                     id="DiaPago"
                     name="DiaPago"
-                    value={filtros.DiaPago}
+                    value={DiaPago}
                     onChange={handleFilterChange}
                     autoComplete="DiaPago"
                     className="block w-full rounded-md border-0 py-2 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
@@ -296,8 +343,8 @@ const handlePrevPage = async () => {
               </div>
             </div>
             <div className="flex gap-3 mt-8 sm:col-span-1 text-center">
-              <button className="flex items-center justify-between bg-gray-700 hover:bg-gray-500 hover:text-white text-white text-lg font-semibold py-1 px-3 rounded" onClick={(e) => handleFilterSubmit(e, currentPage, itensPorPagina)}><TbFilter/></button>  
-              <button className="flex items-center justify-between bg-gray-700 hover:bg-gray-500 hover:text-white text-white text-lg font-semibold py-1 px-3 rounded" onClick={resetarFiltros}><TbFilterX/></button> 
+              <button className="flex items-center justify-between bg-gray-700 hover:bg-gray-500 hover:text-white text-white text-lg font-semibold py-1 px-6 rounded" onClick={(e) => handleFilterSubmit(e, currentPage, itensPorPagina)}><TbFilter/></button>  
+              <button className="flex items-center justify-between bg-gray-700 hover:bg-gray-500 hover:text-white text-white text-lg font-semibold py-1 px-6 rounded" onClick={resetarFiltros}><TbFilterX/></button> 
             </div>
           </div>
           <div className="mt-6 overflow-auto rounded-lg shadow hidden md:block">
@@ -368,3 +415,16 @@ const handlePrevPage = async () => {
     </Page>
   )
 }
+
+export const getStaticProps: GetStaticProps<ListarAtendimentosProps> = async () => {
+  // Gere os meses dinamicamente ou carregue de uma API
+  const meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+
+  return {
+    props: {
+      meses,
+    },
+  };
+};
+
+export default ListarAtendimentos;
