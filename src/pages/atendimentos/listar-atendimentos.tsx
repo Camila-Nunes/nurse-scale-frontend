@@ -124,29 +124,33 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     }
   };
 
+  const handleNextPrevPageChange = async (page: number) => {
+    try {
+      const response = await api.post(`/api/Atendimentos/filtro`, {
+        FiltroAtendimentoModel: filtros, // Certifique-se de que filtros esteja no formato esperado pelo modelo
+        PaginationParameters: {
+          page: page,
+          pageSize: itensPorPagina
+        }
+      });
+      const { data } = response;
+      setAtendimentos(data.results); // Define os dados filtrados da página
+      setCurrentPage(page); // Atualiza o estado da página atual
+    } catch (error) {
+      toast.error('Erro ao chamar a API.');
+    }
+  };
+  
   const handleNextPage = async () => {
     const nextPage = currentPage + 1;
-    try {
-        const response = await api.post(`/api/Atendimentos/filtro?page=${nextPage}&pageSize=${itensPorPagina}`);
-        const { data } = response;
-        setAtendimentos(response.data); // Define os dados filtrados da próxima página
-        setCurrentPage(nextPage); // Atualiza o estado da página atual
-    } catch (error) {
-        toast.error('Erro ao chamar a API.');
-    }
-};
-
-const handlePrevPage = async () => {
-  const prevPage = currentPage - 1;
-  try {
-      const response = await api.post(`/api/Atendimentos/filtro?page=${prevPage}&pageSize=${itensPorPagina}`);
-      const { data } = response;
-      setAtendimentos(data); // Define os dados filtrados da página anterior
-      setCurrentPage(prevPage); // Atualiza o estado da página atual
-  } catch (error) {
-      toast.error('Erro ao chamar a API.');
-  }
-};
+    await handleNextPrevPageChange(nextPage);
+  };
+  
+  const handlePrevPage = async () => {
+    const prevPage = currentPage - 1;
+    await handleNextPrevPageChange(prevPage);
+  };
+  
 
   const handleEnfermeiroSelecionado = (id: string) => {
     const novoId = id.trim();
