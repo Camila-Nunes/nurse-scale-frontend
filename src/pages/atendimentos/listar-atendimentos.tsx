@@ -13,6 +13,7 @@ import MonthFilter from "@/components/MonthFilter";
 import Pagination from "@/components/Pagination";
 import BuscaPacienteFiltro from "@/components/BuscaPacienteFiltro";
 import FiltroMes from "@/components/FiltroMes";
+import AnoSelect from "@/components/AnoSelect";
 import { GetStaticProps } from 'next';
 interface ListarAtendimentosProps {
   meses: string[];
@@ -60,8 +61,16 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
   const [DiaPago, setDiaPago] = useState<string>('');
   const [selectedMonth, setSelectedMonth] = useState(format(new Date(), 'MMMM'));
 
+  const [selectedYear, setSelectedYear] = useState<number>(
+    new Date().getFullYear()
+  );
+
   const handleAtendimentosSubmit = async (selectedMonth: string, monthIndex: number) => {
     setSelectedMonth(selectedMonth);
+  };
+
+  const handleSelectYear = (year: number) => {
+    setSelectedYear(year);
   };
 
   const getMonthNumber = (monthName: string) => {
@@ -252,7 +261,9 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
       const { results, totalCount, totalPages } = response.data;
       setAtendimentos(results);
       setTotalPaginas(totalPages);
+      setTotalItems(totalCount);
       setLimparCampos(true);
+      setClienteId('-1');
     } catch (error) {
       toast.error('Erro ao chamar a API.');
     }
@@ -267,6 +278,10 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
         <div className="mt-2 mx-auto pt-4 shadow rounded-md bg-slate-50">
           <div className="grid grid-cols-1 gap-x-10 gap-y-8 sm:grid-cols-12">           
             <FiltroMes meses={meses} onChange={handleAtendimentosSubmit} />
+            <div>
+              <label htmlFor="" className="mb-2 block text-sm font-medium leading-6 text-gray-900">Ano</label>
+              <AnoSelect onSelectYear={handleSelectYear} />
+            </div>
             <div className="sm:col-span-2">
               <label htmlFor="paciente" className="block text-sm font-medium leading-6 text-gray-900">Empresa</label>
               <div className="mt-2">
