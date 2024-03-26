@@ -232,10 +232,9 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     }
   };
   
-  const resetarFiltros = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const resetarFiltros = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
   
-    // Resetar os filtros individualmente
     setData('');
     setAtendimento(0);
     setEmpresa('');
@@ -244,8 +243,7 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     setStatusAtendimento('');
     setDiaPago('');
   
-    // Atualizar o estado de todos os filtros de uma vez
-    setFiltros({
+    const novosFiltros = {
       Data: '',
       Atendimento: 0,
       Empresa: '',
@@ -253,15 +251,28 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
       Enfermeiro: '',
       StatusAtendimento: '',
       DiaPago: ''
-    });
+    };
   
-    setCurrentPage(1); // Volta para a primeira página
-    // Chame a função para buscar os atendimentos com os filtros resetados
-    getAtendimentos(1, totalItems);
-    // Defina limparCampos como true para limpar os campos Empresa e Paciente
-    setLimparCampos(true);
+    setFiltros(novosFiltros);
+    setCurrentPage(1);
+    
+    try {
+      const response = await api.post(`/api/Atendimentos/filtro`, {
+        FiltroAtendimentoModel: novosFiltros, // Certifique-se de que novosFiltros esteja no formato esperado pelo modelo
+        PaginationParameters: {
+          page: 1,
+          pageSize: 10 // Ajuste conforme necessário
+        }
+      });
+  
+      const { results, totalCount, totalPages } = response.data;
+      setAtendimentos(results); // Define os dados filtrados da página
+      setTotalPaginas(totalPages);
+      setLimparCampos(true);
+    } catch (error) {
+      toast.error('Erro ao chamar a API.');
+    }
   };
-  
 
   return (
     <Page titulo="Atendimentos">
