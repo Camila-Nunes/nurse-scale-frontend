@@ -14,7 +14,6 @@ import Pagination from "@/components/Pagination";
 import BuscaPacienteFiltro from "@/components/BuscaPacienteFiltro";
 import FiltroMes from "@/components/FiltroMes";
 import { GetStaticProps } from 'next';
-
 interface ListarAtendimentosProps {
   meses: string[];
 }
@@ -63,18 +62,7 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
 
   const handleAtendimentosSubmit = async (selectedMonth: string, monthIndex: number) => {
     setSelectedMonth(selectedMonth);
-    //loadAtendimentosData(monthIndex);
   };
-
-  // const loadAtendimentosData = async (monthIndex: number) => {
-  //   try {
-  //     await Promise.all([
-  //       getAtendimentos()  
-  //     ]);
-  //   } catch (error) {
-  //     toast.error('Erro ao carregar o dashboard.');
-  //   }
-  // };
 
   const getMonthNumber = (monthName: string) => {
     const monthIndex = meses.indexOf(monthName);
@@ -94,7 +82,6 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
   useEffect(()=>{
     getAtendimentos(currentPage, 10);
     const currentMonthIndex = getMonthNumber(selectedMonth);
-    //loadAtendimentosData(currentMonthIndex);
   }, []);
 
   useEffect(()=>{
@@ -151,7 +138,6 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     await handleNextPrevPageChange(prevPage);
   };
   
-
   const handleEnfermeiroSelecionado = (id: string) => {
     const novoId = id.trim();
   
@@ -211,7 +197,6 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     }
   
     try {
-      // Fazendo as duas chamadas concorrentemente
       const filteredResponse = await api.post(`/api/Atendimentos/filtro`, {
         FiltroAtendimentoModel: filtros, // Certifique-se de que filtros esteja no formato esperado pelo modelo
         PaginationParameters: {
@@ -219,7 +204,6 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
           pageSize: pageSize
         }
       });
-      // Extrai os dados de cada resposta
       const { results, totalCount, totalPages } = filteredResponse.data;
   
       // Atualiza os estados com os dados recebidos
@@ -261,12 +245,12 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
         FiltroAtendimentoModel: novosFiltros, // Certifique-se de que novosFiltros esteja no formato esperado pelo modelo
         PaginationParameters: {
           page: 1,
-          pageSize: 10 // Ajuste conforme necessário
+          pageSize: 10
         }
       });
   
       const { results, totalCount, totalPages } = response.data;
-      setAtendimentos(results); // Define os dados filtrados da página
+      setAtendimentos(results);
       setTotalPaginas(totalPages);
       setLimparCampos(true);
     } catch (error) {
@@ -294,8 +278,8 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
               <div className="mt-2">
                 <BuscaPacienteFiltro 
                   onPacienteSelecionado={handlePacienteSelecionado} 
-                  valorInicial={limparCampos ? '' : valorInicial} // Use limparCampos para definir o valor inicial
-                  limparFiltros={limparCampos} // Passe limparCampos como prop limparFiltros
+                  valorInicial={limparCampos ? '' : valorInicial}
+                  limparFiltros={limparCampos}
                 />
               </div>  
             </div>
@@ -378,8 +362,6 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
                       {atendimento.statusAtendimento}
                     </span>
                   </td>
-
-
                   <td className="text-left w-72 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.localAtendimento}  - {atendimento.estadoAtendimento}</td>
                   <td className="text-left w-72 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.assistencia}</td>
                   <td className="text-right w-40 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">
@@ -414,7 +396,6 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
 }
 
 export const getStaticProps: GetStaticProps<ListarAtendimentosProps> = async () => {
-  // Gere os meses dinamicamente ou carregue de uma API
   const meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
 
   return {
