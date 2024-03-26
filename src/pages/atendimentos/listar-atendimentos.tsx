@@ -350,7 +350,6 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
           <table className="w-full border border-collapse">
             <thead className="text-left text-white border-b-2 border-gray-200 bg-teal-600 border-r">
               <tr>
-                <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Atendimento</th>
                 <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Empresa</th>
                 <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Paciente</th>
                 <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Enfermeiro</th>
@@ -367,7 +366,6 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
             <tbody className="divide-y divide-gray-100">
               {atendimentos && atendimentos.map((atendimento: any) => (
                 <tr key={atendimento.atendimentoId} className="border-b border-gray-200">
-                  <td className="text-left w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.numeroAtendimento}</td>
                   <td className="text-left w-48 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.nomeFantasia}</td>
                   <td className="text-left w-48 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.paciente}</td>
                   <td className="text-left w-48 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.enfermeiro}</td>
