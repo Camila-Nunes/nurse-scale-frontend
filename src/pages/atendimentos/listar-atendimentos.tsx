@@ -208,25 +208,23 @@ const handlePrevPage = async () => {
   
     try {
       // Fazendo as duas chamadas concorrentemente
-      const [countResponse, filteredResponse] = await Promise.all([
-        api.post(`/api/Atendimentos/quantidade-registros-filtrados-por-mes`, filtros),
-        api.post(`/api/Atendimentos/filtro?page=${page}&pageSize=${pageSize}`, {
-          ...filtros,
+      const filteredResponse = await api.post(`/api/Atendimentos/filtro`, {
+        FiltroAtendimentoModel: filtros, // Certifique-se de que filtros esteja no formato esperado pelo modelo
+        PaginationParameters: {
           page: page,
           pageSize: pageSize
-        })
-      ]);
-  
+        }
+      });
       // Extrai os dados de cada resposta
-      const { totalItems } = countResponse.data;
-      const { data } = filteredResponse.data;
+      const { results, totalCount, totalPages } = filteredResponse.data;
   
       // Atualiza os estados com os dados recebidos
-      setAtendimentos(filteredResponse.data);
+      setAtendimentos(results);
       setCurrentPage(page);
-      setTotalPaginas(Math.ceil(totalItems / pageSize));
-    } catch (error) {
-      toast.error('Erro ao chamar a API.');
+      setTotalItems(totalCount);
+      setTotalPaginas(totalPages);
+    } catch (error: any) {
+      toast.error('Erro ao chamar a API.' + error.message);
     }
   };
   
