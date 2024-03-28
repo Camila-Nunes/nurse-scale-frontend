@@ -164,29 +164,26 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     page: number,
     endpoint: string,
     mes?: number,
-    ano?: number,
-    filtros?: any
+    ano?: number
   ) => {
       try {
-        
         let queryString = `?page=${page}&pageSize=${itensPorPagina}&mes=${mes}&ano=${ano}`;
+        // Verifica se há filtros preenchidos
+        const filtrosPreenchidos = filtros && Object.values(filtros).some(value => !!value);
 
-          // Verifica se há filtros preenchidos
-          const filtrosPreenchidos = filtros && Object.values(filtros).some(value => !!value);
+        // Se houver filtros preenchidos, constrói a queryString
+        if (filtrosPreenchidos) {
+          queryString += '&' + Object.entries(filtros).map(([key, value]) => `${key}=${value}`).join('&');
+        }
 
-          // Se houver filtros preenchidos, constrói a queryString
-          if (filtrosPreenchidos) {
-            queryString += '&' + Object.entries(filtros).map(([key, value]) => `${key}=${value}`).join('&');
-          }
+        // Constrói a URL completa com endpoint e queryString
+        const url = `/api/Atendimentos/${endpoint}` + queryString;
 
-          // Constrói a URL completa com endpoint e queryString
-          const url = `/api/Atendimentos/${endpoint}` + queryString;
-
-          // Faz a requisição para a API
-          const response = await api.get(url);
-          const { data } = response;
-          setAtendimentos(data.results);
-          setCurrentPage(page);
+        // Faz a requisição para a API
+        const response = await api.get(url);
+        const { data } = response;
+        setAtendimentos(data.results);
+        setCurrentPage(page);
       } catch (error) {
           toast.error('Erro ao chamar a API.');
       }
@@ -275,32 +272,38 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     try {
       let queryString = `?page=${page}&pageSize=${itensPorPagina}&mes=${mes}&ano=${ano}`;
 
-        // Verifica se há filtros preenchidos
-        const filtrosPreenchidos = Object.values(filtros).some(value => !!value);
+      // Verifica se há filtros preenchidos
+      const filtrosPreenchidos = Object.values(filtros).some(value => !!value);
 
-        // Se houver filtros preenchidos, constrói a queryString
-        if (filtrosPreenchidos) {
-          queryString += '&' + Object.entries(filtros).map(([key, value]) => `${key}=${value}`).join('&');
-        }
+      // Se houver filtros preenchidos, constrói a queryString
+      if (filtrosPreenchidos) {
+        queryString += '&' + Object.entries(filtros).map(([key, value]) => `${key}=${value}`).join('&');
+      }
 
-        // Faz a requisição para a API
-        const response = await api.get(`/api/Atendimentos/filtro${queryString}&page=${page}&pageSize=${pageSize}&mes=${mes}&ano=${ano}`);
-        const { results, totalCount, totalPages } = response.data;
+      // Faz a requisição para a API
+      const response = await api.get(`/api/Atendimentos/filtro${queryString}&page=${page}&pageSize=${pageSize}&mes=${mes}&ano=${ano}`);
+      const { results, totalCount, totalPages } = response.data;
 
-        // Atualiza os estados com os dados recebidos
-        setAtendimentos(results);
-        setCurrentPage(page);
-        setTotalItems(totalCount);
-        setTotalPaginas(totalPages);
+      // Atualiza os estados com os dados recebidos
+      setAtendimentos(results);
+      setCurrentPage(page);
+      setTotalItems(totalCount);
+      setTotalPaginas(totalPages);
     } catch (error: any) {
         toast.error('Erro ao chamar a API.' + error.message);
     }
-};
+  };
 
-  
-  const resetarFiltros = async (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-  
+  const resetarFiltros = async (e: React.MouseEvent<HTMLButtonElement>| null,
+    mes: number,
+    ano: number
+    
+    ) => {
+
+      if (e) {
+        e.preventDefault();
+    }
+
     setData('');
     setAtendimento(0);
     setEmpresa('');
@@ -308,37 +311,43 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     setEnfermeiro('');
     setStatusAtendimento('');
     setDiaPago('');
-  
+
     const novosFiltros = {
-      Data: '',
-      Atendimento: 0,
-      Empresa: '',
-      Paciente: '',
-      Enfermeiro: '',
-      StatusAtendimento: '',
-      DiaPago: ''
+        Data: '',
+        Atendimento: 0,
+        Empresa: '',
+        Paciente: '',
+        Enfermeiro: '',
+        StatusAtendimento: '',
+        DiaPago: ''
     };
-  
+
     setFiltros(novosFiltros);
     setCurrentPage(1);
-    
+
     try {
-      const response = await api.post(`/api/Atendimentos/filtro`, {
-        FiltroAtendimentoModel: novosFiltros, // Certifique-se de que novosFiltros esteja no formato esperado pelo modelo
-        PaginationParameters: {
-          page: currentPage,
-          pageSize: itensPorPagina
-        }
-      });
-  
+      let queryString = `?page=1&pageSize=10&mes=${mes}&ano=${ano}`;
+
+      // Verifica se há filtros preenchidos
+      const filtrosPreenchidos = Object.values(novosFiltros).some(value => !!value);
+
+      // Se houver filtros preenchidos, constrói a queryString
+      if (filtrosPreenchidos) {
+          queryString = '?' + Object.entries(novosFiltros).map(([key, value]) => `${key}=${value}`).join('&');
+      }
+
+      // Faz a requisição para a API
+      const response = await api.get(`/api/Atendimentos/filtro${queryString}&page=1&pageSize=${itensPorPagina}`);
       const { results, totalCount, totalPages } = response.data;
+
+      // Atualiza os estados com os dados recebidos
       setAtendimentos(results);
       setTotalPaginas(totalPages);
       setTotalItems(totalCount);
       setLimparCampos(true);
       setClienteId('-1');
     } catch (error) {
-      toast.error('Erro ao chamar a API.');
+        toast.error('Erro ao chamar a API.');
     }
   };
 
@@ -415,7 +424,7 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
             </div>
             <div className="flex gap-3 mt-8 sm:col-span-1 text-center">
               <button className="flex items-center justify-between bg-gray-700 hover:bg-gray-500 hover:text-white text-white text-lg font-semibold py-1 px-6 rounded" onClick={(e) => handleFilterSubmit(e, currentPage, itensPorPagina, indexMonth, selectedYear)}><TbFilter/></button>  
-              <button className="flex items-center justify-between bg-gray-700 hover:bg-gray-500 hover:text-white text-white text-lg font-semibold py-1 px-6 rounded" onClick={resetarFiltros}><TbFilterX/></button> 
+              <button className="flex items-center justify-between bg-gray-700 hover:bg-gray-500 hover:text-white text-white text-lg font-semibold py-1 px-6 rounded" onClick={(e) => resetarFiltros(e, indexMonth, selectedYear)}><TbFilterX/></button> 
             </div>
           </div>
           <div className="mt-6 overflow-auto rounded-lg shadow hidden md:block">
