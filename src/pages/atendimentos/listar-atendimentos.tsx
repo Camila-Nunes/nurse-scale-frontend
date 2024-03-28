@@ -72,6 +72,7 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
   const [Enfermeiro, setEnfermeiro] = useState<string>('');
   const [StatusAtendimento, setStatusAtendimento] = useState<string>('');
   const [DiaPago, setDiaPago] = useState<string>('');
+  const [indexMonth, setIndexMonth] = useState<number>(0);
 
   const fullMonthName = format(new Date(), 'MMMM', { locale: pt });
   const monthName = fullMonthName.charAt(0).toUpperCase() + fullMonthName.slice(1);
@@ -92,7 +93,11 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
 
   const getMonthNumber = (monthName: string) => {
     const monthIndex = meses.indexOf(monthName);
-    return monthIndex + 1;
+    const numberMonth = monthIndex + 1;
+    
+    setIndexMonth(numberMonth);
+
+    return numberMonth;
   };
 
   async function getQtdAtendimentos(){
@@ -120,13 +125,23 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
 
   async function getAtendimentos(page: number, pageSize: number, mes: number, ano: number) {
     try {
-      const queryString = `?page=${page}&pageSize=${pageSize}&mes=${mes}&ano=${ano}`;
+      let queryString = `?page=${page}&pageSize=${pageSize}&mes=${mes}&ano=${ano}`;
+      
+      // Verifica se há algum filtro preenchido
+      const filtrosPreenchidos = Object.values(filtros).some(value => !!value);
+      
+      // Se houver algum filtro preenchido, adiciona os filtros à queryString
+      if (filtrosPreenchidos) {
+        queryString += '&' + Object.entries(filtros).map(([key, value]) => `${key}=${value}`).join('&');
+      }
+      
       const response = await api.get(`/api/Atendimentos/todos-atendimentos${queryString}`);
       setAtendimentos(response.data.results);
     } catch (error: any) {
       toast.error("Erro ao carregar dados. " + error.message);
     }
-  }
+ }
+
 
   async function handleDeleteClick(event: React.MouseEvent<HTMLButtonElement>, idAtendimentos: string) {
     event.preventDefault();
@@ -152,16 +167,31 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     ano?: number,
     filtros?: any
   ) => {
-    try {
-      const queryString = `?page=${page}&pageSize=${itensPorPagina}&mes=${mes}&ano=${ano}`;
-      const response = await api.get(`/api/Atendimentos/${endpoint}${queryString}`);
-      const { data } = response;
-      setAtendimentos(data.results);
-      setCurrentPage(page);
-    } catch (error) {
-      toast.error('Erro ao chamar a API.');
-    }
+      try {
+        
+        let queryString = `?page=${page}&pageSize=${itensPorPagina}&mes=${mes}&ano=${ano}`;
+
+          // Verifica se há filtros preenchidos
+          const filtrosPreenchidos = filtros && Object.values(filtros).some(value => !!value);
+
+          // Se houver filtros preenchidos, constrói a queryString
+          if (filtrosPreenchidos) {
+            queryString += '&' + Object.entries(filtros).map(([key, value]) => `${key}=${value}`).join('&');
+          }
+
+          // Constrói a URL completa com endpoint e queryString
+          const url = `/api/Atendimentos/${endpoint}` + queryString;
+
+          // Faz a requisição para a API
+          const response = await api.get(url);
+          const { data } = response;
+          setAtendimentos(data.results);
+          setCurrentPage(page);
+      } catch (error) {
+          toast.error('Erro ao chamar a API.');
+      }
   };
+
 
   const handleNextPage = async () => {
     const nextPage = currentPage + 1;
@@ -178,7 +208,7 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
   const handlePrevPage = async () => {
     const prevPage = currentPage - 1;
     const mes = getMonthNumber(selectedMonth);
-    //setCurrentPage(prevPage);
+    setCurrentPage(prevPage);
     const endpoint = hasFiltros(filtros) ? 'filtro' : 'todos-atendimentos';
     await handleNextPrevPageChange(prevPage, endpoint, mes, selectedYear);
   };
@@ -189,7 +219,7 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     setEnfermeiroId(novoId);
     setFiltros((prevFiltros) => ({
       ...prevFiltros,
-      enfermeiro: novoId,
+      Enfermeiro: novoId,
     }));
   
     console.log(novoId);
@@ -199,7 +229,7 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     setPacienteId(id || '');
     setFiltros((prevFiltros) => ({
       ...prevFiltros,
-      paciente: id || '',
+      Paciente: id || '',
     }));
   
     console.log(id);
@@ -231,35 +261,42 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     }
   };
   
-  const handleFilterSubmit = async (e: React.MouseEvent<HTMLButtonElement> | null, page: number, pageSize: number) => {
+  const handleFilterSubmit = async (
+    e: React.MouseEvent<HTMLButtonElement> | null,
+    page: number,
+    pageSize: number,
+    mes: number,
+    ano: number
+) => {
     if (e) {
-      e.preventDefault();
+        e.preventDefault();
     }
-  
-    if (!Object.values(filtros).some(value => !!value)) {
-      toast.info('Não existe valor para ser filtrado.');
-      return;
-    }
-  
+
     try {
-      const filteredResponse = await api.post(`/api/Atendimentos/filtro`, {
-        FiltroAtendimentoModel: filtros, // Certifique-se de que filtros esteja no formato esperado pelo modelo
-        PaginationParameters: {
-          page: currentPage,
-          pageSize: itensPorPagina
+      let queryString = `?page=${page}&pageSize=${itensPorPagina}&mes=${mes}&ano=${ano}`;
+
+        // Verifica se há filtros preenchidos
+        const filtrosPreenchidos = Object.values(filtros).some(value => !!value);
+
+        // Se houver filtros preenchidos, constrói a queryString
+        if (filtrosPreenchidos) {
+          queryString += '&' + Object.entries(filtros).map(([key, value]) => `${key}=${value}`).join('&');
         }
-      });
-      const { results, totalCount, totalPages } = filteredResponse.data;
-  
-      // Atualiza os estados com os dados recebidos
-      setAtendimentos(results);
-      setCurrentPage(page);
-      setTotalItems(totalCount);
-      setTotalPaginas(totalPages);
+
+        // Faz a requisição para a API
+        const response = await api.get(`/api/Atendimentos/filtro${queryString}&page=${page}&pageSize=${pageSize}&mes=${mes}&ano=${ano}`);
+        const { results, totalCount, totalPages } = response.data;
+
+        // Atualiza os estados com os dados recebidos
+        setAtendimentos(results);
+        setCurrentPage(page);
+        setTotalItems(totalCount);
+        setTotalPaginas(totalPages);
     } catch (error: any) {
-      toast.error('Erro ao chamar a API.' + error.message);
+        toast.error('Erro ao chamar a API.' + error.message);
     }
-  };
+};
+
   
   const resetarFiltros = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
@@ -377,7 +414,7 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
               </div>
             </div>
             <div className="flex gap-3 mt-8 sm:col-span-1 text-center">
-              <button className="flex items-center justify-between bg-gray-700 hover:bg-gray-500 hover:text-white text-white text-lg font-semibold py-1 px-6 rounded" onClick={(e) => handleFilterSubmit(e, currentPage, itensPorPagina)}><TbFilter/></button>  
+              <button className="flex items-center justify-between bg-gray-700 hover:bg-gray-500 hover:text-white text-white text-lg font-semibold py-1 px-6 rounded" onClick={(e) => handleFilterSubmit(e, currentPage, itensPorPagina, indexMonth, selectedYear)}><TbFilter/></button>  
               <button className="flex items-center justify-between bg-gray-700 hover:bg-gray-500 hover:text-white text-white text-lg font-semibold py-1 px-6 rounded" onClick={resetarFiltros}><TbFilterX/></button> 
             </div>
           </div>
