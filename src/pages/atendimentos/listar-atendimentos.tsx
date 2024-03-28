@@ -15,6 +15,8 @@ import BuscaPacienteFiltro from "@/components/BuscaPacienteFiltro";
 import FiltroMes from "@/components/FiltroMes";
 import AnoSelect from "@/components/AnoSelect";
 import { GetStaticProps } from 'next';
+import { pt } from 'date-fns/locale';
+
 interface ListarAtendimentosProps {
   meses: string[];
 }
@@ -39,6 +41,17 @@ const initialState: FiltrosState = {
   DiaPago: '',
 };
 
+interface PaginationParameters {
+  page: number;
+  pageSize: number;
+}
+
+interface AtendimentoRequest {
+  paginationParameters: PaginationParameters;
+  mes: number;
+  ano: number;
+}
+
 const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
   const [clienteId, setClienteId] = useState<string>('');
   const [atendimentos, setAtendimentos]=useState([]);
@@ -59,7 +72,11 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
   const [Enfermeiro, setEnfermeiro] = useState<string>('');
   const [StatusAtendimento, setStatusAtendimento] = useState<string>('');
   const [DiaPago, setDiaPago] = useState<string>('');
-  const [selectedMonth, setSelectedMonth] = useState(format(new Date(), 'MMMM'));
+
+  const fullMonthName = format(new Date(), 'MMMM', { locale: pt });
+  const monthName = fullMonthName.charAt(0).toUpperCase() + fullMonthName.slice(1);
+
+  const [selectedMonth, setSelectedMonth] = useState(monthName);
 
   const [selectedYear, setSelectedYear] = useState<number>(
     new Date().getFullYear()
@@ -89,8 +106,8 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
   };
 
   useEffect(()=>{
-    getAtendimentos(currentPage, 10);
     const currentMonthIndex = getMonthNumber(selectedMonth);
+    getAtendimentos(currentPage, 10, currentMonthIndex, selectedYear);
   }, []);
 
   useEffect(()=>{
@@ -101,14 +118,15 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     setCurrentPage(pagina);
   };
 
-  async function getAtendimentos(page: number, pageSize: number){
-    const response = await api.get(`/api/Atendimentos/todos-atendimentos?page=${page}&pageSize=${pageSize}`)
-    .then(response => {
-      setAtendimentos(response.data.result);
-    }).catch(error => {
-       toast.error("Erro ao carregar dados. " + error)
-    })
-  };
+  async function getAtendimentos(page: number, pageSize: number, mes: number, ano: number) {
+    try {
+      const queryString = `?page=${page}&pageSize=${pageSize}&mes=${mes}&ano=${ano}`;
+      const response = await api.get(`/api/Atendimentos/todos-atendimentos${queryString}`);
+      setAtendimentos(response.data.results);
+    } catch (error: any) {
+      toast.error("Erro ao carregar dados. " + error.message);
+    }
+  }
 
   async function handleDeleteClick(event: React.MouseEvent<HTMLButtonElement>, idAtendimentos: string) {
     event.preventDefault();
@@ -120,31 +138,49 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     }
   };
 
-  const handleNextPrevPageChange = async (page: number) => {
+  interface AtendimentoRequest {
+    paginationParameters: PaginationParameters;
+    mes?: number;
+    ano?: number;
+    FiltroAtendimentoModel?: any;
+  }
+  
+  const handleNextPrevPageChange = async (
+    page: number,
+    endpoint: string,
+    mes?: number,
+    ano?: number,
+    filtros?: any
+  ) => {
     try {
-      const response = await api.post(`/api/Atendimentos/filtro`, {
-        FiltroAtendimentoModel: filtros, // Certifique-se de que filtros esteja no formato esperado pelo modelo
-        PaginationParameters: {
-          page: page,
-          pageSize: itensPorPagina
-        }
-      });
+      const queryString = `?page=${page}&pageSize=${itensPorPagina}&mes=${mes}&ano=${ano}`;
+      const response = await api.get(`/api/Atendimentos/${endpoint}${queryString}`);
       const { data } = response;
-      setAtendimentos(data.results); // Define os dados filtrados da página
-      setCurrentPage(page); // Atualiza o estado da página atual
+      setAtendimentos(data.results);
+      setCurrentPage(page);
     } catch (error) {
       toast.error('Erro ao chamar a API.');
     }
   };
-  
+
   const handleNextPage = async () => {
     const nextPage = currentPage + 1;
-    await handleNextPrevPageChange(nextPage);
+    const mes = getMonthNumber(selectedMonth);
+    setCurrentPage(nextPage);
+    const endpoint = hasFiltros(filtros) ? 'filtro' : 'todos-atendimentos';
+    await handleNextPrevPageChange(nextPage, endpoint, mes, selectedYear);
   };
   
+  const hasFiltros = (filtros: FiltrosState): boolean => {
+    return Object.values(filtros).some(value => !!value);
+  };
+    
   const handlePrevPage = async () => {
     const prevPage = currentPage - 1;
-    await handleNextPrevPageChange(prevPage);
+    const mes = getMonthNumber(selectedMonth);
+    //setCurrentPage(prevPage);
+    const endpoint = hasFiltros(filtros) ? 'filtro' : 'todos-atendimentos';
+    await handleNextPrevPageChange(prevPage, endpoint, mes, selectedYear);
   };
   
   const handleEnfermeiroSelecionado = (id: string) => {
@@ -209,8 +245,8 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
       const filteredResponse = await api.post(`/api/Atendimentos/filtro`, {
         FiltroAtendimentoModel: filtros, // Certifique-se de que filtros esteja no formato esperado pelo modelo
         PaginationParameters: {
-          page: page,
-          pageSize: pageSize
+          page: currentPage,
+          pageSize: itensPorPagina
         }
       });
       const { results, totalCount, totalPages } = filteredResponse.data;
@@ -253,8 +289,8 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
       const response = await api.post(`/api/Atendimentos/filtro`, {
         FiltroAtendimentoModel: novosFiltros, // Certifique-se de que novosFiltros esteja no formato esperado pelo modelo
         PaginationParameters: {
-          page: 1,
-          pageSize: 10
+          page: currentPage,
+          pageSize: itensPorPagina
         }
       });
   
