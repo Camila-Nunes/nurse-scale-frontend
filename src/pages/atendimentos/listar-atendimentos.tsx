@@ -13,7 +13,9 @@ import MonthFilter from "@/components/MonthFilter";
 import Pagination from "@/components/Pagination";
 import BuscaPacienteFiltro from "@/components/BuscaPacienteFiltro";
 import FiltroMes from "@/components/FiltroMes";
+import AnoSelect from "@/components/AnoSelect";
 import { GetStaticProps } from 'next';
+import { pt } from 'date-fns/locale';
 
 interface ListarAtendimentosProps {
   meses: string[];
@@ -39,6 +41,17 @@ const initialState: FiltrosState = {
   DiaPago: '',
 };
 
+interface PaginationParameters {
+  page: number;
+  pageSize: number;
+}
+
+interface AtendimentoRequest {
+  paginationParameters: PaginationParameters;
+  mes: number;
+  ano: number;
+}
+
 const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
   const [clienteId, setClienteId] = useState<string>('');
   const [atendimentos, setAtendimentos]=useState([]);
@@ -59,26 +72,32 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
   const [Enfermeiro, setEnfermeiro] = useState<string>('');
   const [StatusAtendimento, setStatusAtendimento] = useState<string>('');
   const [DiaPago, setDiaPago] = useState<string>('');
-  const [selectedMonth, setSelectedMonth] = useState(format(new Date(), 'MMMM'));
+  const [indexMonth, setIndexMonth] = useState<number>(0);
+
+  const fullMonthName = format(new Date(), 'MMMM', { locale: pt });
+  const monthName = fullMonthName.charAt(0).toUpperCase() + fullMonthName.slice(1);
+
+  const [selectedMonth, setSelectedMonth] = useState(monthName);
+
+  const [selectedYear, setSelectedYear] = useState<number>(
+    new Date().getFullYear()
+  );
 
   const handleAtendimentosSubmit = async (selectedMonth: string, monthIndex: number) => {
     setSelectedMonth(selectedMonth);
-    //loadAtendimentosData(monthIndex);
   };
 
-  // const loadAtendimentosData = async (monthIndex: number) => {
-  //   try {
-  //     await Promise.all([
-  //       getAtendimentos()  
-  //     ]);
-  //   } catch (error) {
-  //     toast.error('Erro ao carregar o dashboard.');
-  //   }
-  // };
+  const handleSelectYear = (year: number) => {
+    setSelectedYear(year);
+  };
 
   const getMonthNumber = (monthName: string) => {
     const monthIndex = meses.indexOf(monthName);
-    return monthIndex + 1;
+    const numberMonth = monthIndex + 1;
+    
+    setIndexMonth(numberMonth);
+
+    return numberMonth;
   };
 
   async function getQtdAtendimentos(){
@@ -92,9 +111,8 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
   };
 
   useEffect(()=>{
-    getAtendimentos(currentPage, 10);
     const currentMonthIndex = getMonthNumber(selectedMonth);
-    //loadAtendimentosData(currentMonthIndex);
+    getAtendimentos(currentPage, 10, currentMonthIndex, selectedYear);
   }, []);
 
   useEffect(()=>{
@@ -105,14 +123,25 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     setCurrentPage(pagina);
   };
 
-  async function getAtendimentos(page: number, pageSize: number){
-    const response = await api.get(`/api/Atendimentos/todos-atendimentos?page=${page}&pageSize=${pageSize}`)
-    .then(response => {
-      setAtendimentos(response.data.result);
-    }).catch(error => {
-       toast.error("Erro ao carregar dados. " + error)
-    })
-  };
+  async function getAtendimentos(page: number, pageSize: number, mes: number, ano: number) {
+    try {
+      let queryString = `?page=${page}&pageSize=${pageSize}&mes=${mes}&ano=${ano}`;
+      
+      // Verifica se há algum filtro preenchido
+      const filtrosPreenchidos = Object.values(filtros).some(value => !!value);
+      
+      // Se houver algum filtro preenchido, adiciona os filtros à queryString
+      if (filtrosPreenchidos) {
+        queryString += '&' + Object.entries(filtros).map(([key, value]) => `${key}=${value}`).join('&');
+      }
+      
+      const response = await api.get(`/api/Atendimentos/todos-atendimentos${queryString}`);
+      setAtendimentos(response.data.results);
+    } catch (error: any) {
+      toast.error("Erro ao carregar dados. " + error.message);
+    }
+ }
+
 
   async function handleDeleteClick(event: React.MouseEvent<HTMLButtonElement>, idAtendimentos: string) {
     event.preventDefault();
@@ -124,41 +153,70 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     }
   };
 
-  const handleNextPrevPageChange = async (page: number) => {
-    try {
-      const response = await api.post(`/api/Atendimentos/filtro`, {
-        FiltroAtendimentoModel: filtros, // Certifique-se de que filtros esteja no formato esperado pelo modelo
-        PaginationParameters: {
-          page: page,
-          pageSize: itensPorPagina
-        }
-      });
-      const { data } = response;
-      setAtendimentos(data.results); // Define os dados filtrados da página
-      setCurrentPage(page); // Atualiza o estado da página atual
-    } catch (error) {
-      toast.error('Erro ao chamar a API.');
-    }
-  };
+  interface AtendimentoRequest {
+    paginationParameters: PaginationParameters;
+    mes?: number;
+    ano?: number;
+    FiltroAtendimentoModel?: any;
+  }
   
+  const handleNextPrevPageChange = async (
+    page: number,
+    endpoint: string,
+    mes?: number,
+    ano?: number
+  ) => {
+      try {
+        let queryString = `?page=${page}&pageSize=${itensPorPagina}&mes=${mes}&ano=${ano}`;
+        // Verifica se há filtros preenchidos
+        const filtrosPreenchidos = filtros && Object.values(filtros).some(value => !!value);
+
+        // Se houver filtros preenchidos, constrói a queryString
+        if (filtrosPreenchidos) {
+          queryString += '&' + Object.entries(filtros).map(([key, value]) => `${key}=${value}`).join('&');
+        }
+
+        // Constrói a URL completa com endpoint e queryString
+        const url = `/api/Atendimentos/${endpoint}` + queryString;
+
+        // Faz a requisição para a API
+        const response = await api.get(url);
+        const { data } = response;
+        setAtendimentos(data.results);
+        setCurrentPage(page);
+      } catch (error) {
+          toast.error('Erro ao chamar a API.');
+      }
+  };
+
+
   const handleNextPage = async () => {
     const nextPage = currentPage + 1;
-    await handleNextPrevPageChange(nextPage);
+    const mes = getMonthNumber(selectedMonth);
+    setCurrentPage(nextPage);
+    const endpoint = hasFiltros(filtros) ? 'filtro' : 'todos-atendimentos';
+    await handleNextPrevPageChange(nextPage, endpoint, mes, selectedYear);
   };
   
+  const hasFiltros = (filtros: FiltrosState): boolean => {
+    return Object.values(filtros).some(value => !!value);
+  };
+    
   const handlePrevPage = async () => {
     const prevPage = currentPage - 1;
-    await handleNextPrevPageChange(prevPage);
+    const mes = getMonthNumber(selectedMonth);
+    setCurrentPage(prevPage);
+    const endpoint = hasFiltros(filtros) ? 'filtro' : 'todos-atendimentos';
+    await handleNextPrevPageChange(prevPage, endpoint, mes, selectedYear);
   };
   
-
   const handleEnfermeiroSelecionado = (id: string) => {
     const novoId = id.trim();
   
     setEnfermeiroId(novoId);
     setFiltros((prevFiltros) => ({
       ...prevFiltros,
-      enfermeiro: novoId,
+      Enfermeiro: novoId,
     }));
   
     console.log(novoId);
@@ -168,7 +226,7 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     setPacienteId(id || '');
     setFiltros((prevFiltros) => ({
       ...prevFiltros,
-      paciente: id || '',
+      Paciente: id || '',
     }));
   
     console.log(id);
@@ -200,42 +258,52 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     }
   };
   
-  const handleFilterSubmit = async (e: React.MouseEvent<HTMLButtonElement> | null, page: number, pageSize: number) => {
+  const handleFilterSubmit = async (
+    e: React.MouseEvent<HTMLButtonElement> | null,
+    page: number,
+    pageSize: number,
+    mes: number,
+    ano: number
+) => {
     if (e) {
-      e.preventDefault();
+        e.preventDefault();
     }
-  
-    if (!Object.values(filtros).some(value => !!value)) {
-      toast.info('Não existe valor para ser filtrado.');
-      return;
-    }
-  
+
     try {
-      // Fazendo as duas chamadas concorrentemente
-      const filteredResponse = await api.post(`/api/Atendimentos/filtro`, {
-        FiltroAtendimentoModel: filtros, // Certifique-se de que filtros esteja no formato esperado pelo modelo
-        PaginationParameters: {
-          page: page,
-          pageSize: pageSize
-        }
-      });
-      // Extrai os dados de cada resposta
-      const { results, totalCount, totalPages } = filteredResponse.data;
-  
+      let queryString = `?page=${page}&pageSize=${itensPorPagina}&mes=${mes}&ano=${ano}`;
+
+      // Verifica se há filtros preenchidos
+      const filtrosPreenchidos = Object.values(filtros).some(value => !!value);
+
+      // Se houver filtros preenchidos, constrói a queryString
+      if (filtrosPreenchidos) {
+        queryString += '&' + Object.entries(filtros).map(([key, value]) => `${key}=${value}`).join('&');
+      }
+
+      // Faz a requisição para a API
+      const response = await api.get(`/api/Atendimentos/filtro${queryString}&page=${page}&pageSize=${pageSize}&mes=${mes}&ano=${ano}`);
+      const { results, totalCount, totalPages } = response.data;
+
       // Atualiza os estados com os dados recebidos
       setAtendimentos(results);
       setCurrentPage(page);
       setTotalItems(totalCount);
       setTotalPaginas(totalPages);
     } catch (error: any) {
-      toast.error('Erro ao chamar a API.' + error.message);
+        toast.error('Erro ao chamar a API.' + error.message);
     }
   };
-  
-  const resetarFiltros = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-  
-    // Resetar os filtros individualmente
+
+  const resetarFiltros = async (e: React.MouseEvent<HTMLButtonElement>| null,
+    mes: number,
+    ano: number
+    
+    ) => {
+
+      if (e) {
+        e.preventDefault();
+    }
+
     setData('');
     setAtendimento(0);
     setEmpresa('');
@@ -243,25 +311,45 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     setEnfermeiro('');
     setStatusAtendimento('');
     setDiaPago('');
-  
-    // Atualizar o estado de todos os filtros de uma vez
-    setFiltros({
-      Data: '',
-      Atendimento: 0,
-      Empresa: '',
-      Paciente: '',
-      Enfermeiro: '',
-      StatusAtendimento: '',
-      DiaPago: ''
-    });
-  
-    setCurrentPage(1); // Volta para a primeira página
-    // Chame a função para buscar os atendimentos com os filtros resetados
-    getAtendimentos(1, totalItems);
-    // Defina limparCampos como true para limpar os campos Empresa e Paciente
-    setLimparCampos(true);
+
+    const novosFiltros = {
+        Data: '',
+        Atendimento: 0,
+        Empresa: '',
+        Paciente: '',
+        Enfermeiro: '',
+        StatusAtendimento: '',
+        DiaPago: ''
+    };
+
+    setFiltros(novosFiltros);
+    setCurrentPage(1);
+
+    try {
+      let queryString = `?page=1&pageSize=10&mes=${mes}&ano=${ano}`;
+
+      // Verifica se há filtros preenchidos
+      const filtrosPreenchidos = Object.values(novosFiltros).some(value => !!value);
+
+      // Se houver filtros preenchidos, constrói a queryString
+      if (filtrosPreenchidos) {
+          queryString = '?' + Object.entries(novosFiltros).map(([key, value]) => `${key}=${value}`).join('&');
+      }
+
+      // Faz a requisição para a API
+      const response = await api.get(`/api/Atendimentos/filtro${queryString}&page=1&pageSize=${itensPorPagina}`);
+      const { results, totalCount, totalPages } = response.data;
+
+      // Atualiza os estados com os dados recebidos
+      setAtendimentos(results);
+      setTotalPaginas(totalPages);
+      setTotalItems(totalCount);
+      setLimparCampos(true);
+      setClienteId('-1');
+    } catch (error) {
+        toast.error('Erro ao chamar a API.');
+    }
   };
-  
 
   return (
     <Page titulo="Atendimentos">
@@ -272,6 +360,10 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
         <div className="mt-2 mx-auto pt-4 shadow rounded-md bg-slate-50">
           <div className="grid grid-cols-1 gap-x-10 gap-y-8 sm:grid-cols-12">           
             <FiltroMes meses={meses} onChange={handleAtendimentosSubmit} />
+            <div>
+              <label htmlFor="" className="mb-2 block text-sm font-medium leading-6 text-gray-900">Ano</label>
+              <AnoSelect onSelectYear={handleSelectYear} />
+            </div>
             <div className="sm:col-span-2">
               <label htmlFor="paciente" className="block text-sm font-medium leading-6 text-gray-900">Empresa</label>
               <div className="mt-2">
@@ -283,8 +375,8 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
               <div className="mt-2">
                 <BuscaPacienteFiltro 
                   onPacienteSelecionado={handlePacienteSelecionado} 
-                  valorInicial={limparCampos ? '' : valorInicial} // Use limparCampos para definir o valor inicial
-                  limparFiltros={limparCampos} // Passe limparCampos como prop limparFiltros
+                  valorInicial={limparCampos ? '' : valorInicial}
+                  limparFiltros={limparCampos}
                 />
               </div>  
             </div>
@@ -331,15 +423,14 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
               </div>
             </div>
             <div className="flex gap-3 mt-8 sm:col-span-1 text-center">
-              <button className="flex items-center justify-between bg-gray-700 hover:bg-gray-500 hover:text-white text-white text-lg font-semibold py-1 px-6 rounded" onClick={(e) => handleFilterSubmit(e, currentPage, itensPorPagina)}><TbFilter/></button>  
-              <button className="flex items-center justify-between bg-gray-700 hover:bg-gray-500 hover:text-white text-white text-lg font-semibold py-1 px-6 rounded" onClick={resetarFiltros}><TbFilterX/></button> 
+              <button className="flex items-center justify-between bg-gray-700 hover:bg-gray-500 hover:text-white text-white text-lg font-semibold py-1 px-6 rounded" onClick={(e) => handleFilterSubmit(e, currentPage, itensPorPagina, indexMonth, selectedYear)}><TbFilter/></button>  
+              <button className="flex items-center justify-between bg-gray-700 hover:bg-gray-500 hover:text-white text-white text-lg font-semibold py-1 px-6 rounded" onClick={(e) => resetarFiltros(e, indexMonth, selectedYear)}><TbFilterX/></button> 
             </div>
           </div>
           <div className="mt-6 overflow-auto rounded-lg shadow hidden md:block">
           <table className="w-full border border-collapse">
             <thead className="text-left text-white border-b-2 border-gray-200 bg-teal-600 border-r">
               <tr>
-                <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Atendimento</th>
                 <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Empresa</th>
                 <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Paciente</th>
                 <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Enfermeiro</th>
@@ -356,7 +447,6 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
             <tbody className="divide-y divide-gray-100">
               {atendimentos && atendimentos.map((atendimento: any) => (
                 <tr key={atendimento.atendimentoId} className="border-b border-gray-200">
-                  <td className="text-left w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.numeroAtendimento}</td>
                   <td className="text-left w-48 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.nomeFantasia}</td>
                   <td className="text-left w-48 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.paciente}</td>
                   <td className="text-left w-48 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.enfermeiro}</td>
@@ -369,8 +459,6 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
                       {atendimento.statusAtendimento}
                     </span>
                   </td>
-
-
                   <td className="text-left w-72 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.localAtendimento}  - {atendimento.estadoAtendimento}</td>
                   <td className="text-left w-72 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.assistencia}</td>
                   <td className="text-right w-40 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">
@@ -405,7 +493,6 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
 }
 
 export const getStaticProps: GetStaticProps<ListarAtendimentosProps> = async () => {
-  // Gere os meses dinamicamente ou carregue de uma API
   const meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
 
   return {
