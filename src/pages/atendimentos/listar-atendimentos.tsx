@@ -79,13 +79,11 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
 
   const [selectedMonth, setSelectedMonth] = useState(monthName);
 
-  const [selectedYear, setSelectedYear] = useState<number>(
-    new Date().getFullYear()
-  );
+  const [selectedYear, setSelectedYear] = useState(0);
 
-  const handleAtendimentosSubmit = async (selectedMonth: string, monthIndex: number) => {
-    setSelectedMonth(selectedMonth);
-  };
+  // const [selectedYear, setSelectedYear] = useState<number>(
+  //   new Date().getFullYear()
+  // );
 
   const handleSelectYear = (year: number) => {
     setSelectedYear(year);
@@ -112,7 +110,9 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
 
   useEffect(()=>{
     const currentMonthIndex = getMonthNumber(selectedMonth);
-    getAtendimentos(currentPage, 10, currentMonthIndex, selectedYear);
+    const currentYear = new Date().getFullYear();
+    setSelectedYear(currentYear);
+    getAtendimentos(currentPage, 10, currentMonthIndex, currentYear);
   }, []);
 
   useEffect(()=>{
@@ -349,6 +349,12 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     } catch (error) {
         toast.error('Erro ao chamar a API.');
     }
+  };
+
+  const handleAtendimentosSubmit = async (selectedMonth: string, monthIndex: number) => {
+    setSelectedMonth(selectedMonth);
+    const mes = getMonthNumber(selectedMonth);
+    getAtendimentos(currentPage, 10, mes, selectedYear);
   };
 
   return (
