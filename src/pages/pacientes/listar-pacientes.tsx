@@ -137,9 +137,12 @@ export default function ListarPacientes() {
       }
       
       const response = await api.get(`/api/Pacientes/filtro${queryString}&page=${page}&pageSize=${pageSize}`);
-      
-      setPacientes(response.data);
+      const { results, totalCount, totalPages } = response.data;
+
+      setPacientes(results);
       setCurrentPage(page);
+      setTotalPaginas(totalPages);
+      setTotalItems(totalCount);
     } catch (error: any) {
       toast.error("Erro ao carregar dados. " + error.message);
     }
