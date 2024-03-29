@@ -70,7 +70,7 @@ export default function ListarPacientes() {
         queryString += '&' + Object.entries(filtros).map(([key, value]) => `${key}=${value}`).join('&');
       }
       
-      const response = await api.get(`/api/Pacientes${queryString}`);
+      const response = await api.get(`/api/Pacientes/todos-pacientes${queryString}`);
       setPacientes(response.data.result);
     } catch (error: any) {
       toast.error("Erro ao carregar dados. " + error.message);
@@ -86,14 +86,59 @@ export default function ListarPacientes() {
       toast.error("Erro ao deletar registro.");
     }
   };
-  
-  const handleNextPage = () => {
-    setCurrentPage((prevPage) => prevPage + 1);
+
+  const handleNextPrevPageChange = async (
+    page: number,
+    endpoint: string
+  ) => {
+      try {
+        let queryString = `?page=${page}&pageSize=${itensPorPagina}`;
+        // Verifica se há filtros preenchidos
+        const filtrosPreenchidos = filtros && Object.values(filtros).some(value => !!value);
+
+        // Se houver filtros preenchidos, constrói a queryString
+        if (filtrosPreenchidos) {
+          queryString += '&' + Object.entries(filtros).map(([key, value]) => `${key}=${value}`).join('&');
+        }
+
+        // Constrói a URL completa com endpoint e queryString
+        const url = `/api/Pacientes/${endpoint}` + queryString;
+
+        // Faz a requisição para a API
+        const response = await api.get(url);
+        const { data } = response;
+        setPacientes(data.result);
+        setCurrentPage(page);
+      } catch (error) {
+          toast.error('Erro ao chamar a API.');
+      }
   };
 
-  const handlePrevPage = () => {
-    setCurrentPage((prevPage) => prevPage - 1);
+  const handleNextPage = async () => {
+    const nextPage = currentPage + 1;
+    setCurrentPage(nextPage);
+    const endpoint = hasFiltros(filtros) ? 'filtro' : 'todos-pacientes';
+    await handleNextPrevPageChange(nextPage, endpoint);
   };
+  
+  const hasFiltros = (filtros: FiltrosState): boolean => {
+    return Object.values(filtros).some(value => !!value);
+  };
+    
+  const handlePrevPage = async () => {
+    const prevPage = currentPage - 1;
+    setCurrentPage(prevPage);
+    const endpoint = hasFiltros(filtros) ? 'filtro' : 'todos-pacientes';
+    await handleNextPrevPageChange(prevPage, endpoint);
+  };
+  
+  // const handleNextPage = () => {
+  //   setCurrentPage((prevPage) => prevPage + 1);
+  // };
+
+  // const handlePrevPage = () => {
+  //   setCurrentPage((prevPage) => prevPage - 1);
+  // };
 
   const handlePageChange = (pagina: number) => {
     setCurrentPage(pagina);
