@@ -382,7 +382,6 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
                 <BuscaPacienteFiltro 
                   onPacienteSelecionado={handlePacienteSelecionado} 
                   valorInicial={limparCampos ? '' : valorInicial}
-                  limparFiltros={limparCampos}
                 />
               </div>  
             </div>
