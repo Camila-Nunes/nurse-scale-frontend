@@ -32,6 +32,8 @@ export default function ListarPacientes() {
   const [totalPaginas, setTotalPaginas] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [pacienteId, setPacienteId] = useState('');
+  const [cidade, setCidade] = useState('');
+  const [estado, setEstado] = useState('');
   const [filtros, setFiltros] = useState<FiltrosState>(initialState);
   const itensPorPagina = 10;
   const router = useRouter();
@@ -55,17 +57,6 @@ export default function ListarPacientes() {
        toast.error('Erro ao obter o total de itens:', error)
     })
   };
-
-  // async function getPacientes(page: number, pageSize: number){
-  //   try {
-  //     const response = await api.get(`/api/Pacientes?page=${page}&pageSize=${pageSize}`)
-  //     setPacientes(response.data.result);
-  //   } catch (error) {
-  //     toast.error("Erro ao carregar dados. " + error);
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
 
   async function getPacientes(page: number, pageSize: number) {
     try {
@@ -112,7 +103,7 @@ export default function ListarPacientes() {
     setPacienteId(id || '');
     setFiltros((prevFiltros) => ({
       ...prevFiltros,
-      PacienteId: id || '',
+      acienteId: id || '',
     }));
   
     console.log(id);
@@ -131,24 +122,24 @@ export default function ListarPacientes() {
     e.preventDefault();
   
     try {
-      //let queryString = `?page=${page}&pageSize=${pageSize}`;
       let queryString = `?page=${page}&pageSize=${pageSize}`;
       
-      // Verifica se há algum filtro preenchido
-      const filtrosPreenchidos = Object.values(filtros).some(value => !!value);
+      const filtrosComCidadeEstado = {
+        ...filtros,
+        Cidade: cidade,
+        Estado: estado
+      };
       
-      // Se houver algum filtro preenchido, adiciona os filtros à queryString
+      const filtrosPreenchidos = Object.values(filtrosComCidadeEstado).some(value => !!value);
+      
       if (filtrosPreenchidos) {
-        queryString = '?' + Object.entries(filtros).map(([key, value]) => `${key}=${value}`).join('&');
-    }
+        queryString = '?' + Object.entries(filtrosComCidadeEstado).map(([key, value]) => `${key}=${value}`).join('&');
+      }
       
       const response = await api.get(`/api/Pacientes/filtro${queryString}&page=${page}&pageSize=${pageSize}`);
       
-      console.log(response);
       setPacientes(response.data);
       setCurrentPage(page);
-      console.log(response.data.result);
-      console.log(filtros);
     } catch (error: any) {
       toast.error("Erro ao carregar dados. " + error.message);
     }
@@ -215,15 +206,43 @@ export default function ListarPacientes() {
         
         <div className="mt-6 mx-auto pt-4 shadow rounded-md bg-slate-50">
           <div className="grid grid-cols-1 gap-x-10 gap-y-8 sm:grid-cols-12">
-            <div className="sm:col-span-11">
+            <div className="sm:col-span-6">
               <label htmlFor="paciente" className="block text-sm font-medium leading-6 text-gray-900">Nome</label>
               <div className="mt-2">
                 <BuscaPacienteFiltro onPacienteSelecionado={handlePacienteSelecionado}/>
               </div>
             </div>
+            <div className="sm:col-span-4">
+              <label htmlFor="cidade" className="block text-sm font-medium leading-6 text-gray-900">Cidade</label>
+              <div className="mt-2">
+                <input
+                  type="text"
+                  name="cidade"
+                  id="cidade"
+                  autoComplete="cidade"
+                  value={cidade}
+                  onChange={(e) => setCidade(e.target.value)}
+                  className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                />
+              </div>
+            </div>
+            <div className="sm:col-span-1">
+              <label htmlFor="estado" className="block text-sm font-medium leading-6 text-gray-900">UF</label>
+              <div className="mt-2">
+                <input
+                  type="text"
+                  name="estado"
+                  id="estado"
+                  autoComplete="estado"
+                  value={estado}
+                  onChange={(e) => setEstado(e.target.value)}
+                  className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                />
+              </div>
+            </div>
             <div className="flex gap-3 mt-8 sm:col-span-1 text-center">
-              <button className="flex items-center justify-between bg-gray-700 hover:bg-gray-500 hover:text-white text-white text-lg font-semibold py-1 px-3 rounded" onClick={(e) => handleFilterSubmit(e, currentPage, 10)}><TbFilter/></button>  
-              <button className="flex items-center justify-between bg-gray-700 hover:bg-gray-500 hover:text-white text-white text-lg font-semibold py-1 px-3 rounded" onClick={(e) => resetarFiltros(e)}><TbFilterX/></button> 
+              <button className="flex items-center justify-between bg-gray-700 hover:bg-gray-500 hover:text-white text-white text-lg font-semibold py-1 px-6 rounded" onClick={(e) => handleFilterSubmit(e, currentPage, 10)}><TbFilter/></button>  
+              <button className="flex items-center justify-between bg-gray-700 hover:bg-gray-500 hover:text-white text-white text-lg font-semibold py-1 px-6 rounded" onClick={(e) => resetarFiltros(e)}><TbFilterX/></button> 
             </div>
           </div>
           <div className="mt-6 overflow-y-auto rounded-lg shadow hidden md:block">

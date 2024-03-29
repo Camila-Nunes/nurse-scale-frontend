@@ -169,13 +169,7 @@ export default function ListarEnfermeiros() {
     <Page titulo="Listagem de Enfermeiros">
       <form className="container max-w-full">
         <Link href="">
-          <button onClick={handleNovoEnfermeiroClick} className="rounded-md bg-teal-600 hover:bg-teal-800 px-3 py-2 text-sm font-semibold leading-6 text-white" disabled={isLoading}>
-            {isLoading ? (
-              <CgSpinnerTwo className="animate-spin text-white" size={20} />
-            ) : (
-              'Novo Enfermeiro'
-            )}
-          </button>    
+          <button onClick={handleNovoEnfermeiroClick} className="rounded-md bg-teal-600 hover:bg-teal-800 px-3 py-2 text-sm font-semibold leading-6 text-white">Novo Enfermeiro</button>    
         </Link>
         <div className="mt-2 mx-auto pt-4 shadow rounded-md bg-slate-50">
           <div className="grid grid-cols-1 gap-x-10 gap-y-8 sm:grid-cols-12">
