@@ -61,11 +61,8 @@ export default function ListarPacientes() {
   async function getPacientes(page: number, pageSize: number) {
     try {
       let queryString = `?page=${page}&pageSize=${pageSize}`;
-      
-      // Verifica se há algum filtro preenchido
       const filtrosPreenchidos = Object.values(filtros).some(value => !!value);
       
-      // Se houver algum filtro preenchido, adiciona os filtros à queryString
       if (filtrosPreenchidos) {
         queryString += '&' + Object.entries(filtros).map(([key, value]) => `${key}=${value}`).join('&');
       }
@@ -93,20 +90,15 @@ export default function ListarPacientes() {
   ) => {
       try {
         let queryString = `?page=${page}&pageSize=${itensPorPagina}`;
-        // Verifica se há filtros preenchidos
         const filtrosPreenchidos = filtros && Object.values(filtros).some(value => !!value);
 
-        // Se houver filtros preenchidos, constrói a queryString
         if (filtrosPreenchidos) {
           queryString += '&' + Object.entries(filtros).map(([key, value]) => `${key}=${value}`).join('&');
         }
-
-        // Constrói a URL completa com endpoint e queryString
         const url = `/api/Pacientes/${endpoint}` + queryString;
-
-        // Faz a requisição para a API
         const response = await api.get(url);
         const { data } = response;
+
         setPacientes(data.result);
         setCurrentPage(page);
       } catch (error) {
@@ -131,20 +123,12 @@ export default function ListarPacientes() {
     const endpoint = hasFiltros(filtros) ? 'filtro' : 'todos-pacientes';
     await handleNextPrevPageChange(prevPage, endpoint);
   };
-  
-  // const handleNextPage = () => {
-  //   setCurrentPage((prevPage) => prevPage + 1);
-  // };
-
-  // const handlePrevPage = () => {
-  //   setCurrentPage((prevPage) => prevPage - 1);
-  // };
 
   const handlePageChange = (pagina: number) => {
     setCurrentPage(pagina);
   };
 
-    const handlePacienteSelecionado = (id: string | null) => {
+  const handlePacienteSelecionado = (id: string | null) => {
     setPacienteId(id || '');
     setFiltros((prevFiltros) => ({
       ...prevFiltros,
