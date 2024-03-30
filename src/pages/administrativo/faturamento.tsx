@@ -11,23 +11,25 @@ import AnoSelect from "@/components/AnoSelect";
 import { GetStaticProps } from "next";
 import { BsDatabaseX } from "react-icons/bs";
 import InputMask from "react-input-mask";
+import { pt } from 'date-fns/locale';
 
 interface FaturamentoProps {
   meses: string[];
 }
 
 const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
-    const [resumoEmpresas, setResumoEmpresas] = useState([]);
-    const [resumoProfissionais, setResumoProfissionais] = useState([]);
-    const [resumoAtendimentos, setResumoAtendimentos] = useState([]);
-    const [resumoImpostos, setResumoImpostos] = useState([]);
-    const [isLoadingEmpresas, setIsLoadingEmpresas] = useState(true);
-    const [isLoadingAtendimentos, setIsLoadingAtendimentos] = useState(true);
-    const [valorAliquota, setValorAliquota] = useState('');
-    
-  const [selectedMonth, setSelectedMonth] = useState(
-    format(new Date(), "MMMM")
-  );
+  const [resumoEmpresas, setResumoEmpresas] = useState([]);
+  const [resumoProfissionais, setResumoProfissionais] = useState([]);
+  const [resumoAtendimentos, setResumoAtendimentos] = useState([]);
+  const [resumoImpostos, setResumoImpostos] = useState([]);
+  const [isLoadingEmpresas, setIsLoadingEmpresas] = useState(true);
+  const [isLoadingAtendimentos, setIsLoadingAtendimentos] = useState(true);
+  const [valorAliquota, setValorAliquota] = useState('');
+  
+  const fullMonthName = format(new Date(), 'MMMM', { locale: pt });
+  const monthName = fullMonthName.charAt(0).toUpperCase() + fullMonthName.slice(1);
+
+  const [selectedMonth, setSelectedMonth] = useState(monthName);
   
   const [selectedYear, setSelectedYear] = useState<number>(
     new Date().getFullYear()
@@ -192,7 +194,7 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
         <div className="mt-2 overflow-auto rounded-lg shadow hidden md:block">
           <div className="border-b border-gray-900/10 pb-12">
             <div className="mt-10 grid grid-cols-1 sm:grid-cols-12">
-              {((resumoEmpresas && resumoEmpresas.length > 0) && (resumoEmpresas.total > 0)) ? (
+              {((resumoEmpresas && resumoEmpresas.length > 1)) ? (
                 <div className="sm:col-span-4 px-5">
                   <table className="w-full border border-collapse">
                     <thead className="text-left text-white border-b-2 border-gray-200 bg-teal-600">
@@ -216,7 +218,7 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
                   </table>             
                 </div>
               ) : null}
-              {((resumoProfissionais && resumoProfissionais.length > 0) && (resumoProfissionais.total > 0)) ? (
+              {((resumoProfissionais && resumoProfissionais.length > 1)) ? (
                 <div className="sm:col-span-4 px-5">
                   <table className="w-full border border-collapse">
                     <thead className="text-left text-white border-b-2 border-gray-200 bg-teal-600">
