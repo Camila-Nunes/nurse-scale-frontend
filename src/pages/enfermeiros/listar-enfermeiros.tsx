@@ -77,6 +77,8 @@ export default function ListarEnfermeiros() {
       setEnfermeiros(response.data.result);
     } catch (error: any) {
       toast.error("Erro ao carregar dados. " + error.message);
+    }finally {
+      setIsLoading(false);
     }
   }
 
@@ -210,13 +212,13 @@ export default function ListarEnfermeiros() {
     }
   };
   
-  // if (isLoading) {
-  //   return (
-  //     <div className="flex justify-center items-center h-screen">
-  //       <CgSpinnerTwo className="animate-spin text-teal-600" size={100} />
-  //     </div>
-  //   );
-  // }
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <CgSpinnerTwo className="animate-spin text-teal-600" size={100} />
+      </div>
+    );
+  };
 
   const handleNovoEnfermeiroClick = () => {
     setIsLoading(true);

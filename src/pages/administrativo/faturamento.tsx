@@ -11,23 +11,25 @@ import AnoSelect from "@/components/AnoSelect";
 import { GetStaticProps } from "next";
 import { BsDatabaseX } from "react-icons/bs";
 import InputMask from "react-input-mask";
+import { pt } from 'date-fns/locale';
 
 interface FaturamentoProps {
   meses: string[];
 }
 
 const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
-    const [resumoEmpresas, setResumoEmpresas] = useState([]);
-    const [resumoProfissionais, setResumoProfissionais] = useState([]);
-    const [resumoAtendimentos, setResumoAtendimentos] = useState([]);
-    const [resumoImpostos, setResumoImpostos] = useState([]);
-    const [isLoadingEmpresas, setIsLoadingEmpresas] = useState(true);
-    const [isLoadingAtendimentos, setIsLoadingAtendimentos] = useState(true);
-    const [valorAliquota, setValorAliquota] = useState('');
-    
-  const [selectedMonth, setSelectedMonth] = useState(
-    format(new Date(), "MMMM")
-  );
+  const [resumoEmpresas, setResumoEmpresas] = useState([]);
+  const [resumoProfissionais, setResumoProfissionais] = useState([]);
+  const [resumoAtendimentos, setResumoAtendimentos] = useState([]);
+  const [resumoImpostos, setResumoImpostos] = useState([]);
+  const [isLoadingEmpresas, setIsLoadingEmpresas] = useState(true);
+  const [isLoadingAtendimentos, setIsLoadingAtendimentos] = useState(true);
+  const [valorAliquota, setValorAliquota] = useState('');
+  
+  const fullMonthName = format(new Date(), 'MMMM', { locale: pt });
+  const monthName = fullMonthName.charAt(0).toUpperCase() + fullMonthName.slice(1);
+
+  const [selectedMonth, setSelectedMonth] = useState(monthName);
   
   const [selectedYear, setSelectedYear] = useState<number>(
     new Date().getFullYear()
@@ -183,8 +185,6 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
           <button type="submit" className="rounded-md bg-teal-600 px-10 py-2 mt-2 text-sm font-semibold leading-6 text-white hover:bg-teal-700">Alterar Alíquota</button>
         </div>
 
-
-        
         <div className='flex justify-items-start gap-6'>
           <FiltroMes meses={meses} onChange={handleTabelaDinamicaSubmit} />
           <AnoSelect onSelectYear={handleSelectYear} /> 
@@ -194,7 +194,7 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
         <div className="mt-2 overflow-auto rounded-lg shadow hidden md:block">
           <div className="border-b border-gray-900/10 pb-12">
             <div className="mt-10 grid grid-cols-1 sm:grid-cols-12">
-              {(resumoEmpresas && resumoEmpresas.length > 0) ? (
+              {((resumoEmpresas && resumoEmpresas.length > 1)) ? (
                 <div className="sm:col-span-4 px-5">
                   <table className="w-full border border-collapse">
                     <thead className="text-left text-white border-b-2 border-gray-200 bg-teal-600">
@@ -218,7 +218,7 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
                   </table>             
                 </div>
               ) : null}
-              {(resumoProfissionais && resumoProfissionais.length > 0) ? (
+              {((resumoProfissionais && resumoProfissionais.length > 1)) ? (
                 <div className="sm:col-span-4 px-5">
                   <table className="w-full border border-collapse">
                     <thead className="text-left text-white border-b-2 border-gray-200 bg-teal-600">
@@ -300,8 +300,8 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
                   </table>
                 </div>
               ) : null}
-              {(resumoEmpresas.length === 0 && resumoProfissionais.length === 0 && resumoAtendimentos.length === 0) && (
-                <div className="sm:col-span-12 flex flex-col items-center justify-center">
+              {(resumoAtendimentos.length === 0 && resumoImpostos.length === 0) && (
+                <div className="sm:col-span-12 flex flex-col items-center justify-center mt-20">
                   <p className="text-center text-gray-700 mb-2">Não há dados a serem exibidos para o mês de  {selectedMonth}.</p>
                   <span className="text-9xl text-gray-800 mt-40"><BsDatabaseX /></span>
                 </div>

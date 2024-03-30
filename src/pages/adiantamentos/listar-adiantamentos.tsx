@@ -11,6 +11,7 @@ import { format } from "date-fns";
 import { GetStaticProps } from "next";
 import FiltroMes from "@/components/FiltroMes";
 import AnoSelect from "@/components/AnoSelect";
+import { CgSpinnerTwo } from "react-icons/cg";
 
 interface ListarAdiantamentosProps {
   meses: string[];
@@ -24,7 +25,7 @@ const ListarAdiantamentos: React.FC<ListarAdiantamentosProps> = ({ meses }) => {
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
   const itensPorPagina = 10;
   const paginaAtual = Math.ceil((totalItems + 1)/itensPorPagina);
-  const [isLoadingEmpresas, setIsLoadingEmpresas] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [currentMonthIndex, setCurrentMonthIndex] = useState(0);
 
   const [selectedMonth, setSelectedMonth] = useState(
@@ -77,16 +78,16 @@ const ListarAdiantamentos: React.FC<ListarAdiantamentosProps> = ({ meses }) => {
     setModalOpen(false);
   };
 
-  async function getAdiantamentos(page: number, pageSize: number, mes: number, ano: number){
-    const response = await api.get(`api/AdiantamentosPagamentos/adiantamentos?page=${page}&pageSize=${pageSize}&mes=${mes}&ano=${ano}`)
-    .then(response => {
+  async function getAdiantamentos(page: number, pageSize: number, mes: number, ano: number) {
+    try {
+      const response = await api.get(`api/AdiantamentosPagamentos/adiantamentos?page=${page}&pageSize=${pageSize}&mes=${mes}&ano=${ano}`);
       setAdiantamentos(response.data.result);
-      console.log(response.data.result);
-    }).catch(error => {
-       toast.error("Erro ao carregar dados. " + error)
-    })
+    } catch (error) {
+      toast.error("Erro ao carregar dados. " + error);
+    } finally {
+      setIsLoading(false);
+    }
   };
-
 
   useEffect(() => {
     const indexMonth = getMonthNumber(selectedMonth);
@@ -130,6 +131,14 @@ const ListarAdiantamentos: React.FC<ListarAdiantamentosProps> = ({ meses }) => {
     } catch (error) {
       toast.error("Erro ao deletar registro.");
     }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <CgSpinnerTwo className="animate-spin text-teal-600" size={100} />
+      </div>
+    );
   };
 
   return (

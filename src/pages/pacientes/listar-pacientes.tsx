@@ -71,6 +71,8 @@ export default function ListarPacientes() {
       setPacientes(response.data.result);
     } catch (error: any) {
       toast.error("Erro ao carregar dados. " + error.message);
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -221,13 +223,13 @@ export default function ListarPacientes() {
     }
   };
   
-  // if (isLoading) {
-  //   return (
-  //     <div className="flex justify-center items-center h-screen">
-  //       <CgSpinnerTwo className="animate-spin text-teal-600" size={100} />
-  //     </div>
-  //   );
-  // }
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <CgSpinnerTwo className="animate-spin text-teal-600" size={100} />
+      </div>
+    );
+  }
   
   return (
     <Page titulo="Listagem de Pacientes">

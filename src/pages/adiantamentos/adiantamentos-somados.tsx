@@ -8,6 +8,7 @@ import FiltroMes from "@/components/FiltroMes";
 import AnoSelect from "@/components/AnoSelect";
 import { GetStaticProps } from "next";
 import { format } from "date-fns";
+import { CgSpinnerTwo } from "react-icons/cg";
 
 interface AdiantamentosSomadosProps {
   meses: string[];
@@ -22,6 +23,7 @@ const AdiantamentosSomados: React.FC<AdiantamentosSomadosProps> = ({ meses }) =>
   const itensPorPagina = 10;
   const paginaAtual = Math.ceil((totalItems + 1)/itensPorPagina);
   const [currentMonthIndex, setCurrentMonthIndex] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [selectedMonth, setSelectedMonth] = useState(
     format(new Date(), 'MMMM')
@@ -36,14 +38,16 @@ const AdiantamentosSomados: React.FC<AdiantamentosSomadosProps> = ({ meses }) =>
     return monthIndex + 1;
   };
 
-  async function getAdiantamentos(page: number, pageSize: number, mes: number, ano: number){
-    const response = await api.get(`api/AdiantamentosPagamentos/adiantamentos-somados?page=${page}&pageSize=${pageSize}&mes=${mes}&ano=${ano}`)
-    .then(response => {
+  async function getAdiantamentos(page: number, pageSize: number, mes: number, ano: number) {
+    try {
+      const response = await api.get(`api/AdiantamentosPagamentos/adiantamentos-somados?page=${page}&pageSize=${pageSize}&mes=${mes}&ano=${ano}`);
       setAdiantamentos(response.data.result);
       console.log(response.data.result);
-    }).catch(error => {
-       toast.error("Erro ao carregar dados. " + error)
-    })
+    } catch (error) {
+      toast.error("Erro ao carregar dados. " + error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -73,6 +77,14 @@ const AdiantamentosSomados: React.FC<AdiantamentosSomadosProps> = ({ meses }) =>
 
   const handleSelectYear = (year: number) => {
     setSelectedYear(year);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <CgSpinnerTwo className="animate-spin text-teal-600" size={100} />
+      </div>
+    );
   };
 
   return (
