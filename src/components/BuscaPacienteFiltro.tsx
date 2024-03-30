@@ -4,7 +4,6 @@ import api from '../api';
 interface BuscaPacienteFiltroProps {
   onPacienteSelecionado: (pacienteId: string) => void;
   valorInicial?: string;
-  limparFiltros?: boolean; // Nova propriedade para controlar a limpeza dos filtros
 }
 
 interface BuscaPacienteFiltro {
@@ -12,13 +11,13 @@ interface BuscaPacienteFiltro {
   nome: string;
 }
 
-const BuscaPacienteFiltro: React.FC<BuscaPacienteFiltroProps> = ({ onPacienteSelecionado, valorInicial = '', limparFiltros }) => {
+const BuscaPacienteFiltro: React.FC<BuscaPacienteFiltroProps> = ({ onPacienteSelecionado, valorInicial = '' }) => {
   const [pacientes, setPacientes] = useState<BuscaPacienteFiltro[]>([]);
   const [nome, setNome] = useState<string>(valorInicial || '');
   const [id, setId] = useState<string>('');
   const [pacienteSelecionado, setPacienteSelecionado] = useState<BuscaPacienteFiltro | null>(null);
   const [emEdicao, setEmEdicao] = useState<boolean>(false);
-  const [showDropdown, setShowDropdown] = useState<boolean>(false);
+  const [showDropdown, setShowDropdown] = useState<boolean>(false); // Novo estado
 
   const buscarPacientes = async (nome: string) => {
     try {
@@ -29,20 +28,6 @@ const BuscaPacienteFiltro: React.FC<BuscaPacienteFiltroProps> = ({ onPacienteSel
       console.error('Erro ao buscar Paciente:', error);
     }
   };
-
-  useEffect(() => {
-    // Verifica se o campo está vazio ao ser limpo ou se limparCampos for true
-    if (limparFiltros || nome === '') {
-      setPacientes([]);
-      setId('');
-      setPacienteSelecionado(null);
-      setShowDropdown(false);
-      // Redefina o estado nome para o valor inicial se limparCampos for true
-      if (limparFiltros) {
-        setNome(valorInicial || '');
-      }
-    }
-  }, [limparFiltros, nome, valorInicial]);
 
   const handleNomeChange = (event: ChangeEvent<HTMLInputElement>) => {
     const novoNome = event.target.value;
@@ -74,13 +59,13 @@ const BuscaPacienteFiltro: React.FC<BuscaPacienteFiltroProps> = ({ onPacienteSel
         data-id={id}
         onChange={handleNomeChange}
         placeholder="Digite o nome do Paciente"
-        id="profissional"
-        name="profissional"
-        autoComplete="profissional"
+        id="paciente"
+        name="paciente"
+        autoComplete="off"
         className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
       />
       {showDropdown && (
-        <ul className="absolute top-full left-0 z-1 w-full max-h-40 overflow-y-auto border border-solid border-gray-300 bg-white rounded-md text-xs">
+        <ul className="absolute top-full left-0 z-10 w-full max-h-40 overflow-y-auto border border-solid border-gray-300 bg-white rounded-md text-xs">
           {pacientes.map((paciente) => (
             <li
               key={paciente.pacienteId}
