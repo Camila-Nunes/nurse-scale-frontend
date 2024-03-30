@@ -41,8 +41,8 @@ export default function Menu() {
       {showAdministrativo && (
         <div className="pl-6 mr-6">
           <MenuItem icone={<BsCalendarPlusFill size={20}/>} texto="Atendimentos" url="/atendimentos/listar-atendimentos" />
-          <MenuItem icone={<BsCalculator size={20}/>} texto="Cálculo Taxa Administrativa" url="/calculos/calculo-taxa-administrativa" />
-          <MenuItem icone={<BsClipboardData size={20}/>} texto="Orçamentos" url="/orcamentos/orcamentos" />
+          {/* <MenuItem icone={<BsCalculator size={20}/>} texto="Cálculo Taxa Administrativa" url="/calculos/calculo-taxa-administrativa" />
+          <MenuItem icone={<BsClipboardData size={20}/>} texto="Orçamentos" url="/orcamentos/orcamentos" /> */}
           <MenuItem icone={<TbMoneybag size={20}/>} texto="Faturamento" url="/administrativo/faturamento" />
           <MenuItem icone={<BiSearchAlt size={20}/>} texto="Auditoria" url="/auditoria/auditoria" />
         </div>
@@ -66,8 +66,8 @@ export default function Menu() {
       {showFinanceiro && (
         <div className="pl-6 mr-6">
           <MenuItem icone={<IconReportMoney />} texto="Adiantamento" url="/adiantamentos/listar-adiantamentos" />
-          <MenuItem icone={<IconBusinessplan />} texto="Fluxo de Caixa" url="/fluxo-de-caixa/fluxo-de-caixa" />
-          <MenuItem icone={<IconWallet />} texto="Pagamentos" url="/pagamentos/listar-pagamentos" />
+          {/* <MenuItem icone={<IconBusinessplan />} texto="Fluxo de Caixa" url="/fluxo-de-caixa/fluxo-de-caixa" /> */}
+          {/* <MenuItem icone={<IconWallet />} texto="Pagamentos" url="/pagamentos/listar-pagamentos" /> */}
         </div>
       )}
       {/* <div className="flex justify-between items-center gap-16 text-sm text-zinc-500 pl-3 pt-2" onClick={toggleConfiguracoes}>
