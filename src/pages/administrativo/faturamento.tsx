@@ -183,8 +183,6 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
           <button type="submit" className="rounded-md bg-teal-600 px-10 py-2 mt-2 text-sm font-semibold leading-6 text-white hover:bg-teal-700">Alterar Alíquota</button>
         </div>
 
-
-        
         <div className='flex justify-items-start gap-6'>
           <FiltroMes meses={meses} onChange={handleTabelaDinamicaSubmit} />
           <AnoSelect onSelectYear={handleSelectYear} /> 
