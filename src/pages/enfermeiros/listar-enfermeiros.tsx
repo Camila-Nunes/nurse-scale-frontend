@@ -63,7 +63,7 @@ export default function ListarEnfermeiros() {
        toast.error('Erro ao obter o total de itens:', error)
     })
   };
-  
+
   async function getEnfermeiros(page: number, pageSize: number) {
     try {
       let queryString = `?page=${page}&pageSize=${pageSize}`;
@@ -96,12 +96,44 @@ export default function ListarEnfermeiros() {
     }
   };
 
-  const handleNextPage = () => {
-    setCurrentPage((prevPage) => prevPage + 1);
+  const handleNextPrevPageChange = async (
+    page: number,
+    endpoint: string
+  ) => {
+      try {
+        let queryString = `?page=${page}&pageSize=${itensPorPagina}`;
+        const filtrosPreenchidos = filtros && Object.values(filtros).some(value => !!value);
+
+        if (filtrosPreenchidos) {
+          queryString += '&' + Object.entries(filtros).map(([key, value]) => `${key}=${value}`).join('&');
+        }
+        const url = `/api/Enfermeiros/${endpoint}` + queryString;
+        const response = await api.get(url);
+        const { data } = response;
+
+        setEnfermeiros(data.result);
+        setCurrentPage(page);
+      } catch (error) {
+          toast.error('Erro ao chamar a API.');
+      }
   };
 
-  const handlePrevPage = () => {
-    setCurrentPage((prevPage) => prevPage - 1);
+  const handleNextPage = async () => {
+    const nextPage = currentPage + 1;
+    setCurrentPage(nextPage);
+    const endpoint = hasFiltros(filtros) ? 'filtro' : 'todos-enfermeiros';
+    await handleNextPrevPageChange(nextPage, endpoint);
+  };
+  
+  const hasFiltros = (filtros: FiltrosState): boolean => {
+    return Object.values(filtros).some(value => !!value);
+  };
+    
+  const handlePrevPage = async () => {
+    const prevPage = currentPage - 1;
+    setCurrentPage(prevPage);
+    const endpoint = hasFiltros(filtros) ? 'filtro' : 'todos-enfermeiros';
+    await handleNextPrevPageChange(prevPage, endpoint);
   };
 
   const handleEnfermeiroSelecionado = (id: string) => {
@@ -112,8 +144,6 @@ export default function ListarEnfermeiros() {
       ...prevFiltros,
       EnfermeiroId: novoId,
     }));
-  
-    console.log(novoId);
   };
 
   const handleFilterSubmit = async (e: React.MouseEvent<HTMLButtonElement>, page: number, pageSize: number) => {
@@ -146,20 +176,38 @@ export default function ListarEnfermeiros() {
     }
   };
 
-  const resetarFiltros = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    setFiltros(initialState);
-    getEnfermeiros(currentPage, 10);
-    setEnfermeiroId('');
-  };
+  const resetarFiltros = async (e: React.MouseEvent<HTMLButtonElement>| null) => {
 
-  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-  
-    setFiltros((prevFiltros) => ({
-      ...prevFiltros,
-      [name]: value,
-    }));
+    if (e) {
+      e.preventDefault();
+    }
+
+    const novosFiltros = {
+      EnfermeiroId: '',
+      Cidade: '',
+      Estado: ''
+    };
+
+    setFiltros(novosFiltros);
+    setCurrentPage(1);
+
+    try {
+      let queryString = `?page=1&pageSize=10`;
+      const filtrosPreenchidos = Object.values(novosFiltros).some(value => !!value);
+
+      if (filtrosPreenchidos) {
+        queryString = '?' + Object.entries(novosFiltros).map(([key, value]) => `${key}=${value}`).join('&');
+      }
+
+      const response = await api.get(`/api/Enfermeiros/filtro${queryString}&page=1&pageSize=${itensPorPagina}`);
+      const { results, totalCount, totalPages } = response.data;
+
+      setEnfermeiros(results);
+      setTotalPaginas(totalPages);
+      setTotalItems(totalCount);
+    } catch (error) {
+      toast.error('Erro ao chamar a API.');
+    }
   };
   
   // if (isLoading) {
