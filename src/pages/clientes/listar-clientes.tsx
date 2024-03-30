@@ -68,13 +68,7 @@ export default function Clientes() {
     <Page titulo="Listagem de Clientes">
       <form className="container max-w-full">
         <Link href="">
-          <button onClick={handleNovoClienteClick} className="rounded-md bg-teal-600 hover:bg-teal-800 px-3 py-2 text-sm font-semibold leading-6 text-white" disabled={isLoading}>
-            {isLoading ? (
-              <CgSpinnerTwo className="animate-spin text-white" size={20} />
-            ) : (
-              'Novo Cliente'
-            )}
-          </button>    
+          <button onClick={handleNovoClienteClick} className="rounded-md bg-teal-600 hover:bg-teal-800 px-3 py-2 text-sm font-semibold leading-6 text-white">Novo Cliente</button>    
         </Link>
         <div className="mt-6 mx-auto pt-4 shadow rounded-md bg-slate-50">
           <div className="mt-6 overflow-auto rounded-lg shadow hidden md:block">

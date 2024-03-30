@@ -16,7 +16,7 @@ import FiltroMes from "@/components/FiltroMes";
 import AnoSelect from "@/components/AnoSelect";
 import { GetStaticProps } from 'next';
 import { pt } from 'date-fns/locale';
-
+import { CgSpinnerTwo } from "react-icons/cg";
 interface ListarAtendimentosProps {
   meses: string[];
 }
@@ -73,6 +73,8 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
   const [StatusAtendimento, setStatusAtendimento] = useState<string>('');
   const [DiaPago, setDiaPago] = useState<string>('');
   const [indexMonth, setIndexMonth] = useState<number>(0);
+
+  const [isLoading, setIsLoading] = useState(true);
 
   const fullMonthName = format(new Date(), 'MMMM', { locale: pt });
   const monthName = fullMonthName.charAt(0).toUpperCase() + fullMonthName.slice(1);
@@ -139,7 +141,9 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
       setAtendimentos(response.data.results);
     } catch (error: any) {
       toast.error("Erro ao carregar dados. " + error.message);
-    }
+    }finally {
+    setIsLoading(false);
+  }
  }
 
 
@@ -356,6 +360,14 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     const mes = getMonthNumber(selectedMonth);
     getAtendimentos(currentPage, 10, mes, selectedYear);
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <CgSpinnerTwo className="animate-spin text-teal-600" size={100} />
+      </div>
+    );
+  }
 
   return (
     <Page titulo="Atendimentos">
