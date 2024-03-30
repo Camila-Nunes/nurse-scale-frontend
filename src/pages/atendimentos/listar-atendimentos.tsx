@@ -1,5 +1,6 @@
 import Page from "@/components/Page";
 import { useEffect, useState } from "react";
+import { format, startOfMonth, endOfMonth } from 'date-fns';
 import api from '../../api';
 import Link from "next/link";
 import { FaTrashAlt, FaSpinner } from "react-icons/fa";
@@ -11,28 +12,47 @@ import ComboBoxClientes from "@/components/ComboBoxClientes ";
 import MonthFilter from "@/components/MonthFilter";
 import Pagination from "@/components/Pagination";
 import BuscaPacienteFiltro from "@/components/BuscaPacienteFiltro";
+import FiltroMes from "@/components/FiltroMes";
+import AnoSelect from "@/components/AnoSelect";
+import { GetStaticProps } from 'next';
+import { pt } from 'date-fns/locale';
+
+interface ListarAtendimentosProps {
+  meses: string[];
+}
 
 interface FiltrosState {
-  data: string;
-  atendimento: number;
-  empresaId: string;
-  pacienteId: string;
-  enfermeiroId: string;
-  statusAtendimento: string;
+  Data: string;
+  Atendimento: number;
+  Empresa: string;
+  Paciente: string;
+  Enfermeiro: string;
+  StatusAtendimento: string;
   DiaPago: string;
 }
 
 const initialState: FiltrosState = {
-  data: '',
-  atendimento: 0,
-  empresaId: '',
-  pacienteId: '',
-  enfermeiroId: '',
-  statusAtendimento: '',
+  Data: '',
+  Atendimento: 0,
+  Empresa: '',
+  Paciente: '',
+  Enfermeiro: '',
+  StatusAtendimento: '',
   DiaPago: '',
 };
 
-export default function ListarAtendimentos() {
+interface PaginationParameters {
+  page: number;
+  pageSize: number;
+}
+
+interface AtendimentoRequest {
+  paginationParameters: PaginationParameters;
+  mes: number;
+  ano: number;
+}
+
+const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
   const [clienteId, setClienteId] = useState<string>('');
   const [atendimentos, setAtendimentos]=useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -42,9 +62,40 @@ export default function ListarAtendimentos() {
   const [pacienteId, setPacienteId] = useState('');
   const [itensPorPagina, setItensPorPagina] = useState(10);
   const [filtros, setFiltros] = useState<FiltrosState>(initialState);
+  const [limparCampos, setLimparCampos] = useState<boolean>(false);
+  const [valorInicial, setValorInicial] = useState<string>('');
 
-  const handleDateChange = (selectedDate: Date) => {
-    console.log('Selected Date:', selectedDate);
+  const [Data, setData] = useState<string>('');
+  const [Atendimento, setAtendimento] = useState(0);
+  const [Empresa, setEmpresa] = useState<string>('');
+  const [Paciente,setPaciente] = useState<string>('');
+  const [Enfermeiro, setEnfermeiro] = useState<string>('');
+  const [StatusAtendimento, setStatusAtendimento] = useState<string>('');
+  const [DiaPago, setDiaPago] = useState<string>('');
+  const [indexMonth, setIndexMonth] = useState<number>(0);
+
+  const fullMonthName = format(new Date(), 'MMMM', { locale: pt });
+  const monthName = fullMonthName.charAt(0).toUpperCase() + fullMonthName.slice(1);
+
+  const [selectedMonth, setSelectedMonth] = useState(monthName);
+
+  const [selectedYear, setSelectedYear] = useState(0);
+
+  // const [selectedYear, setSelectedYear] = useState<number>(
+  //   new Date().getFullYear()
+  // );
+
+  const handleSelectYear = (year: number) => {
+    setSelectedYear(year);
+  };
+
+  const getMonthNumber = (monthName: string) => {
+    const monthIndex = meses.indexOf(monthName);
+    const numberMonth = monthIndex + 1;
+    
+    setIndexMonth(numberMonth);
+
+    return numberMonth;
   };
 
   async function getQtdAtendimentos(){
@@ -58,8 +109,11 @@ export default function ListarAtendimentos() {
   };
 
   useEffect(()=>{
-    getAtendimentos(currentPage, 10)
-  }, [currentPage]);
+    const currentMonthIndex = getMonthNumber(selectedMonth);
+    const currentYear = new Date().getFullYear();
+    setSelectedYear(currentYear);
+    getAtendimentos(currentPage, 10, currentMonthIndex, currentYear);
+  }, []);
 
   useEffect(()=>{
     getQtdAtendimentos()
@@ -69,14 +123,25 @@ export default function ListarAtendimentos() {
     setCurrentPage(pagina);
   };
 
-  async function getAtendimentos(page: number, pageSize: number){
-    const response = await api.get(`/api/Atendimentos/todos-atendimentos?page=${page}&pageSize=${pageSize}`)
-    .then(response => {
-      setAtendimentos(response.data.result);
-    }).catch(error => {
-       toast.error("Erro ao carregar dados. " + error)
-    })
-  };
+  async function getAtendimentos(page: number, pageSize: number, mes: number, ano: number) {
+    try {
+      let queryString = `?page=${page}&pageSize=${pageSize}&mes=${mes}&ano=${ano}`;
+      
+      // Verifica se há algum filtro preenchido
+      const filtrosPreenchidos = Object.values(filtros).some(value => !!value);
+      
+      // Se houver algum filtro preenchido, adiciona os filtros à queryString
+      if (filtrosPreenchidos) {
+        queryString += '&' + Object.entries(filtros).map(([key, value]) => `${key}=${value}`).join('&');
+      }
+      
+      const response = await api.get(`/api/Atendimentos/todos-atendimentos${queryString}`);
+      setAtendimentos(response.data.results);
+    } catch (error: any) {
+      toast.error("Erro ao carregar dados. " + error.message);
+    }
+ }
+
 
   async function handleDeleteClick(event: React.MouseEvent<HTMLButtonElement>, idAtendimentos: string) {
     event.preventDefault();
@@ -88,21 +153,70 @@ export default function ListarAtendimentos() {
     }
   };
 
-  const handleNextPage = () => {
-    setCurrentPage((prevPage) => prevPage + 1);
+  interface AtendimentoRequest {
+    paginationParameters: PaginationParameters;
+    mes?: number;
+    ano?: number;
+    FiltroAtendimentoModel?: any;
+  }
+  
+  const handleNextPrevPageChange = async (
+    page: number,
+    endpoint: string,
+    mes?: number,
+    ano?: number
+  ) => {
+      try {
+        let queryString = `?page=${page}&pageSize=${itensPorPagina}&mes=${mes}&ano=${ano}`;
+        // Verifica se há filtros preenchidos
+        const filtrosPreenchidos = filtros && Object.values(filtros).some(value => !!value);
+
+        // Se houver filtros preenchidos, constrói a queryString
+        if (filtrosPreenchidos) {
+          queryString += '&' + Object.entries(filtros).map(([key, value]) => `${key}=${value}`).join('&');
+        }
+
+        // Constrói a URL completa com endpoint e queryString
+        const url = `/api/Atendimentos/${endpoint}` + queryString;
+
+        // Faz a requisição para a API
+        const response = await api.get(url);
+        const { data } = response;
+        setAtendimentos(data.results);
+        setCurrentPage(page);
+      } catch (error) {
+          toast.error('Erro ao chamar a API.');
+      }
   };
 
-  const handlePrevPage = () => {
-    setCurrentPage((prevPage) => prevPage - 1);
-  };
 
+  const handleNextPage = async () => {
+    const nextPage = currentPage + 1;
+    const mes = getMonthNumber(selectedMonth);
+    setCurrentPage(nextPage);
+    const endpoint = hasFiltros(filtros) ? 'filtro' : 'todos-atendimentos';
+    await handleNextPrevPageChange(nextPage, endpoint, mes, selectedYear);
+  };
+  
+  const hasFiltros = (filtros: FiltrosState): boolean => {
+    return Object.values(filtros).some(value => !!value);
+  };
+    
+  const handlePrevPage = async () => {
+    const prevPage = currentPage - 1;
+    const mes = getMonthNumber(selectedMonth);
+    setCurrentPage(prevPage);
+    const endpoint = hasFiltros(filtros) ? 'filtro' : 'todos-atendimentos';
+    await handleNextPrevPageChange(prevPage, endpoint, mes, selectedYear);
+  };
+  
   const handleEnfermeiroSelecionado = (id: string) => {
     const novoId = id.trim();
   
     setEnfermeiroId(novoId);
     setFiltros((prevFiltros) => ({
       ...prevFiltros,
-      enfermeiroId: novoId,
+      Enfermeiro: novoId,
     }));
   
     console.log(novoId);
@@ -112,7 +226,7 @@ export default function ListarAtendimentos() {
     setPacienteId(id || '');
     setFiltros((prevFiltros) => ({
       ...prevFiltros,
-      pacienteId: id || '',
+      Paciente: id || '',
     }));
   
     console.log(id);
@@ -122,7 +236,7 @@ export default function ListarAtendimentos() {
     setClienteId(selectedClienteId);
     setFiltros((prevFiltros) => ({
       ...prevFiltros,
-      empresa: selectedClienteId,
+      Empresa: selectedClienteId,
     }));
   
     console.log(selectedClienteId);
@@ -144,32 +258,103 @@ export default function ListarAtendimentos() {
     }
   };
   
-  const handleFilterSubmit = async (e: React.MouseEvent<HTMLButtonElement> | null, page: number, pageSize: number) => {
+  const handleFilterSubmit = async (
+    e: React.MouseEvent<HTMLButtonElement> | null,
+    page: number,
+    pageSize: number,
+    mes: number,
+    ano: number
+) => {
     if (e) {
-      e.preventDefault();
+        e.preventDefault();
     }
-  
-    if (!Object.values(filtros).some(value => !!value)) {
-      toast.info('Não existe valor para ser filtrado.');
-      return;
-    }
-  
+
     try {
-      const response = await api.post(`/api/Atendimentos/filtro?page=${page}&pageSize=${pageSize}`, filtros);
-      console.log(response);
-      setAtendimentos(response.data);
+      let queryString = `?page=${page}&pageSize=${itensPorPagina}&mes=${mes}&ano=${ano}`;
+
+      // Verifica se há filtros preenchidos
+      const filtrosPreenchidos = Object.values(filtros).some(value => !!value);
+
+      // Se houver filtros preenchidos, constrói a queryString
+      if (filtrosPreenchidos) {
+        queryString += '&' + Object.entries(filtros).map(([key, value]) => `${key}=${value}`).join('&');
+      }
+
+      // Faz a requisição para a API
+      const response = await api.get(`/api/Atendimentos/filtro${queryString}&page=${page}&pageSize=${pageSize}&mes=${mes}&ano=${ano}`);
+      const { results, totalCount, totalPages } = response.data;
+
+      // Atualiza os estados com os dados recebidos
+      setAtendimentos(results);
       setCurrentPage(page);
-    } catch (error) {
-      toast.error('Erro ao chamar a API.');
+      setTotalItems(totalCount);
+      setTotalPaginas(totalPages);
+    } catch (error: any) {
+        toast.error('Erro ao chamar a API.' + error.message);
     }
   };
-  
-  const resetarFiltros = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    setFiltros(initialState);
-    getAtendimentos(currentPage, 10);
-    setPacienteId('');
-    setEnfermeiroId('');
+
+  const resetarFiltros = async (e: React.MouseEvent<HTMLButtonElement>| null,
+    mes: number,
+    ano: number
+    
+    ) => {
+
+      if (e) {
+        e.preventDefault();
+    }
+
+    setData('');
+    setAtendimento(0);
+    setEmpresa('');
+    setPaciente('');
+    setEnfermeiro('');
+    setStatusAtendimento('');
+    setDiaPago('');
+
+    const novosFiltros = {
+        Data: '',
+        Atendimento: 0,
+        Empresa: '',
+        Paciente: '',
+        Enfermeiro: '',
+        StatusAtendimento: '',
+        DiaPago: ''
+    };
+
+    setFiltros(novosFiltros);
+    setCurrentPage(1);
+
+    try {
+      let queryString = `?page=1&pageSize=10&mes=${mes}&ano=${ano}`;
+
+      // Verifica se há filtros preenchidos
+      const filtrosPreenchidos = Object.values(novosFiltros).some(value => !!value);
+
+      // Se houver filtros preenchidos, constrói a queryString
+      if (filtrosPreenchidos) {
+          queryString = '?' + Object.entries(novosFiltros).map(([key, value]) => `${key}=${value}`).join('&');
+      }
+
+      // Faz a requisição para a API
+      const response = await api.get(`/api/Atendimentos/filtro${queryString}&page=1&pageSize=${itensPorPagina}`);
+      const { results, totalCount, totalPages } = response.data;
+
+      // Atualiza os estados com os dados recebidos
+      setAtendimentos(results);
+      setTotalPaginas(totalPages);
+      setTotalItems(totalCount);
+      setLimparCampos(true);
+      setClienteId('-1');
+    } catch (error) {
+        toast.error('Erro ao chamar a API.');
+    }
+  };
+
+  const handleAtendimentosSubmit = async (selectedMonth: string, monthIndex: number) => {
+    setSelectedMonth(selectedMonth);
+    const mes = getMonthNumber(selectedMonth);
+    getAtendimentos(currentPage, 10, mes, selectedYear);
   };
 
   return (
@@ -179,26 +364,11 @@ export default function ListarAtendimentos() {
           <button type="button" className="rounded-md bg-teal-600 px-3 py-2 text-sm font-semibold leading-6 text-white">Novo Atendimento</button>     
         </Link>
         <div className="mt-2 mx-auto pt-4 shadow rounded-md bg-slate-50">
-          <div className="grid grid-cols-1 gap-x-10 gap-y-8 sm:grid-cols-12">
-            <div className="sm:col-span-2">
-              <label htmlFor="paciente" className="block text-sm font-medium leading-6 text-gray-900">Data</label>
-              <div className="mt-2">
-                <MonthFilter onChange={handleDateChange} />
-              </div>
-            </div>
-            <div className="sm:col-span-1">
-              <label htmlFor="paciente" className="block text-sm font-medium leading-6 text-gray-900">Atendimento</label>
-              <div className="mt-2">
-                <input
-                  type="text"
-                  name="atendimento"
-                  id="atendimento"
-                  autoComplete="given-name"
-                  value={filtros.atendimento}
-                  onChange={handleFilterChange}
-                  className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                />
-              </div>
+          <div className="grid grid-cols-1 gap-x-10 gap-y-8 sm:grid-cols-12">           
+            <FiltroMes meses={meses} onChange={handleAtendimentosSubmit} />
+            <div>
+              <label htmlFor="" className="mb-2 block text-sm font-medium leading-6 text-gray-900">Ano</label>
+              <AnoSelect onSelectYear={handleSelectYear} />
             </div>
             <div className="sm:col-span-2">
               <label htmlFor="paciente" className="block text-sm font-medium leading-6 text-gray-900">Empresa</label>
@@ -209,8 +379,11 @@ export default function ListarAtendimentos() {
             <div className="sm:col-span-2">
               <label htmlFor="paciente" className="block text-sm font-medium leading-6 text-gray-900">Paciente</label>
               <div className="mt-2">
-                <BuscaPacienteFiltro onPacienteSelecionado={handlePacienteSelecionado} limparFiltros={true} />
-              </div>
+                <BuscaPacienteFiltro 
+                  onPacienteSelecionado={handlePacienteSelecionado} 
+                  valorInicial={limparCampos ? '' : valorInicial}
+                />
+              </div>  
             </div>
             <div className="sm:col-span-2">
               <label htmlFor="paciente" className="block text-sm font-medium leading-6 text-gray-900">Enfermeiro</label>
@@ -218,13 +391,13 @@ export default function ListarAtendimentos() {
                 <BuscaEnfermeiroFiltro onEnfermeiroSelecionado={handleEnfermeiroSelecionado} />
               </div>
             </div>
-            <div className="sm:col-span-1">
+            <div className="sm:col-span-2">
               <label htmlFor="statusAtendimento" className="block text-sm font-medium leading-6 text-gray-900">Status</label>
               <div className="mt-2">
                 <select
                     id="statusAtendimento"
                     name="statusAtendimento"
-                    value={filtros.statusAtendimento}
+                    value={StatusAtendimento}
                     onChange={handleFilterChange}
                     autoComplete="statusAtendimento"
                     className="block w-full rounded-md border-0 py-2 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
@@ -243,7 +416,7 @@ export default function ListarAtendimentos() {
                 <select
                     id="DiaPago"
                     name="DiaPago"
-                    value={filtros.DiaPago}
+                    value={DiaPago}
                     onChange={handleFilterChange}
                     autoComplete="DiaPago"
                     className="block w-full rounded-md border-0 py-2 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
@@ -255,15 +428,14 @@ export default function ListarAtendimentos() {
               </div>
             </div>
             <div className="flex gap-3 mt-8 sm:col-span-1 text-center">
-              <button className="flex items-center justify-between bg-gray-700 hover:bg-gray-500 hover:text-white text-white text-lg font-semibold py-1 px-3 rounded" onClick={(e) => handleFilterSubmit(e, currentPage, itensPorPagina)}><TbFilter/></button>  
-              <button className="flex items-center justify-between bg-gray-700 hover:bg-gray-500 hover:text-white text-white text-lg font-semibold py-1 px-3 rounded" onClick={resetarFiltros}><TbFilterX/></button> 
+              <button className="flex items-center justify-between bg-gray-700 hover:bg-gray-500 hover:text-white text-white text-lg font-semibold py-1 px-6 rounded" onClick={(e) => handleFilterSubmit(e, currentPage, itensPorPagina, indexMonth, selectedYear)}><TbFilter/></button>  
+              <button className="flex items-center justify-between bg-gray-700 hover:bg-gray-500 hover:text-white text-white text-lg font-semibold py-1 px-6 rounded" onClick={(e) => resetarFiltros(e, indexMonth, selectedYear)}><TbFilterX/></button> 
             </div>
           </div>
           <div className="mt-6 overflow-auto rounded-lg shadow hidden md:block">
           <table className="w-full border border-collapse">
             <thead className="text-left text-white border-b-2 border-gray-200 bg-teal-600 border-r">
               <tr>
-                <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Atendimento</th>
                 <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Empresa</th>
                 <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Paciente</th>
                 <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Enfermeiro</th>
@@ -280,7 +452,6 @@ export default function ListarAtendimentos() {
             <tbody className="divide-y divide-gray-100">
               {atendimentos && atendimentos.map((atendimento: any) => (
                 <tr key={atendimento.atendimentoId} className="border-b border-gray-200">
-                  <td className="text-left w-24 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.numeroAtendimento}</td>
                   <td className="text-left w-48 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.nomeFantasia}</td>
                   <td className="text-left w-48 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.paciente}</td>
                   <td className="text-left w-48 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.enfermeiro}</td>
@@ -293,8 +464,6 @@ export default function ListarAtendimentos() {
                       {atendimento.statusAtendimento}
                     </span>
                   </td>
-
-
                   <td className="text-left w-72 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.localAtendimento}  - {atendimento.estadoAtendimento}</td>
                   <td className="text-left w-72 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.assistencia}</td>
                   <td className="text-right w-40 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">
@@ -327,3 +496,15 @@ export default function ListarAtendimentos() {
     </Page>
   )
 }
+
+export const getStaticProps: GetStaticProps<ListarAtendimentosProps> = async () => {
+  const meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+
+  return {
+    props: {
+      meses,
+    },
+  };
+};
+
+export default ListarAtendimentos;

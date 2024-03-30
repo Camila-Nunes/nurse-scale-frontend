@@ -13,15 +13,15 @@ import BuscaEnfermeiroFiltro from "@/components/BuscaEnfermeiroFiltro";
 import { CgSpinnerTwo } from "react-icons/cg";
 
 interface FiltrosState {
-  enfermeiroId: string;
-  cidade: string;
-  uf: string;
+  EnfermeiroId: string;
+  Cidade: string;
+  Estado: string;
 }
 
 const initialState: FiltrosState = {
-  enfermeiroId: '',
-  cidade: '',
-  uf: ''
+  EnfermeiroId: '',
+  Cidade: '',
+  Estado: ''
 };
 
 export default function ListarEnfermeiros() {
@@ -34,6 +34,9 @@ export default function ListarEnfermeiros() {
   const [enfermeiroId, setEnfermeiroId] = useState('');
   const [filtros, setFiltros] = useState<FiltrosState>(initialState);
   const [isLoading, setIsLoading] = useState(true);
+  const [cidade, setCidade] = useState('');
+  const [estado, setEstado] = useState('');
+
   const itensPorPagina = 10;
 
   useEffect(() => {
@@ -61,16 +64,21 @@ export default function ListarEnfermeiros() {
     })
   };
 
-  async function getEnfermeiros(page: number, pageSize: number){
+  async function getEnfermeiros(page: number, pageSize: number) {
     try {
-      const response = await api.get(`/api/Enfermeiros?page=${page}&pageSize=${pageSize}`)
+      let queryString = `?page=${page}&pageSize=${pageSize}`;
+      const filtrosPreenchidos = Object.values(filtros).some(value => !!value);
+      
+      if (filtrosPreenchidos) {
+        queryString += '&' + Object.entries(filtros).map(([key, value]) => `${key}=${value}`).join('&');
+      }
+      
+      const response = await api.get(`/api/Enfermeiros/todos-enfermeiros${queryString}`);
       setEnfermeiros(response.data.result);
-    } catch (error) {
-      toast.error("Erro ao carregar dados. " + error);
-    } finally {
-      setIsLoading(false); // Marca o carregamento como concluído, independentemente do resultado
+    } catch (error: any) {
+      toast.error("Erro ao carregar dados. " + error.message);
     }
-  };
+  }
 
   async function handleEditClick (id: string){
     setSelectedId(id); 
@@ -83,23 +91,49 @@ export default function ListarEnfermeiros() {
     try {
       const response = await api.delete(`/api/Enfermeiros/${id}`);
       toast.success("Registro deletado com sucesso.");
-      // if (response.status === 200) {
-      //   setEnfermeiros(prevEnfermeiros => prevEnfermeiros.filter(e => e.enfermeiroId !== id));
-      //   toast.success("Registro deletado com sucesso.");
-      // } else {
-      //   toast.error("Erro ao deletar registro.");
-      // }
     } catch (error) {
       toast.error("Erro ao deletar registro.");
     }
   };
 
-  const handleNextPage = () => {
-    setCurrentPage((prevPage) => prevPage + 1);
+  const handleNextPrevPageChange = async (
+    page: number,
+    endpoint: string
+  ) => {
+      try {
+        let queryString = `?page=${page}&pageSize=${itensPorPagina}`;
+        const filtrosPreenchidos = filtros && Object.values(filtros).some(value => !!value);
+
+        if (filtrosPreenchidos) {
+          queryString += '&' + Object.entries(filtros).map(([key, value]) => `${key}=${value}`).join('&');
+        }
+        const url = `/api/Enfermeiros/${endpoint}` + queryString;
+        const response = await api.get(url);
+        const { data } = response;
+
+        setEnfermeiros(data.result);
+        setCurrentPage(page);
+      } catch (error) {
+          toast.error('Erro ao chamar a API.');
+      }
   };
 
-  const handlePrevPage = () => {
-    setCurrentPage((prevPage) => prevPage - 1);
+  const handleNextPage = async () => {
+    const nextPage = currentPage + 1;
+    setCurrentPage(nextPage);
+    const endpoint = hasFiltros(filtros) ? 'filtro' : 'todos-enfermeiros';
+    await handleNextPrevPageChange(nextPage, endpoint);
+  };
+  
+  const hasFiltros = (filtros: FiltrosState): boolean => {
+    return Object.values(filtros).some(value => !!value);
+  };
+    
+  const handlePrevPage = async () => {
+    const prevPage = currentPage - 1;
+    setCurrentPage(prevPage);
+    const endpoint = hasFiltros(filtros) ? 'filtro' : 'todos-enfermeiros';
+    await handleNextPrevPageChange(prevPage, endpoint);
   };
 
   const handleEnfermeiroSelecionado = (id: string) => {
@@ -108,55 +142,81 @@ export default function ListarEnfermeiros() {
     setEnfermeiroId(novoId);
     setFiltros((prevFiltros) => ({
       ...prevFiltros,
-      enfermeiroId: novoId,
+      EnfermeiroId: novoId,
     }));
-  
-    console.log(novoId);
   };
 
-  const handleFilterSubmit = async (e: React.MouseEvent<HTMLButtonElement> | null) => {
+  const handleFilterSubmit = async (e: React.MouseEvent<HTMLButtonElement>, page: number, pageSize: number) => {
+    e.preventDefault();
+  
+    try {
+      let queryString = `?page=${page}&pageSize=${pageSize}`;
+      
+      const filtrosComCidadeEstado = {
+        ...filtros,
+        Cidade: cidade,
+        Estado: estado
+      };
+      
+      const filtrosPreenchidos = Object.values(filtrosComCidadeEstado).some(value => !!value);
+      
+      if (filtrosPreenchidos) {
+        queryString = '?' + Object.entries(filtrosComCidadeEstado).map(([key, value]) => `${key}=${value}`).join('&');
+      }
+      
+      const response = await api.get(`/api/Enfermeiros/filtro${queryString}&page=${page}&pageSize=${pageSize}`);
+      const { results, totalCount, totalPages } = response.data;
+
+      setEnfermeiros(results);
+      setCurrentPage(page);
+      setTotalPaginas(totalPages);
+      setTotalItems(totalCount);
+    } catch (error: any) {
+      toast.error("Erro ao carregar dados. " + error.message);
+    }
+  };
+
+  const resetarFiltros = async (e: React.MouseEvent<HTMLButtonElement>| null) => {
+
     if (e) {
       e.preventDefault();
     }
-  
-    if (!Object.values(filtros).some(value => !!value)) {
-      toast.info('Não existe valor para ser filtrado.');
-      return;
-    }
-  
+
+    const novosFiltros = {
+      EnfermeiroId: '',
+      Cidade: '',
+      Estado: ''
+    };
+
+    setFiltros(novosFiltros);
+    setCurrentPage(1);
+
     try {
-      const response = await api.post('/api/Enfermeiros/filtro', filtros);
-      setEnfermeiros(response.data.result);
-      console.log(response.data.result);
-      console.log(filtros);
+      let queryString = `?page=1&pageSize=10`;
+      const filtrosPreenchidos = Object.values(novosFiltros).some(value => !!value);
+
+      if (filtrosPreenchidos) {
+        queryString = '?' + Object.entries(novosFiltros).map(([key, value]) => `${key}=${value}`).join('&');
+      }
+
+      const response = await api.get(`/api/Enfermeiros/filtro${queryString}&page=1&pageSize=${itensPorPagina}`);
+      const { results, totalCount, totalPages } = response.data;
+
+      setEnfermeiros(results);
+      setTotalPaginas(totalPages);
+      setTotalItems(totalCount);
     } catch (error) {
-      console.error('Erro ao chamar a API:', error);
+      toast.error('Erro ao chamar a API.');
     }
   };
-
-  const resetarFiltros = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    setFiltros(initialState);
-    getEnfermeiros(currentPage, 10);
-    setEnfermeiroId('');
-  };
-
-  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
   
-    setFiltros((prevFiltros) => ({
-      ...prevFiltros,
-      [name]: value,
-    }));
-  };
-  
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <CgSpinnerTwo className="animate-spin text-teal-600" size={100} />
-      </div>
-    );
-  }
+  // if (isLoading) {
+  //   return (
+  //     <div className="flex justify-center items-center h-screen">
+  //       <CgSpinnerTwo className="animate-spin text-teal-600" size={100} />
+  //     </div>
+  //   );
+  // }
 
   const handleNovoEnfermeiroClick = () => {
     setIsLoading(true);
@@ -169,13 +229,7 @@ export default function ListarEnfermeiros() {
     <Page titulo="Listagem de Enfermeiros">
       <form className="container max-w-full">
         <Link href="">
-          <button onClick={handleNovoEnfermeiroClick} className="rounded-md bg-teal-600 hover:bg-teal-800 px-3 py-2 text-sm font-semibold leading-6 text-white" disabled={isLoading}>
-            {isLoading ? (
-              <CgSpinnerTwo className="animate-spin text-white" size={20} />
-            ) : (
-              'Novo Enfermeiro'
-            )}
-          </button>    
+          <button onClick={handleNovoEnfermeiroClick} className="rounded-md bg-teal-600 hover:bg-teal-800 px-3 py-2 text-sm font-semibold leading-6 text-white">Novo Enfermeiro</button>    
         </Link>
         <div className="mt-2 mx-auto pt-4 shadow rounded-md bg-slate-50">
           <div className="grid grid-cols-1 gap-x-10 gap-y-8 sm:grid-cols-12">
@@ -186,35 +240,35 @@ export default function ListarEnfermeiros() {
               </div>
             </div>
             <div className="sm:col-span-4">
-              <label htmlFor="paciente" className="block text-sm font-medium leading-6 text-gray-900">Cidade</label>
+              <label htmlFor="cidade" className="block text-sm font-medium leading-6 text-gray-900">Cidade</label>
               <div className="mt-2">
                 <input
                   type="text"
-                  name="atendimento"
-                  id="atendimento"
-                  autoComplete="given-name"
-                  value={filtros.cidade}
-                  onChange={handleFilterChange}
+                  name="cidade"
+                  id="cidade"
+                  autoComplete="cidade"
+                  value={cidade}
+                  onChange={(e) => setCidade(e.target.value)}
                   className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
               </div>
             </div>
             <div className="sm:col-span-1">
-              <label htmlFor="paciente" className="block text-sm font-medium leading-6 text-gray-900">UF</label>
+              <label htmlFor="estado" className="block text-sm font-medium leading-6 text-gray-900">UF</label>
               <div className="mt-2">
                 <input
                   type="text"
-                  name="atendimento"
-                  id="atendimento"
-                  autoComplete="given-name"
-                  value={filtros.uf}
-                  onChange={handleFilterChange}
+                  name="estado"
+                  id="estado"
+                  autoComplete="estado"
+                  value={estado}
+                  onChange={(e) => setEstado(e.target.value)}
                   className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
               </div>
             </div>
             <div className="flex gap-3 mt-8 sm:col-span-1 text-center">
-              <button className="flex items-center justify-between bg-gray-700 hover:bg-gray-500 hover:text-white text-white text-lg font-semibold py-1 px-3 rounded" onClick={handleFilterSubmit}><TbFilter/></button>  
+              <button className="flex items-center justify-between bg-gray-700 hover:bg-gray-500 hover:text-white text-white text-lg font-semibold py-1 px-3 rounded" onClick={(e) => handleFilterSubmit(e, currentPage, 10)}><TbFilter/></button>  
               <button className="flex items-center justify-between bg-gray-700 hover:bg-gray-500 hover:text-white text-white text-lg font-semibold py-1 px-3 rounded" onClick={resetarFiltros}><TbFilterX/></button> 
             </div>
           </div>
