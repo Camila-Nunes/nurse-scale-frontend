@@ -229,9 +229,9 @@ export default function ListarPacientes() {
       const { results, totalCount, totalPages } = response.data;
 
       // Atualiza os estados com os dados recebidos
-      setPacientes(response.data);
-      //setTotalPaginas(totalPages);
-      //setTotalItems(totalCount);
+      setPacientes(results);
+      setTotalPaginas(totalPages);
+      setTotalItems(totalCount);
     } catch (error) {
       toast.error('Erro ao chamar a API.');
     }
