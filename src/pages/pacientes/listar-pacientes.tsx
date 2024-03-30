@@ -132,7 +132,7 @@ export default function ListarPacientes() {
     setPacienteId(id || '');
     setFiltros((prevFiltros) => ({
       ...prevFiltros,
-      acienteId: id || '',
+      PacienteId: id || '',
     }));
   
     console.log(id);
