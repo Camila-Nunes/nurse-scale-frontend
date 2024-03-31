@@ -5,20 +5,6 @@ import InputMask from "react-input-mask";
 export default function Orcamentos() {
 
     const valorEmpresaRef = useRef<HTMLInputElement>(null);
-    const valorImpostoRef = useRef<HTMLInputElement>(null);
-    const valorDescontadoImpostoRef = useRef<HTMLInputElement>(null);
-    const valorProfissionalRef = useRef<HTMLInputElement>(null);
-    const valorLucroRef = useRef<HTMLInputElement>(null);
-    const porcentagemLucroRef = useRef<HTMLInputElement>(null);
-    const diasAtendimentoRef = useRef<HTMLInputElement>(null);
-    const totalEmpresaRef = useRef<HTMLInputElement>(null);
-    const totalImpostoRef = useRef<HTMLInputElement>(null);
-    const totalDescontoRef = useRef<HTMLInputElement>(null);
-    const totalProfissionalRef = useRef<HTMLInputElement>(null);
-    const totalLucroRef = useRef<HTMLInputElement>(null);
-    const totalPercentualLucroRef = useRef<HTMLInputElement>(null);
-
-
     const [valorEmpresa, setValorEmpresa] = useState('0');
     const [valorImposto, setValorImposto] = useState('0');
     const [valorDescontadoImposto, setValorDescontadoImposto] = useState('0');
@@ -129,6 +115,10 @@ export default function Orcamentos() {
         setTotalPercentualLucro(totalPorcentagemLucro);
     };
 
+    const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+        e.target.value = ''; // Limpar o campo
+    };
+
     useEffect(() => {
         const handleEscKeyPress = (event: KeyboardEvent) => {
             if (event.key === "Escape") {
@@ -143,7 +133,6 @@ export default function Orcamentos() {
                 }
                 setFocusedFieldId(null);
 
-                // Limpar todos os campos
                 setValorEmpresa('0');
                 setValorImposto('0');
                 setValorDescontadoImposto('0');
@@ -188,6 +177,7 @@ export default function Orcamentos() {
                                         inputRef={valorEmpresaRef}
                                         autoComplete="valor-com-desconto"
                                         className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        onFocus={handleFocus}
                                     />
                                 </div>
                             </div>
@@ -246,6 +236,7 @@ export default function Orcamentos() {
                                         onChange={handleValorProfissionalChange}
                                         autoComplete="valor-profissional"
                                         className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        onFocus={handleFocus}
                                     />
                                 </div>
                             </div>
@@ -297,6 +288,7 @@ export default function Orcamentos() {
                                         onChange={handleDiasAtendimentoChange}
                                         autoComplete="valor-com-desconto"
                                         className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        onFocus={handleFocus}
                                     />
                                 </div>
                             </div> 
