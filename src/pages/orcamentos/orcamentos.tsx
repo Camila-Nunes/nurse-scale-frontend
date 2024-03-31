@@ -15,7 +15,7 @@ export default function Orcamentos() {
     const [totalImposto, setTotalImposto] = useState('0');
     const [totalDesconto, setTotalDesconto] = useState('0');
     const [totalLucro, setTotalLucro] = useState('0');
-    const [totalProfissional, setTotaProfissional] = useState('0');
+    const [totalProfissional, setTotalProfissional] = useState('0');
 
     const calcularImposto = () => {
         const valorEmpresaFloat = parseFloat(valorEmpresa.replace(',', '.')); // Substitua vírgula por ponto e converta para número de ponto flutuante
@@ -75,14 +75,32 @@ export default function Orcamentos() {
         return valorDescontado.toFixed(2);
     };
 
+    const calcularTotalProfissional = (valor: number, dias: number): string => {
+        const total = valor * dias;
+        return total.toFixed(2);
+    };
+
+    const calcularTotalLucro = (valorDescontadoImpostoFloat: number, valorProfissionalFloat: number, dias: number): string => {
+        const total = valorDescontadoImpostoFloat - valorProfissionalFloat;
+        return total.toFixed(2);
+    };
+
     const handleDiasAtendimentoChange = (e) => {
         setDiasAtendimento(e.target.value);
         const totalEmpresaCalculado = calcularTotalEmpresa(parseFloat(valorEmpresa), parseInt(e.target.value));
         setTotalEmpresa(totalEmpresaCalculado);
+        
         const impostoCalculado: string = calcularTotalImposto(parseFloat(totalEmpresaCalculado));
         setTotalImposto(impostoCalculado);
+
         const valorTotalDescontadoImpostoCalculado = calcularValorTotalDescontadoImposto(parseFloat(totalEmpresaCalculado), parseFloat(impostoCalculado));
         setTotalDesconto(valorTotalDescontadoImpostoCalculado);
+
+        const totalProfissionalCalculado = calcularTotalProfissional(parseFloat(valorProfissional), parseInt(e.target.value));
+        setTotalProfissional(totalProfissionalCalculado);
+
+        const totalLucroCalculado = calcularTotalLucro(parseFloat(valorTotalDescontadoImpostoCalculado), parseFloat(totalProfissionalCalculado), parseInt(e.target.value));
+        setTotalLucro(totalLucroCalculado);
     };
 
     return (
@@ -264,7 +282,7 @@ export default function Orcamentos() {
                                 <label htmlFor="totalProfissional" className="block text-sm font-medium leading-6 text-gray-900 uppercase">Total Profissional</label>
                                 <div className="mt-2">
                                     <InputMask
-                                        mask="999.99"
+                                        mask=""
                                         maskChar=""
                                         type="text"
                                         name=""
@@ -272,6 +290,7 @@ export default function Orcamentos() {
                                         value={totalProfissional}
                                         autoComplete="totalProfissional"
                                         className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        disabled
                                     />
                                 </div>
                             </div>   
@@ -279,7 +298,7 @@ export default function Orcamentos() {
                                 <label htmlFor="totalLucro" className="block text-sm font-medium leading-6 text-gray-900 uppercase">Total Lucro (R$)</label>
                                 <div className="mt-2">
                                     <InputMask
-                                        mask="999.99"
+                                        mask=""
                                         maskChar=""
                                         type="text"
                                         name="totalLucro"
