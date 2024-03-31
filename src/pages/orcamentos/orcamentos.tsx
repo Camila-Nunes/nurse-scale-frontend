@@ -41,7 +41,17 @@ export default function Orcamentos() {
     };
 
     const handleValorEmpresaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setValorEmpresa(e.target.value);
+        let inputValue = e.target.value;
+
+        inputValue = inputValue.replace(/[^\d]/g, '');
+
+        if (!inputValue) {
+            setValorEmpresa('');
+            return;
+        }
+        const valueAsNumber = parseInt(inputValue) / 100;
+
+        setValorEmpresa(valueAsNumber.toFixed(2));
         const impostoCalculado = calcularImposto();
         setValorImposto(impostoCalculado);
         const valorDescontadoImpostoCalculado = calcularValorDescontadoImposto();
@@ -168,14 +178,13 @@ export default function Orcamentos() {
                                 <label htmlFor="valor-com-desconto" className="block text-sm font-medium leading-6 text-gray-900 uppercase">Valor para Empresa</label>
                                 <div className="mt-2">
                                     <InputMask
-                                        mask="999.99"
+                                        mask=""
                                         maskChar=""
                                         type="text"
                                         id="valor-com-desconto"
                                         value={valorEmpresa}
                                         onChange={handleValorEmpresaChange}
-                                        inputRef={valorEmpresaRef}
-                                        autoComplete="valor-com-desconto"
+                                        autoComplete="off"
                                         className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                         onFocus={handleFocus}
                                     />
