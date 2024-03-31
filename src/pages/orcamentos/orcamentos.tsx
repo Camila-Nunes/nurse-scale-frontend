@@ -34,7 +34,7 @@ export default function Orcamentos() {
     };
 
     const calcularValorDescontadoImposto = (valor: number) => {
-        const valorEmpresaFloat = parseFloat(valor); // Substitua vírgula por ponto e converta para número de ponto flutuante
+        const valorEmpresaFloat = valor; // Substitua vírgula por ponto e converta para número de ponto flutuante
         const impostoFloat = parseFloat(valorImposto); // Substitua vírgula por ponto e converta para número de ponto flutuante
         const valorDescontado = valorEmpresaFloat - impostoFloat;
         return valorDescontado.toFixed(2); // Limitando para duas casas decimais
@@ -59,7 +59,7 @@ export default function Orcamentos() {
         setFocusedFieldId(e.target.id);
     };
 
-    const handleValorProfissionalChange = (e) => {
+    const handleValorProfissionalChange = (e: any) => {
         setValorProfissional(e.target.value);
         const lucroCalculado = calcularLucro();
         setValorLucro(lucroCalculado);
@@ -104,7 +104,7 @@ export default function Orcamentos() {
         return porcentagemLucroTotal.toFixed(2); // Limitando para duas casas decimais
     };
 
-    const handleDiasAtendimentoChange = (e) => {
+    const handleDiasAtendimentoChange = (e: any) => {
         setDiasAtendimento(e.target.value);
         const totalEmpresaCalculado = calcularTotalEmpresa(parseFloat(valorEmpresa), parseInt(e.target.value));
         setTotalEmpresa(totalEmpresaCalculado);
