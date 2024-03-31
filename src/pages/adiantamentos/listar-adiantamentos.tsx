@@ -125,9 +125,13 @@ const ListarAdiantamentos: React.FC<ListarAdiantamentosProps> = ({ meses }) => {
   async function handleDeleteClick(event: React.MouseEvent<HTMLButtonElement>, idAdiantamento: string) {
     event.preventDefault();
     try {
+      const indexMonth = getMonthNumber(selectedMonth);
+      setCurrentMonthIndex(indexMonth); // Corrigir para armazenar o índice do mês, não o nome
+      
       const response = await api.delete(`/api/AdiantamentosPagamentos/${idAdiantamento}`);
       console.log("IdAtendimento: " + idAdiantamento)
       toast.success("Registro deletado com sucesso.");
+      getAdiantamentos(currentPage, 10, indexMonth, selectedYear);
     } catch (error) {
       toast.error("Erro ao deletar registro.");
     }

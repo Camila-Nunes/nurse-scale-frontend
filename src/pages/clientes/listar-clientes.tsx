@@ -44,10 +44,12 @@ export default function Clientes() {
     try {
       const response = await api.delete(`/api/Clientes/${idCliente}`);
       toast.success("Registro deletado com sucesso.");
+      await getClientes();
     } catch (error) {
       toast.error("Erro ao deletar registro.");
     }
   };
+
 
   if (isLoading) {
     return (
