@@ -118,7 +118,10 @@ export default function Orcamentos() {
             <form className="container max-w-full">
                 <div className="container mx-auto">
                     <div className="border-b border-gray-900/10 pb-12">
-                        <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-12">
+                        <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-12 border text-white text-center pb-10">
+                            <div className="sm:col-span-12 uppercase bg-teal-800 px-10">
+                                <p className="py-5 uppercase">Valor Individual</p>
+                            </div>
                             <div className="sm:col-span-2">
                                 <label htmlFor="valor-com-desconto" className="block text-sm font-medium leading-6 text-gray-900 uppercase">Valor para Empresa</label>
                                 <div className="mt-2">
@@ -222,9 +225,12 @@ export default function Orcamentos() {
                                     />
                                 </div>
                             </div>
-                        </div>    
+                        </div>  
 
-                        <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-12">
+                        <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-12 border text-white text-center pb-10">
+                            <div className="sm:col-span-12 uppercase bg-teal-800 px-10">
+                                <p className="py-5 uppercase">Valores Totalizados</p>
+                            </div>
                             <div className="sm:col-span-2">
                                 <label htmlFor="diasAtendimento" className="block text-sm font-medium leading-6 text-gray-900 uppercase">Dias de Atendimento</label>
                                 <div className="mt-2">
