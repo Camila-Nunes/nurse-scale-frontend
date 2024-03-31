@@ -30,32 +30,11 @@ export default function Orcamentos() {
         return lucro.toFixed(2); // Limitando para duas casas decimais
     };
 
-    const calcularTotalValorDescontadoImposto = () => {
-        const totalEmpresaFloat = parseFloat(totalEmpresa.replace(',', '.')); // Substitua vírgula por ponto e converta para número de ponto flutuante
-        const impostoTotalFloat = parseFloat(totalImposto.replace(',', '.')); // Substitua vírgula por ponto e converta para número de ponto flutuante
-        const valorDescontadoToal = totalEmpresaFloat - impostoTotalFloat;
-        return valorDescontadoToal.toFixed(2); // Limitando para duas casas decimais
-    };
-
     const calcularValorDescontadoImposto = () => {
         const valorEmpresaFloat = parseFloat(valorEmpresa.replace(',', '.')); // Substitua vírgula por ponto e converta para número de ponto flutuante
         const impostoFloat = parseFloat(valorImposto.replace(',', '.')); // Substitua vírgula por ponto e converta para número de ponto flutuante
         const valorDescontado = valorEmpresaFloat - impostoFloat;
-
         return valorDescontado.toFixed(2); // Limitando para duas casas decimais
-    };
-
-    const calcularTotalImposto = () => {
-        const totalEmpresaFloat = parseFloat(totalEmpresa.replace(',', '.')); // Substitua vírgula por ponto e converta para número de ponto flutuante
-        const imposto = totalEmpresaFloat * 0.1142; // Calcule o valor do imposto como 11,42% do total da empresa
-        return imposto.toFixed(2); // Limitando para duas casas decimais
-    };
-
-    const calcularTotalEmpresa = (valor: any, dias: any) => {
-        const valorFloat = parseFloat(valor.replace(',', '.')); // Substitua vírgula por ponto e converta para número de ponto flutuante
-        const diasInt = parseInt(dias); // Converta para inteiro
-        const total = valorFloat * diasInt;
-        return total.toFixed(2); // Limitando para duas casas decimais
     };
 
     const handleValorEmpresaChange = (e) => {
@@ -81,15 +60,17 @@ export default function Orcamentos() {
         return porcentagemLucro.toFixed(2); // Limitando para duas casas decimais
     };
 
-    const handleDiasAtendimentoChange = (e) => {
+    const handleDiasAtendimentoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setDiasAtendimento(e.target.value);
-        const totalEmpresaCalculado = calcularTotalEmpresa(valorEmpresa, e.target.value);
+        const totalEmpresaCalculado = calcularTotalEmpresa(parseFloat(valorEmpresa), parseInt(e.target.value));
         setTotalEmpresa(totalEmpresaCalculado);
-        const valorImpostoTotal = calcularTotalImposto();
-        setTotalImposto(valorImpostoTotal);
-        const valorTotalDescontoImposto = calcularTotalValorDescontadoImposto()
-        setTotalDesconto(valorTotalDescontoImposto);
     };
+
+    const calcularTotalEmpresa = (valor: number, dias: number): string => {
+        const total = valor * dias;
+        return total.toFixed(2);
+    };
+    
 
     return (
         <Page titulo="Orçamentos">
@@ -227,6 +208,7 @@ export default function Orcamentos() {
                                         name="totalEmpresa"
                                         id="totalEmpresa"
                                         value={totalEmpresa}
+                                        readOnly
                                         autoComplete="totalEmpresa"
                                         className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                         disabled
@@ -275,7 +257,6 @@ export default function Orcamentos() {
                                         name=""
                                         id="totalProfissional"
                                         value={totalProfissional}
-                                        onChange={handleValorEmpresaChange}
                                         autoComplete="totalProfissional"
                                         className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                     />
@@ -314,7 +295,6 @@ export default function Orcamentos() {
                                 </div>
                             </div>        
                         </div>
-                        
                     </div>
                 </div>
             </form>
