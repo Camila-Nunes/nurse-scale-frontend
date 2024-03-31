@@ -171,7 +171,7 @@ export default function Orcamentos() {
                 <div className="container mx-auto">
                     <div className="border-b border-gray-900/10 pb-12">
                         <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-12 border text-white text-center pb-10">
-                            <div className="sm:col-span-12 uppercase bg-teal-800 px-10">
+                            <div className="sm:col-span-12 uppercase bg-teal-600 px-10">
                                 <p className="py-5 uppercase">Valor Individual</p>
                             </div>
                             <div className="sm:col-span-2">
@@ -283,7 +283,7 @@ export default function Orcamentos() {
                         </div>  
 
                         <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-12 border text-white text-center pb-10">
-                            <div className="sm:col-span-12 uppercase bg-teal-800 px-10">
+                            <div className="sm:col-span-12 uppercase bg-teal-600 px-10">
                                 <p className="py-5 uppercase">Valores Totalizados</p>
                             </div>
                             <div className="sm:col-span-1">
