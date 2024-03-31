@@ -233,8 +233,8 @@ export default function Orcamentos() {
                             <div className="sm:col-span-12 uppercase bg-teal-800 px-10">
                                 <p className="py-5 uppercase">Valores Totalizados</p>
                             </div>
-                            <div className="sm:col-span-2">
-                                <label htmlFor="diasAtendimento" className="block text-sm font-medium leading-6 text-gray-900 uppercase">Dias de Atendimento</label>
+                            <div className="sm:col-span-1">
+                                <label htmlFor="diasAtendimento" className="block text-sm font-medium leading-6 text-gray-900 uppercase">Atendimentos</label>
                                 <div className="mt-2">
                                     <input
                                         type="text"
@@ -280,8 +280,8 @@ export default function Orcamentos() {
                                     />
                                 </div>
                             </div>
-                            <div className="sm:col-span-1">
-                                <label htmlFor="desconto" className="block text-sm font-medium leading-6 text-gray-900 uppercase">Desconto</label>
+                            <div className="sm:col-span-2">
+                                <label htmlFor="desconto" className="block text-sm font-medium leading-6 text-gray-900 uppercase">Total Descontado Imposto</label>
                                 <div className="mt-2">
                                     <InputMask
                                         mask=""
