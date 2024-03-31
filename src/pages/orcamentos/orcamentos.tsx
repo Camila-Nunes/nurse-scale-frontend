@@ -1,8 +1,23 @@
 import Page from "@/components/Page";
-import { useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import InputMask from "react-input-mask";
 
 export default function Orcamentos() {
+
+    const valorEmpresaRef = useRef<HTMLInputElement>(null);
+    const valorImpostoRef = useRef<HTMLInputElement>(null);
+    const valorDescontadoImpostoRef = useRef<HTMLInputElement>(null);
+    const valorProfissionalRef = useRef<HTMLInputElement>(null);
+    const valorLucroRef = useRef<HTMLInputElement>(null);
+    const porcentagemLucroRef = useRef<HTMLInputElement>(null);
+    const diasAtendimentoRef = useRef<HTMLInputElement>(null);
+    const totalEmpresaRef = useRef<HTMLInputElement>(null);
+    const totalImpostoRef = useRef<HTMLInputElement>(null);
+    const totalDescontoRef = useRef<HTMLInputElement>(null);
+    const totalProfissionalRef = useRef<HTMLInputElement>(null);
+    const totalLucroRef = useRef<HTMLInputElement>(null);
+    const totalPercentualLucroRef = useRef<HTMLInputElement>(null);
+
 
     const [valorEmpresa, setValorEmpresa] = useState('0');
     const [valorImposto, setValorImposto] = useState('0');
@@ -17,7 +32,7 @@ export default function Orcamentos() {
     const [totalLucro, setTotalLucro] = useState('0');
     const [totalProfissional, setTotalProfissional] = useState('0');
     const [totalPercentualLucro, setTotalPercentualLucro] = useState('0');
-
+    const [focusedFieldId, setFocusedFieldId] = useState<string | null>(null);
 
     const calcularImposto = () => {
         const valorEmpresaFloat = parseFloat(valorEmpresa.replace(',', '.')); // Substitua vírgula por ponto e converta para número de ponto flutuante
@@ -39,12 +54,13 @@ export default function Orcamentos() {
         return valorDescontado.toFixed(2); // Limitando para duas casas decimais
     };
 
-    const handleValorEmpresaChange = (e) => {
+    const handleValorEmpresaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setValorEmpresa(e.target.value);
         const impostoCalculado = calcularImposto();
         setValorImposto(impostoCalculado);
         const valorDescontadoImpostoCalculado = calcularValorDescontadoImposto();
         setValorDescontadoImposto(valorDescontadoImpostoCalculado);
+        setFocusedFieldId(e.target.id);
     };
 
     const handleValorProfissionalChange = (e) => {
@@ -113,6 +129,43 @@ export default function Orcamentos() {
         setTotalPercentualLucro(totalPorcentagemLucro);
     };
 
+    useEffect(() => {
+        const handleEscKeyPress = (event: KeyboardEvent) => {
+            if (event.key === "Escape") {
+                if (focusedFieldId) {
+                    const field = document.getElementById(focusedFieldId);
+                    if (field) {
+                        field.focus();
+                    }
+                }
+                else if (valorEmpresaRef.current) {
+                    valorEmpresaRef.current.focus();
+                }
+                setFocusedFieldId(null);
+
+                // Limpar todos os campos
+                setValorEmpresa('0');
+                setValorImposto('0');
+                setValorDescontadoImposto('0');
+                setValorProfissional('0');
+                setValorLucro('0');
+                setPorcentagemLucro('0');
+                setDiasAtendimento('0');
+                setTotalEmpresa('0');
+                setTotalImposto('0');
+                setTotalDesconto('0');
+                setTotalLucro('0');
+                setTotalProfissional('0');
+                setTotalPercentualLucro('0');
+            }
+        };
+
+        document.addEventListener("keydown", handleEscKeyPress);
+        return () => {
+            document.removeEventListener("keydown", handleEscKeyPress);
+        };
+    }, [focusedFieldId]);
+
     return (
         <Page titulo="Orçamentos">
             <form className="container max-w-full">
@@ -129,10 +182,10 @@ export default function Orcamentos() {
                                         mask="999.99"
                                         maskChar=""
                                         type="text"
-                                        name="valor-com-desconto"
                                         id="valor-com-desconto"
                                         value={valorEmpresa}
                                         onChange={handleValorEmpresaChange}
+                                        inputRef={valorEmpresaRef}
                                         autoComplete="valor-com-desconto"
                                         className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                     />
