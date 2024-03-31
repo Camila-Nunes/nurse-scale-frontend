@@ -134,7 +134,7 @@ export default function Orcamentos() {
                                         value={valorEmpresa}
                                         onChange={handleValorEmpresaChange}
                                         autoComplete="valor-com-desconto"
-                                        className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                     />
                                 </div>
                             </div>
@@ -147,7 +147,7 @@ export default function Orcamentos() {
                                         id="aliquota"
                                         value={11.42}
                                         autoComplete="aliquota"
-                                        className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                         disabled
                                     />
                                 </div>
@@ -161,7 +161,7 @@ export default function Orcamentos() {
                                         id="valor-imposto"
                                         value={valorImposto}
                                         autoComplete="valor-imposto"
-                                        className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                         disabled
                                     />
                                 </div>
@@ -175,7 +175,7 @@ export default function Orcamentos() {
                                         id="valor-descontado-imposto"
                                         value={valorDescontadoImposto}
                                         autoComplete="valor-descontado-imposto"
-                                        className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                         disabled
                                     />
                                 </div>
@@ -192,7 +192,7 @@ export default function Orcamentos() {
                                         value={valorProfissional}
                                         onChange={handleValorProfissionalChange}
                                         autoComplete="valor-profissional"
-                                        className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                     />
                                 </div>
                             </div>
@@ -205,7 +205,7 @@ export default function Orcamentos() {
                                         id="valor-lucro"
                                         value={valorLucro}
                                         autoComplete="valor-lucro"
-                                        className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                         disabled
                                     />
                                 </div>
@@ -213,14 +213,16 @@ export default function Orcamentos() {
                             <div className="sm:col-span-1">
                                 <label htmlFor="valor-lucro" className="block text-sm font-medium leading-6 text-gray-900 uppercase">% Lucro</label>
                                 <div className="mt-2">
-                                    <InputMask mask="99,99%" 
+                                    <InputMask 
+                                        mask="99,99%" 
+                                        maskChar=""
                                         type="text"
                                         name="valor-lucro"
                                         id="valor-lucro"
                                         value={porcentagemLucro}
                                         onChange={handleValorProfissionalChange}
                                         autoComplete="valor-lucro"
-                                        className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                         disabled
                                     />
                                 </div>
@@ -241,7 +243,7 @@ export default function Orcamentos() {
                                         value={diasAtendimento}
                                         onChange={handleDiasAtendimentoChange}
                                         autoComplete="valor-com-desconto"
-                                        className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                     />
                                 </div>
                             </div> 
@@ -257,7 +259,7 @@ export default function Orcamentos() {
                                         value={totalEmpresa}
                                         readOnly
                                         autoComplete="totalEmpresa"
-                                        className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                         disabled
                                     />
                                 </div>
@@ -273,7 +275,7 @@ export default function Orcamentos() {
                                         id="imposto"
                                         value={totalImposto}
                                         autoComplete="valor-com-desconto"
-                                        className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                         disabled
                                     />
                                 </div>
@@ -289,7 +291,7 @@ export default function Orcamentos() {
                                         id="desconto"
                                         value={totalDesconto}
                                         autoComplete="desconto"
-                                        className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                         disabled
                                     />
                                 </div>
@@ -305,7 +307,7 @@ export default function Orcamentos() {
                                         id="totalProfissional"
                                         value={totalProfissional}
                                         autoComplete="totalProfissional"
-                                        className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                         disabled
                                     />
                                 </div>
@@ -322,23 +324,23 @@ export default function Orcamentos() {
                                         value={totalLucro}
                                         onChange={handleValorEmpresaChange}
                                         autoComplete="totalLucro"
-                                        className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                         disabled
                                     />
                                 </div>
                             </div> 
                             <div className="sm:col-span-2">
-                                <label htmlFor="valor-com-desconto" className="block text-sm font-medium leading-6 text-gray-900 uppercase">Total % Lucro</label>
+                                <label htmlFor="total-porcentagem-lucro" className="block text-sm font-medium leading-6 text-gray-900 uppercase">Total % Lucro</label>
                                 <div className="mt-2">
                                     <InputMask
                                         mask="99,99%" 
                                         maskChar=""
                                         type="text"
-                                        name="valor-com-desconto"
-                                        id="valor-com-desconto"
+                                        name="total-porcentagem-lucro"
+                                        id="total-porcentagem-lucro"
                                         value={totalPercentualLucro}
-                                        autoComplete="valor-com-desconto"
-                                        className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        autoComplete="total-porcentagem-lucro"
+                                        className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                         disabled
                                     />
                                 </div>
