@@ -60,15 +60,22 @@ export default function Orcamentos() {
         return porcentagemLucro.toFixed(2); // Limitando para duas casas decimais
     };
 
-    const handleDiasAtendimentoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleDiasAtendimentoChange = (e) => {
         setDiasAtendimento(e.target.value);
         const totalEmpresaCalculado = calcularTotalEmpresa(parseFloat(valorEmpresa), parseInt(e.target.value));
         setTotalEmpresa(totalEmpresaCalculado);
+        const impostoCalculado: string = calcularTotalImposto(parseFloat(totalEmpresaCalculado));
+        setTotalImposto(impostoCalculado);
     };
 
     const calcularTotalEmpresa = (valor: number, dias: number): string => {
         const total = valor * dias;
         return total.toFixed(2);
+    };
+
+    const calcularTotalImposto = (totalEmpresaFloat: number): string => {
+        const imposto: number = totalEmpresaFloat * 0.1142;
+        return imposto.toFixed(2);
     };
     
 
