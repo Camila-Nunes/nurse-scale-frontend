@@ -60,12 +60,9 @@ export default function Orcamentos() {
         return porcentagemLucro.toFixed(2); // Limitando para duas casas decimais
     };
 
-    const handleDiasAtendimentoChange = (e) => {
-        setDiasAtendimento(e.target.value);
-        const totalEmpresaCalculado = calcularTotalEmpresa(parseFloat(valorEmpresa), parseInt(e.target.value));
-        setTotalEmpresa(totalEmpresaCalculado);
-        const impostoCalculado: string = calcularTotalImposto(parseFloat(totalEmpresaCalculado));
-        setTotalImposto(impostoCalculado);
+    const calcularTotalImposto = (totalEmpresaFloat: number): string => {
+        const imposto: number = totalEmpresaFloat * 0.1142;
+        return imposto.toFixed(2);
     };
 
     const calcularTotalEmpresa = (valor: number, dias: number): string => {
@@ -73,11 +70,20 @@ export default function Orcamentos() {
         return total.toFixed(2);
     };
 
-    const calcularTotalImposto = (totalEmpresaFloat: number): string => {
-        const imposto: number = totalEmpresaFloat * 0.1142;
-        return imposto.toFixed(2);
+    const calcularValorTotalDescontadoImposto = (totalEmpresaFloat: number, totalImpostoFloat: number): string => {
+        const valorDescontado = totalEmpresaFloat - totalImpostoFloat;
+        return valorDescontado.toFixed(2);
     };
-    
+
+    const handleDiasAtendimentoChange = (e) => {
+        setDiasAtendimento(e.target.value);
+        const totalEmpresaCalculado = calcularTotalEmpresa(parseFloat(valorEmpresa), parseInt(e.target.value));
+        setTotalEmpresa(totalEmpresaCalculado);
+        const impostoCalculado: string = calcularTotalImposto(parseFloat(totalEmpresaCalculado));
+        setTotalImposto(impostoCalculado);
+        const valorTotalDescontadoImpostoCalculado = calcularValorTotalDescontadoImposto(parseFloat(totalEmpresaCalculado), parseFloat(impostoCalculado));
+        setTotalDesconto(valorTotalDescontadoImpostoCalculado);
+    };
 
     return (
         <Page titulo="Orçamentos">
@@ -242,7 +248,7 @@ export default function Orcamentos() {
                                 <label htmlFor="desconto" className="block text-sm font-medium leading-6 text-gray-900 uppercase">Desconto</label>
                                 <div className="mt-2">
                                     <InputMask
-                                        mask="999.99"
+                                        mask=""
                                         maskChar=""
                                         type="text"
                                         name="desconto"
