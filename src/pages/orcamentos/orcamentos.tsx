@@ -16,6 +16,8 @@ export default function Orcamentos() {
     const [totalDesconto, setTotalDesconto] = useState('0');
     const [totalLucro, setTotalLucro] = useState('0');
     const [totalProfissional, setTotalProfissional] = useState('0');
+    const [totalPercentualLucro, setTotalPercentualLucro] = useState('0');
+
 
     const calcularImposto = () => {
         const valorEmpresaFloat = parseFloat(valorEmpresa.replace(',', '.')); // Substitua vírgula por ponto e converta para número de ponto flutuante
@@ -85,6 +87,11 @@ export default function Orcamentos() {
         return total.toFixed(2);
     };
 
+    const calcularTotalPorcentagemLucro = (valorTotalEmpresa: number, valorTotalLucro: number) => {
+        const porcentagemLucroTotal = (valorTotalLucro / valorTotalEmpresa) * 100;
+        return porcentagemLucroTotal.toFixed(2); // Limitando para duas casas decimais
+    };
+
     const handleDiasAtendimentoChange = (e) => {
         setDiasAtendimento(e.target.value);
         const totalEmpresaCalculado = calcularTotalEmpresa(parseFloat(valorEmpresa), parseInt(e.target.value));
@@ -101,6 +108,9 @@ export default function Orcamentos() {
 
         const totalLucroCalculado = calcularTotalLucro(parseFloat(valorTotalDescontadoImpostoCalculado), parseFloat(totalProfissionalCalculado), parseInt(e.target.value));
         setTotalLucro(totalLucroCalculado);
+
+        const totalPorcentagemLucro = calcularTotalPorcentagemLucro(parseFloat(totalEmpresaCalculado), parseFloat(totalLucroCalculado));
+        setTotalPercentualLucro(totalPorcentagemLucro);
     };
 
     return (
@@ -307,6 +317,7 @@ export default function Orcamentos() {
                                         onChange={handleValorEmpresaChange}
                                         autoComplete="totalLucro"
                                         className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        disabled
                                     />
                                 </div>
                             </div> 
@@ -314,15 +325,15 @@ export default function Orcamentos() {
                                 <label htmlFor="valor-com-desconto" className="block text-sm font-medium leading-6 text-gray-900 uppercase">Total % Lucro</label>
                                 <div className="mt-2">
                                     <InputMask
-                                        mask="999.99"
+                                        mask="99,99%" 
                                         maskChar=""
                                         type="text"
                                         name="valor-com-desconto"
                                         id="valor-com-desconto"
-                                        value={valorEmpresa}
-                                        onChange={handleValorEmpresaChange}
+                                        value={totalPercentualLucro}
                                         autoComplete="valor-com-desconto"
                                         className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        disabled
                                     />
                                 </div>
                             </div>        
