@@ -20,22 +20,22 @@ export default function Orcamentos() {
     const [totalPercentualLucro, setTotalPercentualLucro] = useState('0');
     const [focusedFieldId, setFocusedFieldId] = useState<string | null>(null);
 
-    const calcularImposto = () => {
-        const valorEmpresaFloat = parseFloat(valorEmpresa.replace(',', '.')); // Substitua vírgula por ponto e converta para número de ponto flutuante
+    const calcularImposto = (valor: number) => {
+        const valorEmpresaFloat = valor; // Substitua vírgula por ponto e converta para número de ponto flutuante
         const imposto = valorEmpresaFloat * 0.1142;
         return imposto.toFixed(2); // Limitando para duas casas decimais
     };
 
     const calcularLucro = () => {
-        const valorProfissionalFloat = parseFloat(valorProfissional.replace(',', '.')); // Substitua vírgula por ponto e converta para número de ponto flutuante
-        const valorDescontadoImpostoFloat = parseFloat(valorDescontadoImposto.replace(',', '.')); // Substitua vírgula por ponto e converta para número de ponto flutuante
+        const valorProfissionalFloat = parseFloat(valorProfissional); // Substitua vírgula por ponto e converta para número de ponto flutuante
+        const valorDescontadoImpostoFloat = parseFloat(valorDescontadoImposto); // Substitua vírgula por ponto e converta para número de ponto flutuante
         const lucro = valorDescontadoImpostoFloat - valorProfissionalFloat;
         return lucro.toFixed(2); // Limitando para duas casas decimais
     };
 
-    const calcularValorDescontadoImposto = () => {
-        const valorEmpresaFloat = parseFloat(valorEmpresa.replace(',', '.')); // Substitua vírgula por ponto e converta para número de ponto flutuante
-        const impostoFloat = parseFloat(valorImposto.replace(',', '.')); // Substitua vírgula por ponto e converta para número de ponto flutuante
+    const calcularValorDescontadoImposto = (valor: number) => {
+        const valorEmpresaFloat = parseFloat(valor); // Substitua vírgula por ponto e converta para número de ponto flutuante
+        const impostoFloat = parseFloat(valorImposto); // Substitua vírgula por ponto e converta para número de ponto flutuante
         const valorDescontado = valorEmpresaFloat - impostoFloat;
         return valorDescontado.toFixed(2); // Limitando para duas casas decimais
     };
@@ -52,9 +52,9 @@ export default function Orcamentos() {
         const valueAsNumber = parseInt(inputValue) / 100;
 
         setValorEmpresa(valueAsNumber.toFixed(2));
-        const impostoCalculado = calcularImposto();
+        const impostoCalculado = calcularImposto(valueAsNumber);
         setValorImposto(impostoCalculado);
-        const valorDescontadoImpostoCalculado = calcularValorDescontadoImposto();
+        const valorDescontadoImpostoCalculado = calcularValorDescontadoImposto(valueAsNumber);
         setValorDescontadoImposto(valorDescontadoImpostoCalculado);
         setFocusedFieldId(e.target.id);
     };
@@ -68,8 +68,8 @@ export default function Orcamentos() {
     };
 
     const calcularPorcentagemLucro = () => {
-        const valorEmpresaFloat = parseFloat(valorEmpresa.replace(',', '.')); // Substitua vírgula por ponto e converta para número de ponto flutuante
-        const valorLucroFloat = parseFloat(valorLucro.replace(',', '.')); // Substitua vírgula por ponto e converta para número de ponto flutuante
+        const valorEmpresaFloat = parseFloat(valorEmpresa); // Substitua vírgula por ponto e converta para número de ponto flutuante
+        const valorLucroFloat = parseFloat(valorLucro); // Substitua vírgula por ponto e converta para número de ponto flutuante
         const porcentagemLucro = (valorLucroFloat / valorEmpresaFloat) * 100;
         return porcentagemLucro.toFixed(2); // Limitando para duas casas decimais
     };
