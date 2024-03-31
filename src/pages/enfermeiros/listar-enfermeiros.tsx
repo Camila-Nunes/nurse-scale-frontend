@@ -93,10 +93,11 @@ export default function ListarEnfermeiros() {
     try {
       const response = await api.delete(`/api/Enfermeiros/${id}`);
       toast.success("Registro deletado com sucesso.");
+      await getEnfermeiros(currentPage, itensPorPagina);
     } catch (error) {
       toast.error("Erro ao deletar registro.");
     }
-  };
+  }
 
   const handleNextPrevPageChange = async (
     page: number,

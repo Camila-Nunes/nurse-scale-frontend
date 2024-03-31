@@ -150,8 +150,12 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
   async function handleDeleteClick(event: React.MouseEvent<HTMLButtonElement>, idAtendimentos: string) {
     event.preventDefault();
     try {
+      const currentMonthIndex = getMonthNumber(selectedMonth);
+      const currentYear = new Date().getFullYear();
+
       const response = await api.delete(`/api/Atendimentos/${idAtendimentos}`)
       toast.success("Registro deletado com sucesso.");
+      getAtendimentos(currentPage, 10, currentMonthIndex, currentYear);
     } catch (error) {
       toast.error("Erro ao deletar registro.");
     }

@@ -27,6 +27,23 @@ export default function Pacientes() {
     const [estado, setEstado] = useState('');
     const router = useRouter();
 
+    const isFormValid = () => {
+        return (
+            nome.trim() !== '' &&
+            dataNascimento.trim() !== '' &&
+            cpf.trim() !== '' &&
+            rg.trim() !== '' &&
+            email.trim() !== '' &&
+            telefone.trim() !== '' &&
+            cep.trim() !== '' &&
+            endereco.trim() !== '' &&
+            numero.trim() !== '' &&
+            bairro.trim() !== '' &&
+            cidade.trim() !== '' &&
+            estado.trim() !== ''
+        );
+    };
+
     async function getClientes(){
         const response = await api.get('/api/Clientes')
         .then(response => {
@@ -307,7 +324,9 @@ export default function Pacientes() {
                             
                             <div className="flex items-center justify-end gap-x-6 col-span-full">
                                 <button type="button" onClick={handleCancel} className="text-sm py-2 px-4 font-semibold leading-6 bg-transparent hover:bg-red-700 text-red-700 hover:text-white border border-red-700 hover:border-transparent rounded-md">Cancelar</button>
-                                <button type="submit" className="text-sm py-3 px-8 font-semibold leading-6 text-white bg-teal-600 border rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 sm:ml-3 sm:w-auto sm:text-sm">Salvar</button>
+                                <button type="submit" className={`text-sm py-3 px-8 font-semibold leading-6 text-white bg-teal-600 border rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 sm:ml-3 sm:w-auto sm:text-sm ${
+                                    !isFormValid() ? 'opacity-50 cursor-not-allowed' : 'hover:bg-teal-700'
+                                }`} disabled={!isFormValid()}>Salvar</button>
                             </div>
                         </div>
                     </div>    

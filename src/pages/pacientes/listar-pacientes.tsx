@@ -81,6 +81,7 @@ export default function ListarPacientes() {
     try {
       const response = await api.delete(`/api/Pacientes/${idPaciente}`);
       toast.success("Registro deletado com sucesso.");
+      await getPacientes(currentPage, itensPorPagina);
     } catch (error) {
       toast.error("Erro ao deletar registro.");
     }
