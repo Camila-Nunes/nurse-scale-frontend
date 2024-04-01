@@ -94,8 +94,6 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     return numberMonth;
   };
 
-  
-
   async function getQtdAtendimentos(){
     const response = await api.get(`/api/Atendimentos/qtdAtendimentos`)
     .then(response => {
@@ -124,13 +122,15 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
       
       // Verifica se há algum filtro preenchido
       const filtrosPreenchidos = Object.values(filtros).some(value => !!value);
+
+      const endpoint = hasFiltros(filtros) ? 'filtro' : 'todos-atendimentos';
       
       // Se houver algum filtro preenchido, adiciona os filtros à queryString
       if (filtrosPreenchidos) {
         queryString += '&' + Object.entries(filtros).map(([key, value]) => `${key}=${value}`).join('&');
       }
       
-      const response = await api.get(`/api/Atendimentos/todos-atendimentos${queryString}`);
+      const response = await api.get(`/api/Atendimentos/${endpoint}${queryString}`);
       setAtendimentos(response.data.results);
     } catch (error: any) {
       toast.error("Erro ao carregar dados. " + error.message);
@@ -138,7 +138,6 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     setIsLoading(false);
   }
  }
-
 
   async function handleDeleteClick(event: React.MouseEvent<HTMLButtonElement>, idAtendimentos: string) {
     event.preventDefault();
@@ -404,11 +403,11 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
               </div>
             </div>
             <div className="sm:col-span-2">
-              <label htmlFor="statusAtendimento" className="block text-sm font-medium leading-6 text-gray-900">Status</label>
+              <label htmlFor="StatusAtendimento" className="block text-sm font-medium leading-6 text-gray-900">Status</label>
               <div className="mt-2">
                 <select
-                    id="statusAtendimento"
-                    name="statusAtendimento"
+                    id="StatusAtendimento"
+                    name="StatusAtendimento"
                     value={StatusAtendimento}
                     onChange={handleFilterChange}
                     autoComplete="statusAtendimento"

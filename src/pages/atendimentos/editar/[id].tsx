@@ -318,10 +318,14 @@ export default function EditarAtendimento() {
               </div>
             </div>
           </div> 
-          <div className="mt-6 flex items-center justify-end gap-x-6">
+          <div className="mt-6 flex items-center justify-end gap-x-2">
+            <button type="button" onClick={handleCancel} className="text-sm py-2 px-4 font-semibold leading-6 bg-transparent hover:bg-red-700 text-red-700 hover:text-white border border-red-700 hover:border-transparent rounded-md">Cancelar</button>
+            <button type="submit" className="text-sm py-3 px-8 font-semibold leading-6 text-white bg-teal-600 hover:bg-teal-700 border rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 sm:ml-3 sm:w-auto sm:text-sm">Salvar</button>
+          </div>
+          {/* <div className="mt-6 flex items-center justify-end gap-x-6">
             <button type="button" onClick={handleCancel} className="bg-red-900 hover:bg-red-700 text-white text-sm font-semibold py-2 px-4 rounded">Cancelar</button>
             <button type="submit" className="bg-cyan-900 hover:bg-cyan-700 text-white text-sm font-semibold py-2 px-4 rounded">Salvar</button>
-          </div> 
+          </div>  */}
         </div>
       </form>  
     </Page>
