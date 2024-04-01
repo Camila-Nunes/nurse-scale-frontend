@@ -72,20 +72,14 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
   const [Enfermeiro, setEnfermeiro] = useState<string>('');
   const [StatusAtendimento, setStatusAtendimento] = useState<string>('');
   const [DiaPago, setDiaPago] = useState<string>('');
-  const [indexMonth, setIndexMonth] = useState<number>(0);
-
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [indexMonth, setIndexMonth] = useState(0);
 
   const fullMonthName = format(new Date(), 'MMMM', { locale: pt });
   const monthName = fullMonthName.charAt(0).toUpperCase() + fullMonthName.slice(1);
 
   const [selectedMonth, setSelectedMonth] = useState(monthName);
-
-  const [selectedYear, setSelectedYear] = useState(0);
-
-  // const [selectedYear, setSelectedYear] = useState<number>(
-  //   new Date().getFullYear()
-  // );
 
   const handleSelectYear = (year: number) => {
     setSelectedYear(year);
@@ -100,6 +94,8 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     return numberMonth;
   };
 
+  
+
   async function getQtdAtendimentos(){
     const response = await api.get(`/api/Atendimentos/qtdAtendimentos`)
     .then(response => {
@@ -110,16 +106,13 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     })
   };
 
-  useEffect(()=>{
-    const currentMonthIndex = getMonthNumber(selectedMonth);
-    const currentYear = new Date().getFullYear();
-    setSelectedYear(currentYear);
-    getAtendimentos(currentPage, 10, currentMonthIndex, currentYear);
+  useEffect(() => {
+    getAtendimentos(currentPage, 10, getMonthNumber(selectedMonth), selectedYear);
   }, []);
 
-  useEffect(()=>{
-    getQtdAtendimentos()
-  }, []);
+  // useEffect(()=>{
+  //   getQtdAtendimentos()
+  // }, []);
 
   const handlePageChange = (pagina: number) => {
     setCurrentPage(pagina);
@@ -252,6 +245,9 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
+    const novoStatus = e.target.value; // Obtém o novo valor selecionado
+    setStatusAtendimento(novoStatus); // Atualiza o estado com o novo valor
+
   
     if (value !== 'Pago?' && value !== 'Selecione um Status') {
       setFiltros((prevFiltros) => ({
