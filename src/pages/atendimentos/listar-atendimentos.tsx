@@ -110,16 +110,11 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     })
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     const currentMonthIndex = getMonthNumber(selectedMonth);
-    const currentYear = new Date().getFullYear();
-    setSelectedYear(currentYear);
-    getAtendimentos(currentPage, 10, currentMonthIndex, currentYear);
-  }, []);
-
-  useEffect(()=>{
-    getQtdAtendimentos()
-  }, []);
+    const currentYear = selectedYear;
+    getAtendimentos(currentPage, itensPorPagina, currentMonthIndex, currentYear);
+  }, [selectedMonth, selectedYear, currentPage, itensPorPagina]);
 
   const handlePageChange = (pagina: number) => {
     setCurrentPage(pagina);
