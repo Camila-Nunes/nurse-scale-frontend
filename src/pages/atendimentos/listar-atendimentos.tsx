@@ -72,14 +72,20 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
   const [Enfermeiro, setEnfermeiro] = useState<string>('');
   const [StatusAtendimento, setStatusAtendimento] = useState<string>('');
   const [DiaPago, setDiaPago] = useState<string>('');
+  const [indexMonth, setIndexMonth] = useState<number>(0);
+
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  const [indexMonth, setIndexMonth] = useState(0);
 
   const fullMonthName = format(new Date(), 'MMMM', { locale: pt });
   const monthName = fullMonthName.charAt(0).toUpperCase() + fullMonthName.slice(1);
 
   const [selectedMonth, setSelectedMonth] = useState(monthName);
+
+  const [selectedYear, setSelectedYear] = useState(0);
+
+  // const [selectedYear, setSelectedYear] = useState<number>(
+  //   new Date().getFullYear()
+  // );
 
   const handleSelectYear = (year: number) => {
     setSelectedYear(year);
@@ -104,13 +110,16 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     })
   };
 
-  useEffect(() => {
-    getAtendimentos(currentPage, 10, getMonthNumber(selectedMonth), selectedYear);
+  useEffect(()=>{
+    const currentMonthIndex = getMonthNumber(selectedMonth);
+    const currentYear = new Date().getFullYear();
+    setSelectedYear(currentYear);
+    getAtendimentos(currentPage, 10, currentMonthIndex, currentYear);
   }, []);
 
-  // useEffect(()=>{
-  //   getQtdAtendimentos()
-  // }, []);
+  useEffect(()=>{
+    getQtdAtendimentos()
+  }, []);
 
   const handlePageChange = (pagina: number) => {
     setCurrentPage(pagina);
@@ -122,15 +131,13 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
       
       // Verifica se há algum filtro preenchido
       const filtrosPreenchidos = Object.values(filtros).some(value => !!value);
-
-      const endpoint = hasFiltros(filtros) ? 'filtro' : 'todos-atendimentos';
       
       // Se houver algum filtro preenchido, adiciona os filtros à queryString
       if (filtrosPreenchidos) {
         queryString += '&' + Object.entries(filtros).map(([key, value]) => `${key}=${value}`).join('&');
       }
       
-      const response = await api.get(`/api/Atendimentos/${endpoint}${queryString}`);
+      const response = await api.get(`/api/Atendimentos/todos-atendimentos${queryString}`);
       setAtendimentos(response.data.results);
     } catch (error: any) {
       toast.error("Erro ao carregar dados. " + error.message);
@@ -138,6 +145,7 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     setIsLoading(false);
   }
  }
+
 
   async function handleDeleteClick(event: React.MouseEvent<HTMLButtonElement>, idAtendimentos: string) {
     event.preventDefault();
@@ -244,9 +252,6 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    const novoStatus = e.target.value; // Obtém o novo valor selecionado
-    setStatusAtendimento(novoStatus); // Atualiza o estado com o novo valor
-
   
     if (value !== 'Pago?' && value !== 'Selecione um Status') {
       setFiltros((prevFiltros) => ({
@@ -403,11 +408,11 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
               </div>
             </div>
             <div className="sm:col-span-2">
-              <label htmlFor="StatusAtendimento" className="block text-sm font-medium leading-6 text-gray-900">Status</label>
+              <label htmlFor="statusAtendimento" className="block text-sm font-medium leading-6 text-gray-900">Status</label>
               <div className="mt-2">
                 <select
-                    id="StatusAtendimento"
-                    name="StatusAtendimento"
+                    id="statusAtendimento"
+                    name="statusAtendimento"
                     value={StatusAtendimento}
                     onChange={handleFilterChange}
                     autoComplete="statusAtendimento"
