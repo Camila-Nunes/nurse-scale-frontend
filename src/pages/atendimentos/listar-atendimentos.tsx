@@ -81,11 +81,9 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
 
   const [selectedMonth, setSelectedMonth] = useState(monthName);
 
-  const [selectedYear, setSelectedYear] = useState(0);
-
-  // const [selectedYear, setSelectedYear] = useState<number>(
-  //   new Date().getFullYear()
-  // );
+  const [selectedYear, setSelectedYear] = useState<number>(
+    new Date().getFullYear()
+  );
 
   const handleSelectYear = (year: number) => {
     setSelectedYear(year);
@@ -98,26 +96,6 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     setIndexMonth(numberMonth);
 
     return numberMonth;
-  };
-
-  async function getQtdAtendimentos(){
-    const response = await api.get(`/api/Atendimentos/qtdAtendimentos`)
-    .then(response => {
-      setTotalItems(response.data.totalItems);
-      setTotalPaginas(Math.ceil(response.data.totalItems / itensPorPagina));
-    }).catch(error => {
-       toast.error('Erro ao obter o total de itens:', error)
-    })
-  };
-
-  useEffect(() => {
-    const currentMonthIndex = getMonthNumber(selectedMonth);
-    const currentYear = selectedYear;
-    getAtendimentos(currentPage, itensPorPagina, currentMonthIndex, currentYear);
-  }, [selectedMonth, selectedYear, currentPage, itensPorPagina]);
-
-  const handlePageChange = (pagina: number) => {
-    setCurrentPage(pagina);
   };
 
   async function getAtendimentos(page: number, pageSize: number, mes: number, ano: number) {
@@ -133,14 +111,31 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
       }
       
       const response = await api.get(`/api/Atendimentos/todos-atendimentos${queryString}`);
-      setAtendimentos(response.data.results);
+      return response.data.results; // Retornar os dados em vez de atualizar o estado diretamente
     } catch (error: any) {
       toast.error("Erro ao carregar dados. " + error.message);
-    }finally {
-    setIsLoading(false);
+      return []; // ou outra maneira de lidar com o erro, se necessário
+    }
   }
- }
-
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const fetchedData = await getAtendimentos(currentPage, itensPorPagina, getMonthNumber(selectedMonth), selectedYear);
+        setAtendimentos(fetchedData); // Atualizar o estado aqui, fora da função getAtendimentos
+      } catch (error) {
+        // Trate os erros aqui, se necessário
+      } finally {
+        setIsLoading(false);
+      }
+    };
+  
+    fetchData();
+  }, [selectedMonth, selectedYear, currentPage, itensPorPagina]);
+  
+  const handlePageChange = (pagina: number) => {
+    setCurrentPage(pagina);
+  };
 
   async function handleDeleteClick(event: React.MouseEvent<HTMLButtonElement>, idAtendimentos: string) {
     event.preventDefault();
