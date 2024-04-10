@@ -7,7 +7,6 @@ import {Slide, Flip, toast } from 'react-toastify';
 import BuscaEnfermeiro from "@/components/BuscaEnfermeiro";
 import BuscaPaciente from "@/components/BuscaPaciente";
 import ComboBoxClientes from "@/components/ComboBoxClientes ";
-import Botoes from "@/components/utils/botoes";
 
 interface AtendimentoProps {
     // Outras propriedades necessárias para o componente de Atendimento
