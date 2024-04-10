@@ -111,7 +111,15 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
       }
       
       const response = await api.get(`/api/Atendimentos/todos-atendimentos${queryString}`);
-      return response.data.results; // Retornar os dados em vez de atualizar o estado diretamente
+      //return response.data.results; // Retornar os dados em vez de atualizar o estado diretamente
+      const { results, totalCount, totalPages } = response.data;
+
+      // Atualiza os estados com os dados recebidos
+      setAtendimentos(results);
+      setCurrentPage(page);
+      setTotalItems(totalCount);
+      setTotalPaginas(totalPages);
+      setTotalPaginas(totalPages);
     } catch (error: any) {
       toast.error("Erro ao carregar dados. " + error.message);
       return []; // ou outra maneira de lidar com o erro, se necessário
