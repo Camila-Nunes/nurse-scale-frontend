@@ -19,18 +19,16 @@ const Pagination: FC<PaginationProps> = ({
   onPageChange,
 }) => {
 
-  if (totalPages === 1) {
-    return null;
-  }
-
   const isFirstPage = currentPage === 1;
   const isLastPage = currentPage === totalPages;
 
   return (
     <div className="flex justify-between items-center mx-4 mt-4 mb-4">
-      <div className="mr-4">
-        <p className="text-gray-700 text-lg">Registros carregados: <span className="font-bold italic">{totalRecords}</span></p>
-      </div>
+      {totalRecords > 0 && (
+        <div className="mr-4">
+          <p className="text-gray-700 text-lg">Registros carregados: <span className="font-bold italic">{totalRecords}</span></p>
+        </div>
+      )}
       <div className="flex items-center">
         <button
           type="button"
