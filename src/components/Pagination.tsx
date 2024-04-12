@@ -34,7 +34,7 @@ const Pagination: FC<PaginationProps> = ({
       <div className="flex items-center">
         <button
           type="button"
-          className={`bg-teal-600 rounded hover:bg-teal-900 text-white text-sm py-2 px-4 mr-2 ${isFirstPage ? 'opacity-50 cursor-not-allowed' : ''}`}
+          className={`bg-teal-600 rounded text-white text-sm py-2 px-4 mr-2 ${isFirstPage ? 'opacity-70 cursor-not-allowed' : 'hover:bg-teal-900'}`}
           onClick={(e) => {
             e.preventDefault();
             onPageChange(1);
@@ -45,7 +45,7 @@ const Pagination: FC<PaginationProps> = ({
         </button>
         <button
           type="button"
-          className={`bg-teal-600 rounded hover:bg-teal-900 text-white text-sm py-2 px-4 mr-2 ${isFirstPage ? 'opacity-50 cursor-not-allowed' : ''}`}
+          className={`bg-teal-600 rounded text-white text-sm py-2 px-4 mr-2 ${isFirstPage ? 'opacity-70 cursor-not-allowed' : 'hover:bg-teal-900'}`}
           onClick={(e) => {
             e.preventDefault();
             onPrevPage();
@@ -57,7 +57,7 @@ const Pagination: FC<PaginationProps> = ({
         <p className="text-gray-700 mr-2 text-sm">Página {currentPage} de {totalPages}</p>
         <button
           type="button"
-          className={`bg-teal-600 rounded hover:bg-teal-900 text-white text-sm py-2 px-4 mr-2 ${isLastPage ? 'opacity-50 cursor-not-allowed' : ''}`}
+          className={`bg-teal-600 rounded text-white text-sm py-2 px-4 mr-2 ${isLastPage ? 'opacity-70 cursor-not-allowed' : 'hover:bg-teal-900'}`}
           onClick={(e) => {
             e.preventDefault();
             onNextPage();
@@ -68,7 +68,7 @@ const Pagination: FC<PaginationProps> = ({
         </button>
         <button
           type="button"
-          className={`bg-teal-600 rounded hover:bg-teal-900 text-white text-sm py-2 px-4 ${isLastPage ? 'opacity-50 cursor-not-allowed' : ''}`}
+          className={`bg-teal-600 rounded text-white text-sm py-2 px-4 ${isLastPage ? 'opacity-70 cursor-not-allowed' : 'hover:bg-teal-900'}`}
           onClick={(e) => {
             e.preventDefault();
             onPageChange(totalPages);
