@@ -37,7 +37,7 @@ const Pagination: FC<PaginationProps> = ({
           className={`bg-teal-600 rounded hover:bg-teal-900 text-white text-sm py-2 px-4 mr-2 ${isFirstPage ? 'opacity-50 cursor-not-allowed' : ''}`}
           onClick={(e) => {
             e.preventDefault();
-            onPrevPage();
+            onPageChange(1);
           }}
           disabled={isFirstPage}
         >
