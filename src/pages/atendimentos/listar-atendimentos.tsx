@@ -446,7 +446,7 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
             </div>
             <div className="mt-6 sm:col-span-1 text-center">
               {/* <button className="flex items-center justify-between bg-gray-700 hover:bg-gray-500 hover:text-white text-white text-lg font-semibold py-1 px-6 rounded" onClick={(e) => handleFilterSubmit(e, currentPage, itensPorPagina, indexMonth, selectedYear)}><TbFilter/></button>   */}
-              <button className="flex gap-2 items-center justify-between bg-gray-700 hover:bg-gray-500 hover:text-white text-white text-base font-semibold py-1 px-4 rounded" onClick={(e) => resetarFiltros(e, indexMonth, selectedYear)}>Limpar Filtros<TbFilterX size={30}/></button> 
+              <button className="flex gap-2 items-center justify-between bg-gray-700 hover:bg-gray-500 hover:text-white text-white text-base font-semibold py-3 px-6 rounded" onClick={(e) => resetarFiltros(e, indexMonth, selectedYear)}>Limpar Filtros</button> 
             </div>
           </div>
           <div className="mt-6 overflow-auto rounded-lg shadow hidden md:block">
