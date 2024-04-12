@@ -112,22 +112,22 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
       
       const response = await api.get(`/api/Atendimentos/todos-atendimentos${queryString}`);
       const { results, totalCount, totalPages } = response.data;
-      //return response.data.results; // Retornar os dados em vez de atualizar o estado diretamente
-      return response.data;
-      setCurrentPage(page);
+      return { results, totalCount, totalPages }; // Retornar os dados relevantes para a paginação
     } catch (error: any) {
       toast.error("Erro ao carregar dados. " + error.message);
-      return []; // ou outra maneira de lidar com o erro, se necessário
+      return { results: [], totalCount: 0, totalPages: 0 }; // ou outra maneira de lidar com o erro, se necessário
     }
   }
   
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const fetchedData = await getAtendimentos(currentPage, itensPorPagina, getMonthNumber(selectedMonth), selectedYear);
-        setAtendimentos(fetchedData.results); // Atualizar o estado aqui, fora da função getAtendimentos
-        setTotalItems(fetchedData.totalCount);
-        setTotalPaginas(fetchedData.totalPages);
+        const mes = getMonthNumber(selectedMonth);
+        const endpoint = hasFiltros(filtros) ? 'filtro' : 'todos-atendimentos';
+        const data = await handleNextPrevPageChange(currentPage, endpoint, mes, selectedYear);
+        setAtendimentos(data.results); // Atualizar o estado com os resultados
+        setTotalItems(data.totalCount); // Atualizar o estado com o número total de itens
+        setTotalPaginas(data.totalPages); // Atualizar o estado com o número total de páginas
       } catch (error) {
         // Trate os erros aqui, se necessário
       } finally {
@@ -136,7 +136,7 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     };
   
     fetchData();
-  }, [selectedMonth, selectedYear, currentPage, itensPorPagina]);
+  }, [selectedMonth, selectedYear, currentPage, itensPorPagina, filtros]);
   
   const handlePageChange = (pagina: number) => {
     setCurrentPage(pagina);
@@ -169,27 +169,31 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     mes?: number,
     ano?: number
   ) => {
-      try {
-        let queryString = `?page=${page}&pageSize=${itensPorPagina}&mes=${mes}&ano=${ano}`;
-        // Verifica se há filtros preenchidos
-        const filtrosPreenchidos = filtros && Object.values(filtros).some(value => !!value);
-
-        // Se houver filtros preenchidos, constrói a queryString
-        if (filtrosPreenchidos) {
-          queryString += '&' + Object.entries(filtros).map(([key, value]) => `${key}=${value}`).join('&');
-        }
-
-        // Constrói a URL completa com endpoint e queryString
-        const url = `/api/Atendimentos/${endpoint}` + queryString;
-
-        // Faz a requisição para a API
-        const response = await api.get(url);
-        const { data } = response;
-        setAtendimentos(data.results);
-        setCurrentPage(page);
-      } catch (error) {
-          toast.error('Erro ao chamar a API.');
+    try {
+      let queryString = `?page=${page}&pageSize=${itensPorPagina}&mes=${mes}&ano=${ano}`;
+      // Verifica se há filtros preenchidos
+      const filtrosPreenchidos = filtros && Object.values(filtros).some(value => !!value);
+  
+      // Se houver filtros preenchidos, constrói a queryString
+      if (filtrosPreenchidos) {
+        queryString += '&' + Object.entries(filtros).map(([key, value]) => `${key}=${value}`).join('&');
       }
+  
+      // Constrói a URL completa com endpoint e queryString
+      const url = `/api/Atendimentos/${endpoint}` + queryString;
+  
+      // Faz a requisição para a API
+      const response = await api.get(url);
+      const { data } = response;
+      return data; // Retornar todos os dados relevantes
+    } catch (error) {
+      toast.error('Erro ao chamar a API.');
+      return { results: [], totalCount: 0, totalPages: 0 }; // Tratar o erro corretamente
+    }
+  };
+
+  const hasFiltros = (filtros: FiltrosState): boolean => {
+    return Object.values(filtros).some(value => !!value);
   };
 
 
@@ -198,19 +202,21 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     const mes = getMonthNumber(selectedMonth);
     setCurrentPage(nextPage);
     const endpoint = hasFiltros(filtros) ? 'filtro' : 'todos-atendimentos';
-    await handleNextPrevPageChange(nextPage, endpoint, mes, selectedYear);
+    const data = await handleNextPrevPageChange(nextPage, endpoint, mes, selectedYear);
+    setAtendimentos(data.results);
+    setTotalItems(data.totalCount);
+    setTotalPaginas(data.totalPages);
   };
   
-  const hasFiltros = (filtros: FiltrosState): boolean => {
-    return Object.values(filtros).some(value => !!value);
-  };
-    
   const handlePrevPage = async () => {
     const prevPage = currentPage - 1;
     const mes = getMonthNumber(selectedMonth);
     setCurrentPage(prevPage);
     const endpoint = hasFiltros(filtros) ? 'filtro' : 'todos-atendimentos';
-    await handleNextPrevPageChange(prevPage, endpoint, mes, selectedYear);
+    const data = await handleNextPrevPageChange(prevPage, endpoint, mes, selectedYear);
+    setAtendimentos(data.results);
+    setTotalItems(data.totalCount);
+    setTotalPaginas(data.totalPages);
   };
   
   const handleEnfermeiroSelecionado = (id: string) => {
