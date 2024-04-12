@@ -24,11 +24,9 @@ const Pagination: FC<PaginationProps> = ({
 
   return (
     <div className="flex justify-between items-center mx-4 mt-4 mb-4">
-      {totalRecords > 0 && (
-        <div className="mr-4">
-          <p className="text-gray-700 text-lg">Registros carregados: <span className="font-bold italic">{totalRecords}</span></p>
-        </div>
-      )}
+      <div className="mr-4">
+        <p className="text-gray-700 text-lg">Registros carregados: <span className="font-bold italic">{totalRecords}</span></p>
+      </div>
       <div className="flex items-center">
         <button
           type="button"
