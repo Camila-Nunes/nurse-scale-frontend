@@ -381,8 +381,8 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
           <button type="button" className="rounded-md bg-teal-600 px-3 py-2 text-sm font-semibold leading-6 text-white">Novo Atendimento</button>     
         </Link>
         <div className="mt-2 mx-auto pt-4 shadow rounded-md bg-slate-50">
-          <div className="grid grid-cols-1 gap-x-10 gap-y-8 sm:grid-cols-12">           
-            <FiltroMes meses={meses} onChange={handleAtendimentosSubmit} />
+          <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-12">  
+            <FiltroMes meses={meses} onChange={handleAtendimentosSubmit} />      
             <div>
               <label htmlFor="" className="mb-2 block text-sm font-medium leading-6 text-gray-900">Ano</label>
               <AnoSelect onSelectYear={handleSelectYear} />
@@ -444,9 +444,9 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
                 </select>
               </div>
             </div>
-            <div className="flex gap-3 mt-8 sm:col-span-1 text-center">
-              <button className="flex items-center justify-between bg-gray-700 hover:bg-gray-500 hover:text-white text-white text-lg font-semibold py-1 px-6 rounded" onClick={(e) => handleFilterSubmit(e, currentPage, itensPorPagina, indexMonth, selectedYear)}><TbFilter/></button>  
-              <button className="flex items-center justify-between bg-gray-700 hover:bg-gray-500 hover:text-white text-white text-lg font-semibold py-1 px-6 rounded" onClick={(e) => resetarFiltros(e, indexMonth, selectedYear)}><TbFilterX/></button> 
+            <div className="mt-6 sm:col-span-1 text-center">
+              {/* <button className="flex items-center justify-between bg-gray-700 hover:bg-gray-500 hover:text-white text-white text-lg font-semibold py-1 px-6 rounded" onClick={(e) => handleFilterSubmit(e, currentPage, itensPorPagina, indexMonth, selectedYear)}><TbFilter/></button>   */}
+              <button className="flex gap-2 items-center justify-between bg-gray-700 hover:bg-gray-500 hover:text-white text-white text-base font-semibold py-1 px-4 rounded" onClick={(e) => resetarFiltros(e, indexMonth, selectedYear)}>Limpar Filtros<TbFilterX size={30}/></button> 
             </div>
           </div>
           <div className="mt-6 overflow-auto rounded-lg shadow hidden md:block">
