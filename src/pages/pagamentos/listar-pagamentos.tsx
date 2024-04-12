@@ -88,6 +88,7 @@ export default function ListarAdiantamentos() {
           <Pagination
             currentPage={currentPage}
             totalPages={totalPaginas}
+            totalRecords={0}
             onNextPage={handleNextPage}
             onPrevPage={handlePrevPage}
             onPageChange={handlePageChange}

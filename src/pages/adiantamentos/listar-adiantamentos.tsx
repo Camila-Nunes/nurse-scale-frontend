@@ -82,6 +82,7 @@ const ListarAdiantamentos: React.FC<ListarAdiantamentosProps> = ({ meses }) => {
     try {
       const response = await api.get(`api/AdiantamentosPagamentos/adiantamentos?page=${page}&pageSize=${pageSize}&mes=${mes}&ano=${ano}`);
       setAdiantamentos(response.data.result);
+      setTotalItems(response.data.totalItems);
     } catch (error) {
       toast.error("Erro ao carregar dados. " + error);
     } finally {
@@ -197,6 +198,7 @@ const ListarAdiantamentos: React.FC<ListarAdiantamentosProps> = ({ meses }) => {
           <Pagination
             currentPage={currentPage}
             totalPages={totalPaginas}
+            totalRecords={totalItems}
             onNextPage={handleNextPage}
             onPrevPage={handlePrevPage}
             onPageChange={handlePageChange}
