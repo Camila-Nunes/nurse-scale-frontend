@@ -250,11 +250,10 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
   
     console.log(selectedClienteId);
   };
-
-  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = e.target;
-  
-    if (value !== 'Pago?' && value !== 'Selecione um Status') {
+    
+    if (value !== 'Selecione um Status') {
       setFiltros((prevFiltros) => ({
         ...prevFiltros,
         [name]: value,
@@ -262,10 +261,11 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     } else {
       setFiltros((prevFiltros) => ({
         ...prevFiltros,
-        [name]: null,
+        [name]: '', // Alteração aqui para uma string vazia
       }));
     }
   };
+  
   
   const handleFilterSubmit = async (
     e: React.MouseEvent<HTMLButtonElement> | null,
@@ -412,18 +412,18 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
               <label htmlFor="StatusAtendimento" className="block text-sm font-medium leading-6 text-gray-900">Status</label>
               <div className="mt-2">
                 <select
-                    id="StatusAtendimento"
-                    name="StatusAtendimento"
-                    value={StatusAtendimento}
-                    onChange={handleFilterChange}
-                    autoComplete="StatusAtendimento"
-                    className="block w-full rounded-md border-0 py-2 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                  >
-                    <option value="">Status</option>
-                    <option value="AGUARDANDO">AGUARDANDO</option>
-                    <option value="INICIADO">INICIADO</option>
-                    <option value="PAUSADO">PAUSADO</option>
-                    <option value="FINALIZADO">FINALIZADO</option>
+                  id="StatusAtendimento"
+                  name="StatusAtendimento"
+                  value={filtros.StatusAtendimento}
+                  onChange={handleFilterChange}
+                  autoComplete="StatusAtendimento"
+                  className="block w-full rounded-md border-0 py-2 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
+                >
+                  <option value="">Selecione um Status</option>
+                  <option value="AGUARDANDO">AGUARDANDO</option>
+                  <option value="INICIADO">INICIADO</option>
+                  <option value="PAUSADO">PAUSADO</option>
+                  <option value="FINALIZADO">FINALIZADO</option>
                 </select>
               </div>
             </div>
@@ -433,7 +433,7 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
                 <select
                     id="DiaPago"
                     name="DiaPago"
-                    value={DiaPago}
+                    value={filtros.DiaPago}
                     onChange={handleFilterChange}
                     autoComplete="DiaPago"
                     className="block w-full rounded-md border-0 py-2 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
