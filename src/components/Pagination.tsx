@@ -4,7 +4,7 @@ import { BsChevronDoubleLeft, BsChevronDoubleRight, BsChevronLeft, BsChevronRigh
 interface PaginationProps {
   currentPage: number;
   totalPages: number;
-  totalRecords: number;
+  totalRecords: number; // Garantindo que totalRecords seja passado como prop
   onNextPage: () => void;
   onPrevPage: () => void;
   onPageChange: (page: number) => void;
@@ -27,9 +27,9 @@ const Pagination: FC<PaginationProps> = ({
   const isLastPage = currentPage === totalPages;
 
   return (
-    <div className="flex justify-between items-center mt-4 mb-4">
-      <div>
-        <p className="text-gray-700 text-sm">Registros carregados: {totalRecords}</p>
+    <div className="flex justify-between items-center mx-4 mt-4 mb-4">
+      <div className="mr-4">
+        <p className="text-gray-700 text-lg">Registros carregados: <span className="font-bold italic">{totalRecords}</span></p>
       </div>
       <div className="flex items-center">
         <button

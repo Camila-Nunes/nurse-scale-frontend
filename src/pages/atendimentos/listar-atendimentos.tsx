@@ -503,6 +503,7 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
           <Pagination
             currentPage={currentPage}
             totalPages={totalPaginas}
+            totalRecords={totalItems}
             onNextPage={handleNextPage}
             onPrevPage={handlePrevPage}
             onPageChange={handlePageChange}
