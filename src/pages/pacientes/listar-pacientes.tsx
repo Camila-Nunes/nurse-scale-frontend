@@ -319,6 +319,7 @@ export default function ListarPacientes() {
             <Pagination
             currentPage={currentPage}
             totalPages={totalPaginas}
+            totalRecords={totalItems}
             onNextPage={handleNextPage}
             onPrevPage={handlePrevPage}
             onPageChange={handlePageChange}

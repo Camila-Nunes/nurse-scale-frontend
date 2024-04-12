@@ -35,7 +35,7 @@ const FiltroMes: React.FC<FiltroMesProps> = ({ meses, onChange }) => {
   };
 
   return (
-    <div className="w-full flex items-center justify-end space-x-4">
+    <div className="mt-6 w-full flex items-center justify-end space-x-4">
       <button onClick={handlePrevMonth}>
         <AiFillCaretLeft className="w-6 h-6" />
       </button>

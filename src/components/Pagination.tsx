@@ -1,103 +1,81 @@
 import { FC } from 'react';
-import { BsChevronDoubleLeft, BsChevronDoubleRight } from 'react-icons/bs';
+import { BsChevronDoubleLeft, BsChevronDoubleRight, BsChevronLeft, BsChevronRight } from 'react-icons/bs';
 
 interface PaginationProps {
   currentPage: number;
   totalPages: number;
+  totalRecords: number; // Garantindo que totalRecords seja passado como prop
   onNextPage: () => void;
   onPrevPage: () => void;
-  onPageChange: (pagina: number) => void;
+  onPageChange: (page: number) => void;
 }
 
 const Pagination: FC<PaginationProps> = ({
   currentPage,
   totalPages,
+  totalRecords,
   onNextPage,
   onPrevPage,
   onPageChange,
 }) => {
-  const maxPagesToShow = 3;
 
-  const renderPages = () => {
-    const pages = [];
-    pages.push(
-      <button
-        key={1}
-        type="button"
-        className={`mx-1 p-2 rounded text-sm ${currentPage === 1 ? 'bg-teal-600 text-white' : 'bg-gray-200 text-gray-700'}`}
-        onClick={() => onPageChange(1)}
-      >
-        1
-      </button>
-    );
-
-    if (currentPage - maxPagesToShow > 2) {
-      pages.push(<span key="ellipsis1">...</span>);
-    }
-
-    for (let i = Math.max(2, currentPage - maxPagesToShow); i <= Math.min(totalPages - 1, currentPage + maxPagesToShow); i++) {
-      pages.push(
-        <button
-          key={i}
-          type="button"
-          className={`mx-1 p-2 rounded text-sm ${currentPage === i ? 'bg-teal-600 text-white' : 'bg-gray-200 text-gray-700'}`}
-          onClick={() => onPageChange(i)}
-        >
-          {i}
-        </button>
-      );
-    }
-
-    if (currentPage + maxPagesToShow < totalPages - 1) {
-      pages.push(<span key="ellipsis2">...</span>);
-    }
-
-    pages.push(
-      <button
-        key={totalPages}
-        type="button"
-        className={`mx-1 p-2 rounded text-sm ${currentPage === totalPages ? 'bg-teal-600 text-white' : 'bg-gray-200 text-gray-700'}`}
-        onClick={() => onPageChange(totalPages)}
-      >
-        {totalPages}
-      </button>
-    );
-
-    return pages;
-  };
-
-  if (totalPages === 1) {
-    return null; // Retorna null se houver apenas uma página
-  }
+  const isFirstPage = currentPage === 1;
+  const isLastPage = currentPage === totalPages;
 
   return (
-    <div className="flex justify-end mt-4 mb-4">
-      <button
-        type="button"
-        className="bg-teal-600 rounded hover:bg-teal-900 text-white text-sm py-2 px-4 mr-2"
-        onClick={(e) => {
-          e.preventDefault();
-          onPrevPage();
-        }}
-        disabled={currentPage === 1}
-      >
-        <BsChevronDoubleLeft />
-      </button>
+    <div className="flex justify-between items-center mx-4 mt-4 mb-4">
+      {totalRecords > 0 && (
+        <div className="mr-4">
+          <p className="text-gray-700 text-lg">Registros carregados: <span className="font-bold italic">{totalRecords}</span></p>
+        </div>
+      )}
       <div className="flex items-center">
+        <button
+          type="button"
+          className={`bg-teal-600 rounded text-white text-sm py-2 px-4 mr-2 ${isFirstPage ? 'opacity-70 cursor-not-allowed' : 'hover:bg-teal-900'}`}
+          onClick={(e) => {
+            e.preventDefault();
+            onPageChange(1);
+          }}
+          disabled={isFirstPage}
+        >
+          <BsChevronDoubleLeft />
+        </button>
+        <button
+          type="button"
+          className={`bg-teal-600 rounded text-white text-sm py-2 px-4 mr-2 ${isFirstPage ? 'opacity-70 cursor-not-allowed' : 'hover:bg-teal-900'}`}
+          onClick={(e) => {
+            e.preventDefault();
+            onPrevPage();
+          }}
+          disabled={isFirstPage}
+        >
+          <BsChevronLeft />
+        </button>
         <p className="text-gray-700 mr-2 text-sm">Página {currentPage} de {totalPages}</p>
-        {renderPages()}
+        <button
+          type="button"
+          className={`bg-teal-600 rounded text-white text-sm py-2 px-4 mr-2 ${isLastPage ? 'opacity-70 cursor-not-allowed' : 'hover:bg-teal-900'}`}
+          onClick={(e) => {
+            e.preventDefault();
+            onNextPage();
+          }}
+          disabled={isLastPage}
+        >
+          <BsChevronRight />
+        </button>
+        <button
+          type="button"
+          className={`bg-teal-600 rounded text-white text-sm py-2 px-4 ${isLastPage ? 'opacity-70 cursor-not-allowed' : 'hover:bg-teal-900'}`}
+          onClick={(e) => {
+            e.preventDefault();
+            onPageChange(totalPages);
+          }}
+          disabled={isLastPage}
+        >
+          <BsChevronDoubleRight />
+        </button>
       </div>
-      <button
-        type="button"
-        className="bg-teal-600 hover:bg-teal-900 rounded text-white text-sm py-2 px-4 mr-2"
-        onClick={(e) => {
-          e.preventDefault();
-          onNextPage();
-        }}
-        disabled={currentPage === totalPages}
-      >
-        <BsChevronDoubleRight />
-      </button>
     </div>
   );
 };

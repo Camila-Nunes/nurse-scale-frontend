@@ -72,14 +72,18 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
   const [Enfermeiro, setEnfermeiro] = useState<string>('');
   const [StatusAtendimento, setStatusAtendimento] = useState<string>('');
   const [DiaPago, setDiaPago] = useState<string>('');
+  const [indexMonth, setIndexMonth] = useState<number>(0);
+
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  const [indexMonth, setIndexMonth] = useState(0);
 
   const fullMonthName = format(new Date(), 'MMMM', { locale: pt });
   const monthName = fullMonthName.charAt(0).toUpperCase() + fullMonthName.slice(1);
 
   const [selectedMonth, setSelectedMonth] = useState(monthName);
+
+  const [selectedYear, setSelectedYear] = useState<number>(
+    new Date().getFullYear()
+  );
 
   const handleSelectYear = (year: number) => {
     setSelectedYear(year);
@@ -94,50 +98,49 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     return numberMonth;
   };
 
-  async function getQtdAtendimentos(){
-    const response = await api.get(`/api/Atendimentos/qtdAtendimentos`)
-    .then(response => {
-      setTotalItems(response.data.totalItems);
-      setTotalPaginas(Math.ceil(response.data.totalItems / itensPorPagina));
-    }).catch(error => {
-       toast.error('Erro ao obter o total de itens:', error)
-    })
-  };
-
-  useEffect(() => {
-    getAtendimentos(currentPage, 10, getMonthNumber(selectedMonth), selectedYear);
-  }, []);
-
-  // useEffect(()=>{
-  //   getQtdAtendimentos()
-  // }, []);
-
-  const handlePageChange = (pagina: number) => {
-    setCurrentPage(pagina);
-  };
-
   async function getAtendimentos(page: number, pageSize: number, mes: number, ano: number) {
     try {
       let queryString = `?page=${page}&pageSize=${pageSize}&mes=${mes}&ano=${ano}`;
       
       // Verifica se há algum filtro preenchido
       const filtrosPreenchidos = Object.values(filtros).some(value => !!value);
-
-      const endpoint = hasFiltros(filtros) ? 'filtro' : 'todos-atendimentos';
       
       // Se houver algum filtro preenchido, adiciona os filtros à queryString
       if (filtrosPreenchidos) {
         queryString += '&' + Object.entries(filtros).map(([key, value]) => `${key}=${value}`).join('&');
       }
       
-      const response = await api.get(`/api/Atendimentos/${endpoint}${queryString}`);
-      setAtendimentos(response.data.results);
+      const response = await api.get(`/api/Atendimentos/todos-atendimentos${queryString}`);
+      const { results, totalCount, totalPages } = response.data;
+      return { results, totalCount, totalPages }; // Retornar os dados relevantes para a paginação
     } catch (error: any) {
       toast.error("Erro ao carregar dados. " + error.message);
-    }finally {
-    setIsLoading(false);
+      return { results: [], totalCount: 0, totalPages: 0 }; // ou outra maneira de lidar com o erro, se necessário
+    }
   }
- }
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const mes = getMonthNumber(selectedMonth);
+        const endpoint = hasFiltros(filtros) ? 'filtro' : 'todos-atendimentos';
+        const data = await handleNextPrevPageChange(currentPage, endpoint, mes, selectedYear);
+        setAtendimentos(data.results); // Atualizar o estado com os resultados
+        setTotalItems(data.totalCount); // Atualizar o estado com o número total de itens
+        setTotalPaginas(data.totalPages); // Atualizar o estado com o número total de páginas
+      } catch (error) {
+        // Trate os erros aqui, se necessário
+      } finally {
+        setIsLoading(false);
+      }
+    };
+  
+    fetchData();
+  }, [selectedMonth, selectedYear, currentPage, itensPorPagina, filtros]);
+  
+  const handlePageChange = (pagina: number) => {
+    setCurrentPage(pagina);
+  };
 
   async function handleDeleteClick(event: React.MouseEvent<HTMLButtonElement>, idAtendimentos: string) {
     event.preventDefault();
@@ -166,27 +169,31 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     mes?: number,
     ano?: number
   ) => {
-      try {
-        let queryString = `?page=${page}&pageSize=${itensPorPagina}&mes=${mes}&ano=${ano}`;
-        // Verifica se há filtros preenchidos
-        const filtrosPreenchidos = filtros && Object.values(filtros).some(value => !!value);
-
-        // Se houver filtros preenchidos, constrói a queryString
-        if (filtrosPreenchidos) {
-          queryString += '&' + Object.entries(filtros).map(([key, value]) => `${key}=${value}`).join('&');
-        }
-
-        // Constrói a URL completa com endpoint e queryString
-        const url = `/api/Atendimentos/${endpoint}` + queryString;
-
-        // Faz a requisição para a API
-        const response = await api.get(url);
-        const { data } = response;
-        setAtendimentos(data.results);
-        setCurrentPage(page);
-      } catch (error) {
-          toast.error('Erro ao chamar a API.');
+    try {
+      let queryString = `?page=${page}&pageSize=${itensPorPagina}&mes=${mes}&ano=${ano}`;
+      // Verifica se há filtros preenchidos
+      const filtrosPreenchidos = filtros && Object.values(filtros).some(value => !!value);
+  
+      // Se houver filtros preenchidos, constrói a queryString
+      if (filtrosPreenchidos) {
+        queryString += '&' + Object.entries(filtros).map(([key, value]) => `${key}=${value}`).join('&');
       }
+  
+      // Constrói a URL completa com endpoint e queryString
+      const url = `/api/Atendimentos/${endpoint}` + queryString;
+  
+      // Faz a requisição para a API
+      const response = await api.get(url);
+      const { data } = response;
+      return data; // Retornar todos os dados relevantes
+    } catch (error) {
+      toast.error('Erro ao chamar a API.');
+      return { results: [], totalCount: 0, totalPages: 0 }; // Tratar o erro corretamente
+    }
+  };
+
+  const hasFiltros = (filtros: FiltrosState): boolean => {
+    return Object.values(filtros).some(value => !!value);
   };
 
 
@@ -195,19 +202,21 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     const mes = getMonthNumber(selectedMonth);
     setCurrentPage(nextPage);
     const endpoint = hasFiltros(filtros) ? 'filtro' : 'todos-atendimentos';
-    await handleNextPrevPageChange(nextPage, endpoint, mes, selectedYear);
+    const data = await handleNextPrevPageChange(nextPage, endpoint, mes, selectedYear);
+    setAtendimentos(data.results);
+    setTotalItems(data.totalCount);
+    setTotalPaginas(data.totalPages);
   };
   
-  const hasFiltros = (filtros: FiltrosState): boolean => {
-    return Object.values(filtros).some(value => !!value);
-  };
-    
   const handlePrevPage = async () => {
     const prevPage = currentPage - 1;
     const mes = getMonthNumber(selectedMonth);
     setCurrentPage(prevPage);
     const endpoint = hasFiltros(filtros) ? 'filtro' : 'todos-atendimentos';
-    await handleNextPrevPageChange(prevPage, endpoint, mes, selectedYear);
+    const data = await handleNextPrevPageChange(prevPage, endpoint, mes, selectedYear);
+    setAtendimentos(data.results);
+    setTotalItems(data.totalCount);
+    setTotalPaginas(data.totalPages);
   };
   
   const handleEnfermeiroSelecionado = (id: string) => {
@@ -241,14 +250,10 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
   
     console.log(selectedClienteId);
   };
-
-  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = e.target;
-    const novoStatus = e.target.value; // Obtém o novo valor selecionado
-    setStatusAtendimento(novoStatus); // Atualiza o estado com o novo valor
-
-  
-    if (value !== 'Pago?' && value !== 'Selecione um Status') {
+    
+    if (value !== 'Selecione um Status') {
       setFiltros((prevFiltros) => ({
         ...prevFiltros,
         [name]: value,
@@ -256,10 +261,11 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     } else {
       setFiltros((prevFiltros) => ({
         ...prevFiltros,
-        [name]: null,
+        [name]: '', // Alteração aqui para uma string vazia
       }));
     }
   };
+  
   
   const handleFilterSubmit = async (
     e: React.MouseEvent<HTMLButtonElement> | null,
@@ -375,8 +381,8 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
           <button type="button" className="rounded-md bg-teal-600 px-3 py-2 text-sm font-semibold leading-6 text-white">Novo Atendimento</button>     
         </Link>
         <div className="mt-2 mx-auto pt-4 shadow rounded-md bg-slate-50">
-          <div className="grid grid-cols-1 gap-x-10 gap-y-8 sm:grid-cols-12">           
-            <FiltroMes meses={meses} onChange={handleAtendimentosSubmit} />
+          <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-12">  
+            <FiltroMes meses={meses} onChange={handleAtendimentosSubmit} />      
             <div>
               <label htmlFor="" className="mb-2 block text-sm font-medium leading-6 text-gray-900">Ano</label>
               <AnoSelect onSelectYear={handleSelectYear} />
@@ -406,18 +412,18 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
               <label htmlFor="StatusAtendimento" className="block text-sm font-medium leading-6 text-gray-900">Status</label>
               <div className="mt-2">
                 <select
-                    id="StatusAtendimento"
-                    name="StatusAtendimento"
-                    value={StatusAtendimento}
-                    onChange={handleFilterChange}
-                    autoComplete="statusAtendimento"
-                    className="block w-full rounded-md border-0 py-2 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                  >
-                    <option value="">Status</option>
-                    <option value="AGUARDANDO">AGUARDANDO</option>
-                    <option value="INICIADO">INICIADO</option>
-                    <option value="PAUSADO">PAUSADO</option>
-                    <option value="FINALIZADO">FINALIZADO</option>
+                  id="StatusAtendimento"
+                  name="StatusAtendimento"
+                  value={filtros.StatusAtendimento}
+                  onChange={handleFilterChange}
+                  autoComplete="StatusAtendimento"
+                  className="block w-full rounded-md border-0 py-2 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
+                >
+                  <option value="">Selecione um Status</option>
+                  <option value="AGUARDANDO">AGUARDANDO</option>
+                  <option value="INICIADO">INICIADO</option>
+                  <option value="PAUSADO">PAUSADO</option>
+                  <option value="FINALIZADO">FINALIZADO</option>
                 </select>
               </div>
             </div>
@@ -427,7 +433,7 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
                 <select
                     id="DiaPago"
                     name="DiaPago"
-                    value={DiaPago}
+                    value={filtros.DiaPago}
                     onChange={handleFilterChange}
                     autoComplete="DiaPago"
                     className="block w-full rounded-md border-0 py-2 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
@@ -438,9 +444,9 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
                 </select>
               </div>
             </div>
-            <div className="flex gap-3 mt-8 sm:col-span-1 text-center">
-              <button className="flex items-center justify-between bg-gray-700 hover:bg-gray-500 hover:text-white text-white text-lg font-semibold py-1 px-6 rounded" onClick={(e) => handleFilterSubmit(e, currentPage, itensPorPagina, indexMonth, selectedYear)}><TbFilter/></button>  
-              <button className="flex items-center justify-between bg-gray-700 hover:bg-gray-500 hover:text-white text-white text-lg font-semibold py-1 px-6 rounded" onClick={(e) => resetarFiltros(e, indexMonth, selectedYear)}><TbFilterX/></button> 
+            <div className="mt-6 sm:col-span-1 text-center">
+              {/* <button className="flex items-center justify-between bg-gray-700 hover:bg-gray-500 hover:text-white text-white text-lg font-semibold py-1 px-6 rounded" onClick={(e) => handleFilterSubmit(e, currentPage, itensPorPagina, indexMonth, selectedYear)}><TbFilter/></button>   */}
+              <button className="flex gap-2 items-center justify-between bg-gray-700 hover:bg-gray-500 hover:text-white text-white text-base font-semibold py-1 px-4 rounded" onClick={(e) => resetarFiltros(e, indexMonth, selectedYear)}>Limpar Filtros<TbFilterX size={30}/></button> 
             </div>
           </div>
           <div className="mt-6 overflow-auto rounded-lg shadow hidden md:block">
@@ -497,6 +503,7 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
           <Pagination
             currentPage={currentPage}
             totalPages={totalPaginas}
+            totalRecords={totalItems}
             onNextPage={handleNextPage}
             onPrevPage={handlePrevPage}
             onPageChange={handlePageChange}

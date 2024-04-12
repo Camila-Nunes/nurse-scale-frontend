@@ -141,6 +141,7 @@ const AdiantamentosSomados: React.FC<AdiantamentosSomadosProps> = ({ meses }) =>
           <Pagination
             currentPage={currentPage}
             totalPages={totalPaginas}
+            totalRecords={totalItems}
             onNextPage={handleNextPage}
             onPrevPage={handlePrevPage}
             onPageChange={handlePageChange}
