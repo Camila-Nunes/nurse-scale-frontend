@@ -56,13 +56,21 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
     
     const handleDataFinalChange = (e: any) => {
         const newDataFinal = e.target.value;
-        if (newDataFinal < dataInicial) {
+        setDataFinal(newDataFinal);
+    };
+    
+    const handleDataFinalBlur = () => {
+        if (dataFinal < dataInicial) {
             toast.warning('A Data Final deve ser maior ou igual à Data Inicial');
             setDataFinal('');
-        } else {
-            setDataFinal(newDataFinal);
         }
     };
+    
+    const isValidDate = (dateString: string) => {
+        const regex = /^\d{4}-\d{2}-\d{2}$/;
+        return regex.test(dateString);
+    };
+    
 
     const handleCheckboxChange = () => {
         setDiaPago(!diaPago);
@@ -143,7 +151,7 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
                     <div className="border-b border-gray-900/10 pb-12">
                         <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-12">
 
-                            <div className="sm:col-span-8">
+                            <div className="sm:col-span-4">
                                 <label htmlFor="paciente" className="block text-sm font-medium leading-6 text-gray-900">Paciente</label>
                                 <div className="mt-2">
                                     <BuscaPaciente onPacienteSelecionado={handlePacienteSelecionado} />
@@ -168,22 +176,22 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
                             </div>
                             <div className="sm:col-span-2">
                                 <label htmlFor="dataFinal" className="block text-sm font-medium leading-6 text-gray-900">
-                                Data Final
+                                    Data Final
                                 </label>
                                 <div className="mt-2">
-                                <input
-                                    type="date"
-                                    name="dataFinal"
-                                    id="dataFinal"
-                                    value={dataFinal}
-                                    onChange={handleDataFinalChange}
-                                    autoComplete="data"
-                                    className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                />
+                                    <input
+                                        type="date"
+                                        name="dataFinal"
+                                        id="dataFinal"
+                                        value={dataFinal}
+                                        onChange={handleDataFinalChange}
+                                        onBlur={handleDataFinalBlur}
+                                        autoComplete="data-final"
+                                        className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                    />
                                 </div>
                             </div>
-
-                            <div className="sm:col-span-7">
+                            <div className="sm:col-span-3">
                                 <label htmlFor="local" className="block text-sm font-medium leading-6 text-gray-900">Local de Atendimento</label>
                                     <div className="mt-2">
                                     <input
@@ -207,9 +215,33 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
                                     onChange={(e) => setEstadoAtendimento(e.target.value)}
                                     className="block w-full rounded-md border-0 py-2 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
                                     >
-                                        <option>SP</option>
-                                        <option>RJ</option>
+                                        <option>AC</option>
+                                        <option>AL</option>
+                                        <option>AP</option>
+                                        <option>AM</option>
+                                        <option>BA</option>
+                                        <option>CE</option>
+                                        <option>DF</option>
                                         <option>ES</option>
+                                        <option>GO</option>
+                                        <option>MA</option>
+                                        <option>MT</option>
+                                        <option>MS</option>
+                                        <option>MG</option>
+                                        <option>PA</option>
+                                        <option>PB</option>
+                                        <option>PR</option>
+                                        <option>PE</option>
+                                        <option>PI</option>
+                                        <option>RJ</option>
+                                        <option>RN</option>
+                                        <option>RS</option>
+                                        <option>RO</option>
+                                        <option>RR</option>
+                                        <option>SC</option>
+                                        <option>SP</option>
+                                        <option>SE</option>
+                                        <option>TO</option>
                                     </select>
                                 </div>
                             </div>
@@ -265,15 +297,8 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
                                     <ComboBoxClientes onSelectCliente={handleSelectCliente} />
                                 </div>
                             </div>
-                            
-                            <div className="col-span-5">
-                                <label htmlFor="profissional" className="block text-sm font-medium leading-6 text-gray-900">Profissional</label>
-                                <div className="mt-2">
-                                    <BuscaEnfermeiro onEnfermeiroSelecionado={handleEnfermeiroSelecionado} />
-                                </div>
-                            </div>                            
-                            
-                            <div className="sm:col-span-2">
+
+                            <div className="sm:col-span-1">
                                 <label htmlFor="valorEmpresa" className="block text-sm font-medium leading-6 text-gray-900">Valor Empresa</label>
                                 <div className="mt-2">
                                 <input
@@ -287,9 +312,16 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
                                 />
                                 </div>
                             </div>
-
-                            <div className="sm:col-span-2">
-                                <label htmlFor="valorProfissional" className="block text-sm font-medium leading-6 text-gray-900">Valor Profissional</label>
+                            
+                            <div className="col-span-4">
+                                <label htmlFor="profissional" className="block text-sm font-medium leading-6 text-gray-900">Profissional</label>
+                                <div className="mt-2">
+                                    <BuscaEnfermeiro onEnfermeiroSelecionado={handleEnfermeiroSelecionado} />
+                                </div>
+                            </div>                            
+                            
+                            <div className="sm:col-span-1">
+                                <label htmlFor="valorProfissional" className="block text-sm font-medium leading-6 text-gray-900">Valor</label>
                                 <div className="mt-2">
                                 <input
                                     type="text"
@@ -302,7 +334,7 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
                                 />
                                 </div>
                             </div>
-                            <div className="sm:col-span-1 text-center">
+                            {/* <div className="sm:col-span-1 text-center">
                                 <label htmlFor="pago" className="block text-sm font-medium leading-6 text-gray-900">Pago?</label>
                                 <div className="mt-2">
                                     <input
@@ -314,7 +346,7 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
                                     className="h-4 w-4 rounded border-gray-300 text-teal-600 focus:text-teal-600 justify-center"
                                     />
                                 </div>
-                            </div>
+                            </div> */}
                         </div>
                     </div> 
                     {/* <Botoes onCancel={handleCancel} onSubmit={handleSubmit} />    */}
