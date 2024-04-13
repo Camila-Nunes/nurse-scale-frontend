@@ -454,6 +454,7 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
             <thead className="text-left text-white border-b-2 border-gray-200 bg-teal-600 border-r">
               <tr>
                 <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Empresa</th>
+                <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Atendimento</th>
                 <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Paciente</th>
                 <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Enfermeiro</th>
                 <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Data</th>
@@ -470,6 +471,7 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
               {atendimentos && atendimentos.map((atendimento: any) => (
                 <tr key={atendimento.atendimentoId} className="border-b border-gray-200">
                   <td className="text-left w-48 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.nomeFantasia}</td>
+                  <td className="text-left w-48 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.numeroAtendimento}</td>
                   <td className="text-left w-48 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.paciente}</td>
                   <td className="text-left w-48 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.enfermeiro}</td>
                   <td className="text-left w-36 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.dataInicial}</td>
@@ -491,9 +493,9 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
                   </td>
                   <td className="text-center w-28 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.diaPago}</td>
                   <td className="text-center w-36 pb-3 pr-3 border-r border-b border-gray-200">
-                    <Link href={`/atendimentos/editar/${atendimento.atendimentoId}`}>
+                    {/* <Link href={`/atendimentos/editar/${atendimento.atendimentoId}`}>
                       <button className="bg-white hover:bg-gray-700 hover:text-white text-gray-600 text-lg font-semibold py-2 px-4 rounded"><BiEdit /></button> { }
-                    </Link> { }
+                    </Link> { } */}
                     <button className="bg-white hover:bg-gray-700 hover:text-white text-gray-600 text-lg font-semibold py-2 px-4 rounded" onClick={(event) => handleDeleteClick(event, atendimento.atendimentoId)}><FaTrashAlt /></button>
                   </td>
                 </tr>
