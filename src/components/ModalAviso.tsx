@@ -2,12 +2,13 @@ import React from "react";
 import Modal from "react-modal";
 import { MdCheckCircle, MdErrorOutline } from "react-icons/md";
 import { useRouter } from "next/router";
+import { motion } from "framer-motion";
 
 interface ModalAvisoProps {
   mensagem: string;
   isOpen: boolean;
   onClose: () => void;
-  sucesso: boolean;
+  sucesso?: boolean; // tornando sucesso opcional
 }
 
 const customStyles = {
@@ -33,7 +34,7 @@ const ModalAviso: React.FC<ModalAvisoProps> = ({
   mensagem,
   isOpen,
   onClose,
-  sucesso,
+  sucesso = false, // definindo false como padrão caso sucesso não seja fornecido
 }) => {
   const router = useRouter();
 
@@ -49,21 +50,41 @@ const ModalAviso: React.FC<ModalAvisoProps> = ({
       style={customStyles}
       contentLabel="Aviso"
     >
-      <div className="flex justify-center items-center mb-4">
+      <motion.div
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="flex justify-center items-center mb-4"
+      >
         <div
           className={`rounded-full bg-${sucesso ? "green" : "red"}-200 p-2 mr-2`}
         >
           {sucesso ? (
-            <MdCheckCircle className="text-green-500" size={32} />
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+            >
+              <MdCheckCircle className="text-green-500" size={32} />
+            </motion.div>
           ) : (
-            <MdErrorOutline className="text-red-500" size={32} />
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+            >
+              <MdErrorOutline className="text-red-500" size={32} />
+            </motion.div>
           )}
         </div>
         <h2 className="text-lg font-semibold">{sucesso ? "Sucesso" : "Erro"}</h2>
-      </div>
+      </motion.div>
       <p>{mensagem}</p>
-      <button onClick={handleCloseModal} className="mt-4 py-2 px-4 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 focus:outline-none focus:bg-gray-300">
-        OK
+      <button
+        onClick={handleCloseModal}
+        className="mt-4 py-2 px-4 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 focus:outline-none focus:bg-gray-300"
+      >
+        Fechar
       </button>
     </Modal>
   );
