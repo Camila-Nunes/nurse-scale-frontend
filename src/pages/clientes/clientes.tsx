@@ -7,6 +7,7 @@ import InputMask from "react-input-mask";
 import {Slide, Flip, toast } from 'react-toastify';
 import EstadoSelect from "@/components/EstadoSelect";
 import CidadeSelect from "@/components/CidadeSelect";
+import ModalAviso from "@/components/ModalAviso";
 
 export default function Clientes() {
     const [razaoSocial, setRazaoSocial] = useState('');
@@ -17,7 +18,10 @@ export default function Clientes() {
     const [telefonePrincipal, setTelefonePrincipal] = useState('');
     const [estado, setEstado] = useState<string>('');
     const [cidade, setCidade] = useState<string>('');
-
+    const [mostrarModal, setMostrarModal] = useState(false);
+    const [mensagemModal, setMensagemModal] = useState("");
+    const [sucesso, setSucesso] = useState(false);
+    
     const router = useRouter();
 
     const isFormValid = () => {
@@ -31,6 +35,11 @@ export default function Clientes() {
             estado.trim() !== '' &&
             cidade.trim() !== ''
         );
+    };
+
+    const handleCloseModal = () => {
+        setMostrarModal(false);
+        setMensagemModal("");
     };
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -49,18 +58,25 @@ export default function Clientes() {
 
     try {
       const response = await api.post('/api/Clientes', cliente);
-      toast.success(`Cliente ${cliente.nomeFantasia}  salvo com sucesso.`, {
-        transition: Slide,
-        icon: false
-      });
-      router.push("/clientes/listar-clientes");
+    //   toast.success(`Cliente ${cliente.nomeFantasia}  salvo com sucesso.`, {
+    //     transition: Slide,
+    //     icon: false
+    //   });
+      setMensagemModal("Cliente salvo com sucesso.");
+      setMostrarModal(true);
+      setSucesso(true);
+      //router.push("/clientes/listar-clientes");
     } catch (error) {
       console.error(error);
-      toast.error("Erro ao salvar cliente: " + cliente.nomeFantasia, {
-        transition: Slide,
-        icon: false
-      });
+    //   toast.error("Erro ao salvar cliente: " + cliente.nomeFantasia, {
+    //     transition: Slide,
+    //     icon: false
+    //   });
+      setMensagemModal("Erro ao salvar Cliente.");
+      setMostrarModal(true);   
+      setSucesso(false);
     }};
+
 
     async function handleCancel (){
         router.push(`/clientes/listar-clientes`);
@@ -186,7 +202,13 @@ export default function Clientes() {
                         }`} disabled={!isFormValid()}>Salvar</button>
                     </div>     
                 </div>
-            </form>      
+            </form>  
+            <ModalAviso
+                mensagem={mensagemModal}
+                isOpen={mostrarModal}
+                onClose={handleCloseModal}
+                sucesso={sucesso}
+            />    
         </Page>
     )
 }
