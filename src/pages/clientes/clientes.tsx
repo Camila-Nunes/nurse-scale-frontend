@@ -58,20 +58,20 @@ export default function Clientes() {
 
     try {
       const response = await api.post('/api/Clientes', cliente);
-    //   toast.success(`Cliente ${cliente.nomeFantasia}  salvo com sucesso.`, {
-    //     transition: Slide,
-    //     icon: false
-    //   });
-      setMensagemModal("Cliente salvo com sucesso.");
-      setMostrarModal(true);
-      setSucesso(true);
-      //router.push("/clientes/listar-clientes");
+      toast.success(`Cliente ${cliente.nomeFantasia}  salvo com sucesso.`, {
+        transition: Slide,
+        icon: false
+      });
+    //   setMensagemModal("Cliente salvo com sucesso.");
+    //   setMostrarModal(true);
+    //   setSucesso(true);
+      router.push("/clientes/listar-clientes");
     } catch (error) {
       console.error(error);
-    //   toast.error("Erro ao salvar cliente: " + cliente.nomeFantasia, {
-    //     transition: Slide,
-    //     icon: false
-    //   });
+      toast.error("Erro ao salvar cliente: " + cliente.nomeFantasia, {
+        transition: Slide,
+        icon: false
+      });
       setMensagemModal("Erro ao salvar Cliente.");
       setMostrarModal(true);   
       setSucesso(false);
@@ -203,12 +203,12 @@ export default function Clientes() {
                     </div>     
                 </div>
             </form>  
-            <ModalAviso
+            {/* <ModalAviso
                 mensagem={mensagemModal}
                 isOpen={mostrarModal}
                 onClose={handleCloseModal}
                 sucesso={sucesso}
-            />    
+            />     */}
         </Page>
     )
 }
