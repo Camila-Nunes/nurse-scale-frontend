@@ -47,7 +47,7 @@ const ModalAviso: React.FC<ModalAvisoProps> = ({
     <Modal
       isOpen={isOpen}
       onRequestClose={onClose}
-      style={customStyles}
+      //style={customStyles}
       contentLabel="Aviso"
     >
       <motion.div
