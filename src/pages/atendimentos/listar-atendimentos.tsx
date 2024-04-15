@@ -52,9 +52,22 @@ interface AtendimentoRequest {
   ano: number;
 }
 
+interface Atendimento {
+  atendimentoId: string;
+  isChecked: boolean;
+  Data: string,
+  Atendimento: number,
+  Empresa: string,
+  Paciente: string,
+  Enfermeiro: string,
+  StatusAtendimento: string,
+  DiaPago: string
+}
+
 const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
   const [clienteId, setClienteId] = useState<string>('');
-  const [atendimentos, setAtendimentos]=useState([]);
+  //const [atendimentos, setAtendimentos]=useState([]);
+  const [atendimentos, setAtendimentos] = useState<Atendimento[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPaginas, setTotalPaginas] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
@@ -366,6 +379,16 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     getAtendimentos(currentPage, 10, mes, selectedYear);
   };
 
+  const handleCheckboxChange = (id: string) => {
+    setAtendimentos(prevAtendimentos =>
+      prevAtendimentos.map(atendimento =>
+        atendimento.atendimentoId === id
+          ? { ...atendimento, isChecked: !atendimento.isChecked }
+          : atendimento
+      )
+    );
+  };
+  
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -453,8 +476,9 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
           <table className="w-full border border-collapse">
             <thead className="text-left text-white border-b-2 border-gray-200 bg-teal-600 border-r">
               <tr>
-                <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Empresa</th>
+                <th></th>
                 <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Atendimento</th>
+                <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Empresa</th>
                 <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Paciente</th>
                 <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Enfermeiro</th>
                 <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Data</th>
@@ -470,8 +494,16 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
             <tbody className="divide-y divide-gray-100">
               {atendimentos && atendimentos.map((atendimento: any) => (
                 <tr key={atendimento.atendimentoId} className="border-b border-gray-200">
-                  <td className="text-left w-48 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.nomeFantasia}</td>
+                  <td className="border px-4 py-2">
+                    <input
+                      type="checkbox"
+                      checked={atendimento.isChecked}
+                      onChange={() => handleCheckboxChange(atendimento.atendimentoId)}
+                      className="form-checkbox h-5 w-5 text-indigo-600"
+                    />
+                  </td>
                   <td className="text-left w-48 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.numeroAtendimento}</td>
+                  <td className="text-left w-48 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.nomeFantasia}</td>
                   <td className="text-left w-48 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.paciente}</td>
                   <td className="text-left w-48 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.enfermeiro}</td>
                   <td className="text-left w-36 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.dataInicial}</td>
