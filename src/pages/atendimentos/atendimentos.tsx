@@ -257,16 +257,17 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
                                     className="block w-full rounded-md border-0 py-2 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
                                     >
                                         <option>Selecione um tipo</option>
-                                        <option value="PLANTAO 6 Hrs">PLANTÃO 6 Hrs</option>
-                                        <option value="PLANTAO 12 Hrs">PLANTÃO 12 Hrs</option>
-                                        <option value="PLANTAO 8 Hrs">PLANTÃO 8 Hrs</option>
-                                        <option value="AVALIACAO">AVALIAÇÃO</option>
                                         <option value="ADAPTACAO">ADAPTAÇÃO</option>
+                                        <option value="AVALIACAO">AVALIAÇÃO</option>
+                                        <option value="PLANTAO 6 Hrs">PLANTÃO 6 Hrs</option>
+                                        <option value="PLANTAO 8 Hrs">PLANTÃO 8 Hrs</option>
+                                        <option value="PLANTAO 12 Hrs">PLANTÃO 12 Hrs</option>
                                         <option value="PONTUAL TEC">PONTUAL TEC</option>
                                         <option value="PONTUAL ENF">PONTUAL ENF</option>
                                         <option value="SUPERVISAO">SUPERVISÃO</option>
                                         <option value="NUTRICIONISTA">NUTRICIONISTA</option>
                                         <option value="MEDICO">MÉDICO</option>
+                                        <option value="MEDICO">COBRANÇA RETROATIVA</option>
                                     </select>
                                 </div>
                             </div>
@@ -334,19 +335,6 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
                                 />
                                 </div>
                             </div>
-                            {/* <div className="sm:col-span-1 text-center">
-                                <label htmlFor="pago" className="block text-sm font-medium leading-6 text-gray-900">Pago?</label>
-                                <div className="mt-2">
-                                    <input
-                                    type="checkbox"
-                                    checked={diaPago}
-                                    onChange={handleCheckboxChange}
-                                    name="diaPago"
-                                    id="diaPago"
-                                    className="h-4 w-4 rounded border-gray-300 text-teal-600 focus:text-teal-600 justify-center"
-                                    />
-                                </div>
-                            </div> */}
                         </div>
                     </div> 
                     {/* <Botoes onCancel={handleCancel} onSubmit={handleSubmit} />    */}

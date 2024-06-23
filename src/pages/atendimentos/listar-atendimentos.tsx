@@ -431,25 +431,6 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
                 <BuscaEnfermeiroFiltro onEnfermeiroSelecionado={handleEnfermeiroSelecionado} />
               </div>
             </div>
-            <div className="sm:col-span-2">
-              <label htmlFor="StatusAtendimento" className="block text-sm font-medium leading-6 text-gray-900">Status</label>
-              <div className="mt-2">
-                <select
-                  id="StatusAtendimento"
-                  name="StatusAtendimento"
-                  value={filtros.StatusAtendimento}
-                  onChange={handleFilterChange}
-                  autoComplete="StatusAtendimento"
-                  className="block w-full rounded-md border-0 py-2 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                >
-                  <option value="">Selecione um Status</option>
-                  <option value="AGUARDANDO">AGUARDANDO</option>
-                  <option value="INICIADO">INICIADO</option>
-                  <option value="PAUSADO">PAUSADO</option>
-                  <option value="FINALIZADO">FINALIZADO</option>
-                </select>
-              </div>
-            </div>
             <div className="sm:col-span-1">
               <label htmlFor="DiaPago" className="block text-sm font-medium leading-6 text-gray-900">Pago?</label>
               <div className="mt-2">
@@ -477,17 +458,16 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
             <thead className="text-left text-white border-b-2 border-gray-200 bg-teal-600 border-r">
               <tr>
                 <th></th>
+                <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Horario</th>
                 <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Atendimento</th>
                 <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Empresa</th>
                 <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Paciente</th>
                 <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Enfermeiro</th>
                 <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Data</th>
-                <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Status</th>
                 <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Local</th>
                 <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Assistência</th>
                 <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right border-r">Vr. Empresa</th>
                 <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right border-r">Vr. Profissional</th>
-                <th className="p-3 text-sm font-semibold tracking-wide ext-left text-center border-r">Pago?</th>
                 <th></th>
               </tr>
             </thead>
@@ -502,19 +482,12 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
                       className="form-checkbox h-5 w-5 text-indigo-600"
                     />
                   </td>
+                  <td className="text-left w-48 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">7hrs às 19hrs</td>
                   <td className="text-left w-48 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.numeroAtendimento}</td>
                   <td className="text-left w-48 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.nomeFantasia}</td>
                   <td className="text-left w-48 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.paciente}</td>
                   <td className="text-left w-48 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.enfermeiro}</td>
                   <td className="text-left w-36 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.dataInicial}</td>
-                  <td className="text-center w-36 p-3 text-sm whitespace-nowrap border-r border-b">
-                    <span className={`inline-block px-4 py-1 font-semibold rounded ${atendimento.statusAtendimento === 'AGUARDANDO' ? 'bg-gray-300' : 
-                                                                                    atendimento.statusAtendimento === 'INICIADO' ? 'bg-blue-200' : 
-                                                                                    atendimento.statusAtendimento === 'PAUSADO' ? 'bg-red-200' : 
-                                                                                    atendimento.statusAtendimento === 'FINALIZADO' ? 'bg-green-400' : 'bg-gray-300'}`}>
-                      {atendimento.statusAtendimento}
-                    </span>
-                  </td>
                   <td className="text-left w-72 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.localAtendimento}  - {atendimento.estadoAtendimento}</td>
                   <td className="text-left w-72 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.assistencia}</td>
                   <td className="text-right w-40 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">
@@ -523,7 +496,6 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
                   <td className="text-right w-40 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">
                     R$ {isNaN(parseFloat(atendimento.valorProfissional)) ? 'Valor inválido' : parseFloat(atendimento.valorProfissional).toFixed(2)}
                   </td>
-                  <td className="text-center w-28 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.diaPago}</td>
                   <td className="text-center w-36 pb-3 pr-3 border-r border-b border-gray-200">
                     {/* <Link href={`/atendimentos/editar/${atendimento.atendimentoId}`}>
                       <button className="bg-white hover:bg-gray-700 hover:text-white text-gray-600 text-lg font-semibold py-2 px-4 rounded"><BiEdit /></button> { }
