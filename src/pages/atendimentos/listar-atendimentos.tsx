@@ -399,7 +399,21 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
           <button type="button" className="rounded-md bg-teal-600 px-3 py-2 text-sm font-semibold leading-6 text-white">Novo Atendimento</button>     
         </Link>
         <div className="mt-2 mx-auto pt-4 shadow rounded-md bg-slate-50">
-          <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-12">  
+          <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-12"> 
+            <div className="sm:col-span-1">
+              <label htmlFor="dataAtendimento" className="block text-sm font-medium leading-6 text-gray-900">
+                Data Atendimento
+              </label>
+              <div className="mt-2">
+                <input
+                  type="date"
+                  name="dataAtendimento"
+                  id="dataAtendimento"
+                  autoComplete="data-atendimento"
+                  className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                />
+              </div>
+            </div> 
             <FiltroMes meses={meses} onChange={handleAtendimentosSubmit} />      
             <div>
               <label htmlFor="" className="mb-2 block text-sm font-medium leading-6 text-gray-900">Ano</label>
@@ -411,7 +425,7 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
                 <ComboBoxClientes onSelectCliente={handleSelectCliente} />
               </div>
             </div>
-            <div className="sm:col-span-2">
+            <div className="sm:col-span-3">
               <label htmlFor="paciente" className="block text-sm font-medium leading-6 text-gray-900">Paciente</label>
               <div className="mt-2">
                 <BuscaPacienteFiltro 
@@ -420,27 +434,10 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
                 />
               </div>  
             </div>
-            <div className="sm:col-span-2">
+            <div className="sm:col-span-3">
               <label htmlFor="paciente" className="block text-sm font-medium leading-6 text-gray-900">Enfermeiro</label>
               <div className="mt-2">
                 <BuscaEnfermeiroFiltro onEnfermeiroSelecionado={handleEnfermeiroSelecionado} />
-              </div>
-            </div>
-            <div className="sm:col-span-1">
-              <label htmlFor="DiaPago" className="block text-sm font-medium leading-6 text-gray-900">Pago?</label>
-              <div className="mt-2">
-                <select
-                    id="DiaPago"
-                    name="DiaPago"
-                    value={filtros.DiaPago}
-                    onChange={handleFilterChange}
-                    autoComplete="DiaPago"
-                    className="block w-full rounded-md border-0 py-2 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                  >
-                    <option value="">Pago?</option>
-                    <option value={0}>NÃO</option>
-                    <option value={1}>SIM</option>
-                </select>
               </div>
             </div>
             <div className="mt-6 sm:col-span-1 text-center">
