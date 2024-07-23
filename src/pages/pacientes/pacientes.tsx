@@ -31,9 +31,6 @@ export default function Pacientes() {
         return (
             nome.trim() !== '' &&
             dataNascimento.trim() !== '' &&
-            cpf.trim() !== '' &&
-            rg.trim() !== '' &&
-            email.trim() !== '' &&
             telefone.trim() !== '' &&
             cep.trim() !== '' &&
             endereco.trim() !== '' &&

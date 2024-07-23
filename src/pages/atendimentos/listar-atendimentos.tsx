@@ -138,9 +138,9 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
         const mes = getMonthNumber(selectedMonth);
         const endpoint = hasFiltros(filtros) ? 'filtro' : 'todos-atendimentos';
         const data = await handleNextPrevPageChange(currentPage, endpoint, mes, selectedYear);
-        setAtendimentos(data.results); // Atualizar o estado com os resultados
-        setTotalItems(data.totalCount); // Atualizar o estado com o número total de itens
-        setTotalPaginas(data.totalPages); // Atualizar o estado com o número total de páginas
+          setAtendimentos(data.results); // Atualizar o estado com os resultados
+          setTotalItems(data.totalCount); // Atualizar o estado com o número total de itens
+          setTotalPaginas(data.totalPages); // Atualizar o estado com o número total de páginas
       } catch (error) {
         // Trate os erros aqui, se necessário
       } finally {
@@ -457,45 +457,28 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
           <table className="w-full border border-collapse">
             <thead className="text-left text-white border-b-2 border-gray-200 bg-teal-600 border-r">
               <tr>
-                <th></th>
-                <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Horario</th>
                 <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Atendimento</th>
+                <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Horario</th>
                 <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Empresa</th>
                 <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Paciente</th>
                 <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Enfermeiro</th>
                 <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Data</th>
-                <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Local</th>
                 <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Assistência</th>
-                <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right border-r">Vr. Empresa</th>
-                <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right border-r">Vr. Profissional</th>
+                <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Local</th>
                 <th></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {atendimentos && atendimentos.map((atendimento: any) => (
                 <tr key={atendimento.atendimentoId} className="border-b border-gray-200">
-                  <td className="border px-4 py-2">
-                    <input
-                      type="checkbox"
-                      checked={atendimento.isChecked}
-                      onChange={() => handleCheckboxChange(atendimento.atendimentoId)}
-                      className="form-checkbox h-5 w-5 text-indigo-600"
-                    />
-                  </td>
-                  <td className="text-left w-48 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">7hrs às 19hrs</td>
                   <td className="text-left w-48 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.numeroAtendimento}</td>
+                  <td className="text-left w-48 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.horario}</td>
                   <td className="text-left w-48 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.nomeFantasia}</td>
                   <td className="text-left w-48 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.paciente}</td>
                   <td className="text-left w-48 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.enfermeiro}</td>
-                  <td className="text-left w-36 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.dataInicial}</td>
-                  <td className="text-left w-72 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.localAtendimento}  - {atendimento.estadoAtendimento}</td>
+                  <td className="text-left w-36 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.dataAtendimento}</td>
                   <td className="text-left w-72 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.assistencia}</td>
-                  <td className="text-right w-40 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">
-                    R$ {isNaN(parseFloat(atendimento.valorEmpresa)) ? 'Valor inválido' : parseFloat(atendimento.valorEmpresa).toFixed(2)}
-                  </td>
-                  <td className="text-right w-40 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">
-                    R$ {isNaN(parseFloat(atendimento.valorProfissional)) ? 'Valor inválido' : parseFloat(atendimento.valorProfissional).toFixed(2)}
-                  </td>
+                  <td className="text-left w-72 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.localAtendimento}  - {atendimento.estadoAtendimento}</td>
                   <td className="text-center w-36 pb-3 pr-3 border-r border-b border-gray-200">
                     {/* <Link href={`/atendimentos/editar/${atendimento.atendimentoId}`}>
                       <button className="bg-white hover:bg-gray-700 hover:text-white text-gray-600 text-lg font-semibold py-2 px-4 rounded"><BiEdit /></button> { }
