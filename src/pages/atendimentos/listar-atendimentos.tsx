@@ -26,7 +26,6 @@ interface FiltrosState {
   Paciente: string;
   Enfermeiro: string;
   StatusAtendimento: string;
-  DiaPago: string;
 }
 
 const initialState: FiltrosState = {
@@ -35,8 +34,7 @@ const initialState: FiltrosState = {
   Empresa: '',
   Paciente: '',
   Enfermeiro: '',
-  StatusAtendimento: '',
-  DiaPago: '',
+  StatusAtendimento: ''
 };
 
 interface PaginationParameters {
@@ -83,6 +81,7 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
   const [StatusAtendimento, setStatusAtendimento] = useState<string>('');
   const [DiaPago, setDiaPago] = useState<string>('');
   const [indexMonth, setIndexMonth] = useState<number>(0);
+  const [selectedDay, setSelectedDay] = useState<number>(1);
 
   const [isLoading, setIsLoading] = useState(true);
 
@@ -108,9 +107,9 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     return numberMonth;
   };
 
-  async function getAtendimentos(page: number, pageSize: number, mes: number, ano: number) {
+  async function getAtendimentos(page: number, pageSize: number, mes: number, ano: number, dia: number) {
     try {
-      let queryString = `?page=${page}&pageSize=${pageSize}&mes=${mes}&ano=${ano}`;
+      let queryString = `?page=${page}&pageSize=${pageSize}&mes=${mes}&ano=${ano}&dia=${dia}`;
       
       // Verifica se há algum filtro preenchido
       const filtrosPreenchidos = Object.values(filtros).some(value => !!value);
@@ -134,7 +133,7 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
       try {
         const mes = getMonthNumber(selectedMonth);
         const endpoint = hasFiltros(filtros) ? 'filtro' : 'todos-atendimentos';
-        const data = await handleNextPrevPageChange(currentPage, endpoint, mes, selectedYear);
+        const data = await handleNextPrevPageChange(currentPage, endpoint, mes, selectedYear, selectedDay);
           setAtendimentos(data.results); // Atualizar o estado com os resultados
           setTotalItems(data.totalCount); // Atualizar o estado com o número total de itens
           setTotalPaginas(data.totalPages); // Atualizar o estado com o número total de páginas
@@ -146,7 +145,7 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     };
   
     fetchData();
-  }, [selectedMonth, selectedYear, currentPage, itensPorPagina, filtros]);
+  }, [selectedMonth, selectedYear, selectedDay, currentPage, itensPorPagina, filtros]);
   
   const handlePageChange = (pagina: number) => {
     setCurrentPage(pagina);
@@ -160,7 +159,7 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
 
       const response = await api.delete(`/api/Atendimentos/${idAtendimentos}`)
       toast.success("Registro deletado com sucesso.");
-      getAtendimentos(currentPage, 10, currentMonthIndex, currentYear);
+      getAtendimentos(currentPage, 10, currentMonthIndex, currentYear, selectedDay);
     } catch (error) {
       toast.error("Erro ao deletar registro.");
     }
@@ -177,25 +176,21 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     page: number,
     endpoint: string,
     mes?: number,
-    ano?: number
+    ano?: number,
+    dia?: number
   ) => {
     try {
-      let queryString = `?page=${page}&pageSize=${itensPorPagina}&mes=${mes}&ano=${ano}`;
-      // Verifica se há filtros preenchidos
+      let queryString = `?page=${page}&pageSize=${itensPorPagina}&mes=${mes}&ano=${ano}&dia=${dia}`;
       const filtrosPreenchidos = filtros && Object.values(filtros).some(value => !!value);
   
-      // Se houver filtros preenchidos, constrói a queryString
       if (filtrosPreenchidos) {
         queryString += '&' + Object.entries(filtros).map(([key, value]) => `${key}=${value}`).join('&');
       }
   
-      // Constrói a URL completa com endpoint e queryString
       const url = `/api/Atendimentos/${endpoint}` + queryString;
-  
-      // Faz a requisição para a API
       const response = await api.get(url);
       const { data } = response;
-      return data; // Retornar todos os dados relevantes
+      return data;
     } catch (error) {
       toast.error('Erro ao chamar a API.');
       return { results: [], totalCount: 0, totalPages: 0 }; // Tratar o erro corretamente
@@ -206,13 +201,16 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     return Object.values(filtros).some(value => !!value);
   };
 
+  const handleDayChange = (day: number) => {
+    setSelectedDay(day);
+  };
 
   const handleNextPage = async () => {
     const nextPage = currentPage + 1;
     const mes = getMonthNumber(selectedMonth);
     setCurrentPage(nextPage);
     const endpoint = hasFiltros(filtros) ? 'filtro' : 'todos-atendimentos';
-    const data = await handleNextPrevPageChange(nextPage, endpoint, mes, selectedYear);
+    const data = await handleNextPrevPageChange(nextPage, endpoint, mes, selectedYear, selectedDay);
     setAtendimentos(data.results);
     setTotalItems(data.totalCount);
     setTotalPaginas(data.totalPages);
@@ -223,7 +221,7 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     const mes = getMonthNumber(selectedMonth);
     setCurrentPage(prevPage);
     const endpoint = hasFiltros(filtros) ? 'filtro' : 'todos-atendimentos';
-    const data = await handleNextPrevPageChange(prevPage, endpoint, mes, selectedYear);
+    const data = await handleNextPrevPageChange(prevPage, endpoint, mes, selectedYear, selectedDay);
     setAtendimentos(data.results);
     setTotalItems(data.totalCount);
     setTotalPaginas(data.totalPages);
@@ -281,14 +279,15 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     page: number,
     pageSize: number,
     mes: number,
-    ano: number
+    ano: number,
+    dia: number
 ) => {
     if (e) {
         e.preventDefault();
     }
 
     try {
-      let queryString = `?page=${page}&pageSize=${itensPorPagina}&mes=${mes}&ano=${ano}`;
+      let queryString = `?page=${page}&pageSize=${itensPorPagina}&mes=${mes}&ano=${ano}&dia=${dia}`;
 
       // Verifica se há filtros preenchidos
       const filtrosPreenchidos = Object.values(filtros).some(value => !!value);
@@ -299,7 +298,7 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
       }
 
       // Faz a requisição para a API
-      const response = await api.get(`/api/Atendimentos/filtro${queryString}&page=${page}&pageSize=${pageSize}&mes=${mes}&ano=${ano}`);
+      const response = await api.get(`/api/Atendimentos/filtro${queryString}&page=${page}&pageSize=${pageSize}&mes=${mes}&ano=${ano}&dia=${dia}`);
       const { results, totalCount, totalPages } = response.data;
 
       // Atualiza os estados com os dados recebidos
@@ -314,7 +313,8 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
 
   const resetarFiltros = async (e: React.MouseEvent<HTMLButtonElement>| null,
     mes: number,
-    ano: number
+    ano: number,
+    dia: number
     
     ) => {
 
@@ -328,23 +328,21 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     setPaciente('');
     setEnfermeiro('');
     setStatusAtendimento('');
-    setDiaPago('');
-
+    
     const novosFiltros = {
         Data: '',
         Atendimento: 0,
         Empresa: '',
         Paciente: '',
         Enfermeiro: '',
-        StatusAtendimento: '',
-        DiaPago: ''
+        StatusAtendimento: ''
     };
 
     setFiltros(novosFiltros);
     setCurrentPage(1);
 
     try {
-      let queryString = `?page=1&pageSize=10&mes=${mes}&ano=${ano}`;
+      let queryString = `?page=1&pageSize=10&mes=${mes}&ano=${ano}&dia=${dia}`;
 
       // Verifica se há filtros preenchidos
       const filtrosPreenchidos = Object.values(novosFiltros).some(value => !!value);
@@ -372,7 +370,7 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
   const handleAtendimentosSubmit = async (selectedMonth: string, monthIndex: number) => {
     setSelectedMonth(selectedMonth);
     const mes = getMonthNumber(selectedMonth);
-    getAtendimentos(currentPage, 10, mes, selectedYear);
+    getAtendimentos(currentPage, 10, mes, selectedYear, selectedDay);
   };
 
   const handleCheckboxChange = (id: string) => {
@@ -392,10 +390,6 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
       </div>
     );
   }
-
-  const handleDayChange = (day: number) => {
-    console.log('Dia selecionado:', day);
-  };
 
   return (
     <Page titulo="Atendimentos">
@@ -443,7 +437,7 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
             </div>
             <div className="mt-6 sm:col-span-1 text-center">
               {/* <button className="flex items-center justify-between bg-gray-700 hover:bg-gray-500 hover:text-white text-white text-lg font-semibold py-1 px-6 rounded" onClick={(e) => handleFilterSubmit(e, currentPage, itensPorPagina, indexMonth, selectedYear)}><TbFilter/></button>   */}
-              <button className="flex gap-2 items-center justify-between bg-gray-700 hover:bg-gray-500 hover:text-white text-white text-base font-semibold py-3 px-6 rounded" onClick={(e) => resetarFiltros(e, indexMonth, selectedYear)}>Limpar Filtros</button> 
+              <button className="flex gap-2 items-center justify-between bg-gray-700 hover:bg-gray-500 hover:text-white text-white text-base font-semibold mt-1.5 py-2 px-6 rounded" onClick={(e) => resetarFiltros(e, indexMonth, selectedYear, selectedDay)}>Limpar Filtros</button> 
             </div>
           </div>
           <div className="mt-6 overflow-auto rounded-lg shadow hidden md:block">

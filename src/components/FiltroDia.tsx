@@ -9,15 +9,10 @@ const FiltroDia: React.FC<FiltroDiaProps> = ({ onChange }) => {
   const dias = Array.from({ length: 31 }, (_, i) => i + 1);
 
   // Estado para o dia selecionado
-  const [selectedDay, setSelectedDay] = useState<number>(1);
-
-  // Atualiza o estado com o dia corrente
-  useEffect(() => {
+  const [selectedDay, setSelectedDay] = useState<number>(() => {
     const currentDate = new Date();
-    const currentDay = currentDate.getDate();
-    setSelectedDay(currentDay);
-    onChange(currentDay);
-  }, [onChange]);
+    return currentDate.getDate();
+  });
 
   // Atualiza o estado e notifica o componente pai quando o dia selecionado muda
   const handleDayChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -25,6 +20,11 @@ const FiltroDia: React.FC<FiltroDiaProps> = ({ onChange }) => {
     setSelectedDay(day);
     onChange(day);
   };
+
+  // Notifica o componente pai do dia inicial ao montar o componente
+  useEffect(() => {
+    onChange(selectedDay);
+  }, [onChange, selectedDay]);
 
   return (
     <select
