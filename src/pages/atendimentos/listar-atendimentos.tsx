@@ -1,15 +1,12 @@
 import Page from "@/components/Page";
 import { useEffect, useState } from "react";
-import { format, startOfMonth, endOfMonth } from 'date-fns';
+import { format } from 'date-fns';
 import api from '../../api';
 import Link from "next/link";
 import { FaTrashAlt, FaSpinner } from "react-icons/fa";
-import { BiEdit } from "react-icons/bi";
-import { TbFilter, TbFilterX } from "react-icons/tb";
-import {Slide, Flip, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import BuscaEnfermeiroFiltro from "@/components/BuscaEnfermeiroFiltro";
 import ComboBoxClientes from "@/components/ComboBoxClientes ";
-import MonthFilter from "@/components/MonthFilter";
 import Pagination from "@/components/Pagination";
 import BuscaPacienteFiltro from "@/components/BuscaPacienteFiltro";
 import FiltroMes from "@/components/FiltroMes";
@@ -66,7 +63,6 @@ interface Atendimento {
 
 const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
   const [clienteId, setClienteId] = useState<string>('');
-  //const [atendimentos, setAtendimentos]=useState([]);
   const [atendimentos, setAtendimentos] = useState<Atendimento[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPaginas, setTotalPaginas] = useState(1);
@@ -278,7 +274,6 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
       }));
     }
   };
-  
   
   const handleFilterSubmit = async (
     e: React.MouseEvent<HTMLButtonElement> | null,
