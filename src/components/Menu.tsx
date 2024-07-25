@@ -13,8 +13,8 @@ import { BiSolidChevronDown, BiChevronUp, BiSearchAlt } from "react-icons/bi";
 import { TbMoneybag, TbNurse, TbDashboard } from "react-icons/tb";
 import { BsCalendarPlusFill, BsClipboardData, BsCalculator } from "react-icons/bs";
 import { FaBriefcaseMedical } from "react-icons/fa6";
-import { FaTableList } from "react-icons/fa6";
-import { FaUserPlus, FaAmbulance, FaBed } from "react-icons/fa";
+import { IoCalendarOutline } from "react-icons/io5";
+import { FaAmbulance, FaBed } from "react-icons/fa";
 import { LuAlarmClock } from "react-icons/lu";
 import MenuItem from "./MenuItem";
 import { useState } from "react";
@@ -47,6 +47,7 @@ export default function Menu() {
           <MenuItem icone={<BsClipboardData size={20}/>} texto="Orçamentos" url="/orcamentos/orcamentos" /> 
           <MenuItem icone={<TbMoneybag size={20}/>} texto="Faturamento" url="/administrativo/faturamento" />
           <MenuItem icone={<BiSearchAlt size={20}/>} texto="Auditoria" url="/auditoria/auditoria" />
+          <MenuItem icone={<IoCalendarOutline size={20}/>} texto="Escalas" url="/escalas/escalas" />
         </div>
       )}
 
