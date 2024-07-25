@@ -4,7 +4,7 @@ import Page from "@/components/Page";
 
 export interface Schedule {
   diaDaSemana: string;
-  horario: string;
+  horario: string; // E.g., '07:00' or '19:00'
   dataAtendimento: string; // Assumed format 'YYYY-MM-DD'
   assistencia: string;
   paciente: string;
@@ -15,9 +15,17 @@ export interface Schedule {
 
 const daysOfWeek = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
 
+const formatDate = (dateStr: string) => {
+  const date = new Date(dateStr);
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
+};
+
 const Escalas: React.FC = () => {
   const [escalas, setEscalas] = useState<Schedule[]>([]);
-  const [calendar, setCalendar] = useState<{ [key: number]: { [key: string]: { horario: string; profissional: string; dia: number } } }>({}); // Calendar data
+  const [calendar, setCalendar] = useState<{ [key: number]: { [key: string]: Schedule[] } }>({}); // Calendar data
 
   const getEscala = async (mes: number, ano: number, pacienteId: string, clienteId: string): Promise<Schedule[]> => {
     try {
@@ -46,11 +54,11 @@ const Escalas: React.FC = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await getEscala(7, 2024, '88AC9980-D456-41A2-91CB-5772DA6B17B3', '77410988-26A8-4075-89D7-131DE6783180');
+      const data = await getEscala(7, 2024, 'A62FF358-45FE-4911-95B6-B80F9F39433F', 'DD7DD642-F407-4039-B5DD-D7BD36774BAE');
       console.log('Dados recebidos:', data);
 
       // Initialize calendar
-      const calendarMap: { [key: number]: { [key: string]: { horario: string; profissional: string; dia: number } } } = {};
+      const calendarMap: { [key: number]: { [key: string]: Schedule[] } } = {};
 
       // Fill calendar data
       data.forEach(escala => {
@@ -63,11 +71,11 @@ const Escalas: React.FC = () => {
           calendarMap[weekNumber] = {};
         }
 
-        calendarMap[weekNumber][dayOfWeek] = {
-          horario: escala.horario,
-          profissional: escala.profissional,
-          dia: day
-        };
+        if (!calendarMap[weekNumber][dayOfWeek]) {
+          calendarMap[weekNumber][dayOfWeek] = [];
+        }
+
+        calendarMap[weekNumber][dayOfWeek].push(escala);
       });
 
       setCalendar(calendarMap);
@@ -93,15 +101,17 @@ const Escalas: React.FC = () => {
               {Object.keys(calendar).map(weekNumber => (
                 <tr key={weekNumber}>
                   {daysOfWeek.map(dayOfWeek => {
-                    const cellData = calendar[weekNumber]?.[dayOfWeek];
+                    const cellData = calendar[weekNumber]?.[dayOfWeek] || [];
                     return (
                       <td key={dayOfWeek} className="py-2 px-4 border-b border-gray-300 text-sm text-left">
-                        {cellData ? (
-                          <>
-                            <div><strong>Dia: {cellData.dia}</strong></div>
-                            <div>Profissional: {cellData.profissional}</div>
-                            <div>Horário: {cellData.horario}</div>
-                          </>
+                        {cellData.length > 0 ? (
+                          cellData.map((escala, index) => (
+                            <div key={index}>
+                              <div><strong>Dia: {formatDate(escala.dataAtendimento)}</strong></div>
+                              <div>Profissional: {escala.profissional}</div>
+                              <div>Horário: {escala.horario}</div>
+                            </div>
+                          ))
                         ) : (
                           ''
                         )}
