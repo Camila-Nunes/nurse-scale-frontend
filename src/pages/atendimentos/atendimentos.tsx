@@ -8,6 +8,7 @@ import BuscaEnfermeiro from "@/components/BuscaEnfermeiro";
 import BuscaPaciente from "@/components/BuscaPaciente";
 import ComboBoxClientes from "@/components/ComboBoxClientes ";
 import EditarAtendimento from './editar/[id]';
+import { NumericFormat } from 'react-number-format';
 
 interface AtendimentoProps {
     // Outras propriedades necessárias para o componente de Atendimento
@@ -30,6 +31,7 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
     const [valorProfissional, setValorProfissional] = useState('');
     const [horarios, setHorarios] = useState<HorariosPropos[]>([]);
     const [horario, setHorario] = useState('');
+    const [isValid, setIsValid] = useState(false);
 
     const router = useRouter();
 
@@ -42,8 +44,9 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
             localAtendimento !== '' &&
             estadoAtendimento !== '' &&
             assistencia !== '' &&
-            horario !== '' 
-
+            horario !== '' &&
+            valorEmpresa !== '' &&
+            valorProfissional !== ''
         );
     };
 
@@ -69,6 +72,10 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
 
         fetchHorarios();
     }, []);  
+
+    useEffect(() => {
+        setIsValid(isFormValid());
+    }, [pacienteId, enfermeiroId, clienteId, dataAtendimento, localAtendimento, estadoAtendimento, assistencia, horario, valorEmpresa, valorProfissional]);
 
     const handleDataAtendimentoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setDataAtendimento(e.target.value);
@@ -103,7 +110,17 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
             localAtendimento,
             estadoAtendimento,
             assistencia,
+            valorEmpresa,
+            valorProfissional,
             horario
+        };
+
+        if (parseFloat(valorProfissional) >= parseFloat(valorEmpresa)) {
+            toast.warning('Valor Profissional não pode ser maior ou igual que Valor Empresa.');
+            return; 
+
+            setValorEmpresa('');
+            setValorProfissional('');
         };
 
         try {
@@ -268,12 +285,48 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
                                 </div>
                             </div>
 
-                            <div className="col-span-6">
+                            <div className="col-span-4">
                                 <label htmlFor="profissional" className="block text-sm font-medium leading-6 text-gray-900">Profissional</label>
                                 <div className="mt-2">
                                     <BuscaEnfermeiro onEnfermeiroSelecionado={handleEnfermeiroSelecionado} />
                                 </div>
-                            </div>                            
+                            </div> 
+
+                            <div className="sm:col-span-1">
+                            <label htmlFor="valorEmpresa" className="block text-sm font-medium leading-6 text-gray-900">Vlr Empresa</label>
+                                <div className="mt-2">
+                                    <NumericFormat
+                                        thousandSeparator={true}
+                                        decimalScale={2}
+                                        fixedDecimalScale={true}
+                                        prefix={'R$ '}
+                                        value={valorEmpresa}
+                                        onValueChange={(values) => {
+                                            const { formattedValue, value } = values;
+                                            setValorEmpresa(value);
+                                        }}
+                                        className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="sm:col-span-1">
+                                <label htmlFor="valorProfissional" className="block text-sm font-medium leading-6 text-gray-900">Vlr Profissional</label>
+                                <div className="mt-2">
+                                    <NumericFormat
+                                        thousandSeparator={true}
+                                        decimalScale={2}
+                                        fixedDecimalScale={true}
+                                        prefix={'R$ '}
+                                        value={valorProfissional}
+                                        onValueChange={(values) => {
+                                            const { formattedValue, value } = values;
+                                            setValorProfissional(value);
+                                        }}
+                                        className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                    />
+                                </div>
+                            </div>               
                         
                         </div>
                     </div> 
@@ -281,7 +334,7 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
 
                     <div className="mt-6 flex items-center justify-end gap-x-2">
                         <button type="button" onClick={handleCancel} className="text-sm py-2 px-4 font-semibold leading-6 bg-transparent hover:bg-red-700 text-red-700 hover:text-white border border-red-700 hover:border-transparent rounded-md">Cancelar</button>
-                        <button type="submit" className="text-sm py-3 px-8 font-semibold leading-6 text-white bg-teal-600 border rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 sm:ml-3 sm:w-auto sm:text-sm">Salvar</button>
+                        <button type="submit" className="text-sm py-3 px-8 font-semibold leading-6 text-white bg-teal-600 border rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 sm:ml-3 sm:w-auto sm:text-sm" disabled={!isValid}>Salvar</button>
                     </div> 
                 </div>
             </form>     
