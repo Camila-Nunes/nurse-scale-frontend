@@ -93,7 +93,7 @@ const Escalas: React.FC = () => {
             <thead>
               <tr>
                 {daysOfWeek.map((day, index) => (
-                  <th key={index} className="py-2 px-4 border-b border-gray-300 text-sm text-left">{day}</th>
+                  <th key={index} className="py-2 px-4 border-b border-gray-300 text-sm text-center">{day}</th>
                 ))}
               </tr>
             </thead>
@@ -103,15 +103,17 @@ const Escalas: React.FC = () => {
                   {daysOfWeek.map(dayOfWeek => {
                     const cellData = calendar[weekNumber]?.[dayOfWeek] || [];
                     return (
-                      <td key={dayOfWeek} className="py-2 px-4 border-b border-gray-300 text-sm text-left">
+                      <td key={dayOfWeek} className="py-2 px-4 border-b border-gray-300 text-sm text-center">
                         {cellData.length > 0 ? (
-                          cellData.map((escala, index) => (
-                            <div key={index}>
-                              <div><strong>Dia: {formatDate(escala.dataAtendimento)}</strong></div>
-                              <div>Profissional: {escala.profissional}</div>
-                              <div>Horário: {escala.horario}</div>
-                            </div>
-                          ))
+                          <>
+                            <div><strong>{formatDate(cellData[0].dataAtendimento)}</strong></div>
+                            <div><strong>Profissional:</strong> {cellData[0].profissional}</div>
+                            {cellData.map((escala, index) => (
+                              <div key={index}>
+                                <div><strong>Horário:</strong> {escala.horario}</div>
+                              </div>
+                            ))}
+                          </>
                         ) : (
                           ''
                         )}
