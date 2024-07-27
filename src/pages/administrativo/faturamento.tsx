@@ -25,6 +25,8 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
   const [isLoadingEmpresas, setIsLoadingEmpresas] = useState(true);
   const [isLoadingAtendimentos, setIsLoadingAtendimentos] = useState(true);
   const [valorAliquota, setValorAliquota] = useState('');
+  const [novoValorAliquota, setNovoValorAliquota] = useState('');
+  const [aliquotas, setAliquotas] = useState([]);
   
   const fullMonthName = format(new Date(), 'MMMM', { locale: pt });
   const monthName = fullMonthName.charAt(0).toUpperCase() + fullMonthName.slice(1);
@@ -130,10 +132,10 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
     event.preventDefault();
   
     try {
-      const valorFormatado = valorAliquota.replace(/[^\d,.]/g, '');
+      const valorFormatado = novoValorAliquota.replace(/[^\d,.]/g, '');
       const valorFormatadoPonto = valorFormatado.replace(',', '.');
-      const response = await api.post(`/api/TabelaDinamica/alterar-aliquota?valorAliquota=${valorFormatadoPonto}`);
-      setValorAliquota(response.data);
+      const response = await api.post(`/api/TabelaDinamica/inserir-aliquota?valorAliquota=${valorFormatadoPonto}`);
+      setNovoValorAliquota(response.data);
       
       toast.success('Alíquota inserida ou atualizada com sucesso', {
         transition: Slide,
@@ -148,8 +150,16 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
     }
   };
   
-  const handleValorChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setValorAliquota(event.target.value);
+  const handleValorChange = (event) => {
+    if (event) {
+      setValorAliquota(event);
+    } else {
+      console.error("event.target is undefined", event);
+    }
+  };
+
+  const handleNovoValorChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setNovoValorAliquota(event.target.value);
   };
 
   async function loadValorAliquota() {
@@ -157,7 +167,7 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
       const response = await api.get(
         `/api/TabelaDinamica/buscar-aliquota`
       );
-      setValorAliquota(response.data);
+      setAliquotas(response.data);
     } catch (error) {
       toast.error("Erro ao carregar dados. " + error);
     } finally {
@@ -165,25 +175,62 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
     }
   }
 
+  const handleSelectChange = (e) => {
+    const selectedValue = e.target.value;
+    handleValorChange(selectedValue); // Atualize o valor da alíquota selecionada
+    // Refaça os cálculos com base na alíquota escolhida aqui
+  };
+
+  const formatAliquota = (valor: number) => {
+    if (!valor) return '';
+    const [intPart, decimalPart] = valor.toString().split('.');
+    const formattedDecimal = decimalPart ? decimalPart.padEnd(2, '0').slice(0, 2) : '00';
+    return `${intPart},${formattedDecimal}%`;
+  };
+
   return (
     <Page titulo="Faturamento">
     <form className="container max-w-full" onSubmit={handleInputChange}>
-      <div className='flex justify-between gap-6'>
+      <div className='flex justify-between gap-2'>
         <div className="flex justify-center sm:col-span-4 px-5 space-x-4 items-center">
-          <label htmlFor="rg" className="mt-2 block text-sm font-medium leading-6 text-gray-900 uppercase">Alíquota</label>
-          <div className="mt-2">
-            <InputMask mask="99,99%" 
-              type="text"
-              name="aliquota"
-              id="aliquota"
-              value={valorAliquota}
-              onChange={handleValorChange}
-              autoComplete="aliquota"
-              className="font-bold block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-            />
+          <div className="flex justify-between items-center gap-2">
+            <label htmlFor="aliquota" className="mt-2 block text-sm font-medium leading-6 text-gray-900 uppercase">Alíquota</label>
+            <div className="mt-2">
+              <select
+                name="aliquota"
+                id="aliquota"
+                value={valorAliquota}
+                onChange={handleSelectChange}
+                className="font-bold block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+              >
+                <option value="">Selecione uma alíquota</option>
+                {aliquotas.map((aliquota) => (
+                  <option key={aliquota.aliquotaId} value={aliquota.valorAliquota}>
+                    {formatAliquota(aliquota.valorAliquota)}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
-          <button type="submit" className="rounded-md bg-teal-600 px-10 py-2 mt-2 text-sm font-semibold leading-6 text-white hover:bg-teal-700">Alterar Alíquota</button>
+
+          <div className="flex justify-between items-center gap-2">
+            <label htmlFor="novoValorAliquota" className="mt-2 block text-sm font-medium leading-6 text-gray-900 uppercase">Nova Alíquota</label>
+            <div className="mt-2">
+              <InputMask mask="99,99%" 
+                type="text"
+                name="novoValorAliquota"
+                id="novoValorAliquota"
+                onChange={handleNovoValorChange}
+                value={novoValorAliquota}
+                autoComplete="novoValorAliquota"
+                className="font-bold block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+              />
+            </div>
+            <button type="submit" className="rounded-md bg-teal-600 px-10 py-2 mt-2 text-sm font-semibold leading-6 text-white hover:bg-teal-700">Cadastrar Alíquota</button>
+          </div>
         </div>
+
+        
 
         <div className='flex justify-items-start gap-6'>
           <FiltroMes meses={meses} onChange={handleTabelaDinamicaSubmit} />
