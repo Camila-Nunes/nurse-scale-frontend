@@ -1,6 +1,8 @@
 import Page from "@/components/Page";
 import { useEffect, useState, useRef } from "react";
 import InputMask from "react-input-mask";
+import api from "@/api";
+import { Slide, toast } from "react-toastify";
 
 export default function Orcamentos() {
 
@@ -19,6 +21,8 @@ export default function Orcamentos() {
     const [totalProfissional, setTotalProfissional] = useState('0');
     const [totalPercentualLucro, setTotalPercentualLucro] = useState('0');
     const [focusedFieldId, setFocusedFieldId] = useState<string | null>(null);
+    const [aliquotas, setAliquotas] = useState([]);
+    const [valorAliquota, setValorAliquota] = useState('');
 
     const calcularImposto = (valor: number) => {
         const valorEmpresaFloat = valor; // Substitua vírgula por ponto e converta para número de ponto flutuante
@@ -130,6 +134,10 @@ export default function Orcamentos() {
     };
 
     useEffect(() => {
+        loadValorAliquota();
+    });
+
+    useEffect(() => {
         const handleEscKeyPress = (event: KeyboardEvent) => {
             if (event.key === "Escape") {
                 if (focusedFieldId) {
@@ -137,6 +145,7 @@ export default function Orcamentos() {
                     if (field) {
                         field.focus();
                     }
+                    
                 }
                 else if (valorEmpresaRef.current) {
                     valorEmpresaRef.current.focus();
@@ -164,6 +173,40 @@ export default function Orcamentos() {
             document.removeEventListener("keydown", handleEscKeyPress);
         };
     }, [focusedFieldId]);
+
+    async function loadValorAliquota() {
+        try {
+          const response = await api.get(
+            `/api/TabelaDinamica/buscar-aliquota`
+          );
+          setAliquotas(response.data);
+        } catch (error) {
+          toast.error("Erro ao carregar dados. " + error);
+        } finally {
+            //setIsLoadingAtendimentos(false);
+        }
+    }
+
+    const handleValorChange = (event) => {
+        if (event) {
+          setValorAliquota(event);
+        } else {
+          console.error("event.target is undefined", event);
+        }
+    };
+
+    const handleSelectChange = (e) => {
+        const selectedValue = e.target.value;
+        handleValorChange(selectedValue); // Atualize o valor da alíquota selecionada
+        // Refaça os cálculos com base na alíquota escolhida aqui
+    };
+
+    const formatAliquota = (valor: number) => {
+        if (!valor) return '';
+        const [intPart, decimalPart] = valor.toString().split('.');
+        const formattedDecimal = decimalPart ? decimalPart.padEnd(2, '0').slice(0, 2) : '00';
+        return `${intPart},${formattedDecimal}%`;
+    };
 
     return (
         <Page titulo="Orçamentos">
@@ -193,15 +236,20 @@ export default function Orcamentos() {
                             <div className="sm:col-span-1">
                                 <label htmlFor="aliquota" className="block text-sm font-medium leading-6 text-gray-900 uppercase">Alíquota</label>
                                 <div className="mt-2">
-                                    <InputMask mask="99,99%" 
-                                        type="text"
+                                    <select
                                         name="aliquota"
                                         id="aliquota"
-                                        value={11.42}
-                                        autoComplete="aliquota"
-                                        className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                        disabled
-                                    />
+                                        value={valorAliquota}
+                                        onChange={handleSelectChange}
+                                        className="font-bold block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                    >
+                                        <option value="">Selecione uma alíquota</option>
+                                        {aliquotas.map((aliquota) => (
+                                        <option key={aliquota.aliquotaId} value={aliquota.valorAliquota}>
+                                            {formatAliquota(aliquota.valorAliquota)}
+                                        </option>
+                                        ))}
+                                    </select>
                                 </div>
                             </div>
                             <div className="sm:col-span-2">

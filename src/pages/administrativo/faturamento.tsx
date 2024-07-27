@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
-import NumberFormat from 'react-number-format';
 import { format } from "date-fns";
-import { useRouter } from "next/router";
 import api from "@/api";
 import Page from "@/components/Page";
 import { Slide, toast } from "react-toastify";
