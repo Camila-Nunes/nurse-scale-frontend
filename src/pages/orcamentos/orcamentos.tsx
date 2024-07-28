@@ -29,6 +29,7 @@ export default function Orcamentos() {
     const [valorSemImpostoEmpresa, setSemImpostoEmpresa] = useState<number>(0);
     const [valorImpostoEmpresa, setValorImpostoEmpresa] = useState<number>(0);
     const [isNegative, setIsNegative] = useState<boolean>(false);
+    const [valorReal, setValorReal] = useState<number>(0);
 
     useEffect(() => {
         loadValorAliquota();
@@ -66,6 +67,10 @@ export default function Orcamentos() {
 
     const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === 'Enter') {
+            if (!valorAliquota) {
+                toast.error('A alíquota precisa ser preenchida.');
+                return;
+            }
           const imposto = (valorProfissional * valorAliquota) / 100;
           const valorComImpostoDescontado = valorProfissional - imposto;
           const porcentagemLucroProfissional = (valorComImpostoDescontado * 100) / valorProfissional;
@@ -82,30 +87,34 @@ export default function Orcamentos() {
 
     const handleKeyPressEmpresa = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === 'Enter') {
-          const impostoEmpresa = (valorEmpresa * valorAliquota) / 100;
-          const valorComImpostoDescontadoEmpresa = valorEmpresa - impostoEmpresa;
-          //const porcentagemLucroEmpresa = ((valorComImpostoDescontadoEmpresa - valorProfissional * 100) / valorEmpresa) - 100;
-
-          const calcularPorcentagemLucro = () => {
-            const porcentagem = ((valorComImpostoDescontadoEmpresa - valorProfissional) / valorEmpresa) * 100;
-            return porcentagem;
-          };
-      
-          const formatarPorcentagem = (valor: number) => {
-            const isNegative = valor < 0;
-            setIsNegative(isNegative);
-            const formattedValue = valor.toFixed(2).replace('.', ',');
-            return `${formattedValue}%`;
-          };
-      
-          const porcentagem = calcularPorcentagemLucro();
-          const formattedPorcentagem = formatarPorcentagem(porcentagem);
-          
-          setPorcentagemLucroEmpresa(formattedPorcentagem);
-
-          setValorImpostoEmpresa(impostoEmpresa);
-          setSemImpostoEmpresa(valorComImpostoDescontadoEmpresa);
-
+            if (!valorAliquota) {
+                toast.error('A alíquota precisa ser preenchida.');
+                return;
+            }
+    
+            const impostoEmpresa = parseFloat((valorEmpresa * valorAliquota / 100).toFixed(2));
+            const valorComImpostoDescontadoEmpresa = parseFloat((valorEmpresa - impostoEmpresa).toFixed(2));
+            const valorRealLucro = parseFloat((valorComImpostoDescontadoEmpresa - valorProfissional).toFixed(2));
+    
+            const calcularPorcentagemLucro = () => {
+                const porcentagem = parseFloat(((valorComImpostoDescontadoEmpresa - valorProfissional) / valorEmpresa * 100).toFixed(2));
+                return porcentagem;
+            };
+    
+            const formatarPorcentagem = (valor: number) => {
+                const isNegative = valor < 0;
+                setIsNegative(isNegative);
+                const formattedValue = valor.toFixed(2).replace('.', ',');
+                return `${formattedValue}%`;
+            };
+    
+            const porcentagem = calcularPorcentagemLucro();
+            const formattedPorcentagem = formatarPorcentagem(porcentagem);
+    
+            setPorcentagemLucroEmpresa(formattedPorcentagem);
+            setValorImpostoEmpresa(impostoEmpresa);
+            setSemImpostoEmpresa(valorComImpostoDescontadoEmpresa);
+            setValorReal(valorRealLucro);
         }
     };
 
@@ -230,7 +239,7 @@ export default function Orcamentos() {
                                     />
                                 </div>
                             </div>
-                            <div className="sm:col-span-3">
+                            <div className="sm:col-span-2">
                                 <label htmlFor="valor-imposto" className="block text-sm font-medium leading-6 text-gray-900 uppercase text-right">Valor do Imposto (R$)</label>
                                 <div className="mt-2">
                                     <input
@@ -244,7 +253,7 @@ export default function Orcamentos() {
                                     />
                                 </div>
                             </div>
-                            <div className="sm:col-span-3">
+                            <div className="sm:col-span-2">
                                 <label htmlFor="valor-descontado-imposto" className="block text-sm font-medium leading-6 text-gray-900 uppercase text-right">Valor Sem Imposto (R$)</label>
                                 <div className="mt-2">
                                     <input
@@ -259,8 +268,22 @@ export default function Orcamentos() {
                                 </div>
                             </div>
                             
-                            
                             <div className="sm:col-span-3">
+                                <label htmlFor="valorReal" className="block text-sm font-medium leading-6 text-gray-900 uppercase text-right">Valor Sem Imposto - Valor do Profissional</label>
+                                <div className="mt-2">
+                                    <input
+                                        type="text"
+                                        name="valorReal"
+                                        id="valorReal"
+                                        value={valorReal}
+                                        autoComplete="valorReal"
+                                        className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        disabled
+                                    />
+                                </div>
+                            </div>
+                            
+                            <div className="sm:col-span-2">
                                 <label htmlFor="valor-lucro" className="block text-sm font-medium leading-6 text-gray-900 uppercase text-right">% Lucro</label>
                                 <div className="mt-2">
                                     <InputMask 
