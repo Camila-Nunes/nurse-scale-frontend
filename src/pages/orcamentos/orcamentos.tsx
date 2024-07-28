@@ -77,9 +77,9 @@ export default function Orcamentos() {
                 toast.error('A alíquota precisa ser preenchida.');
                 return;
             }
-          const imposto = (valorProfissional * valorAliquota) / 100;
-          const valorComImpostoDescontado = valorProfissional - imposto;
-          const porcentagemLucroProfissional = (valorComImpostoDescontado * 100) / valorProfissional;
+          const imposto = (parseFloat(valorProfissional) * valorAliquota) / 100;
+          const valorComImpostoDescontado = parseFloat(valorProfissional) - imposto;
+          const porcentagemLucroProfissional = (valorComImpostoDescontado * 100) / parseFloat(valorProfissional);
           setValorImpostoProfissional(imposto);
           setSemImposto(valorComImpostoDescontado);
           setPorcentagemLucroProfissional(porcentagemLucroProfissional);
@@ -104,12 +104,12 @@ export default function Orcamentos() {
                 return;
             }
     
-            const impostoEmpresa = parseFloat((valorEmpresa * valorAliquota / 100).toFixed(2));
-            const valorComImpostoDescontadoEmpresa = parseFloat((valorEmpresa - impostoEmpresa).toFixed(2));
-            const valorRealLucro = parseFloat((valorComImpostoDescontadoEmpresa - valorProfissional).toFixed(2));
+            const impostoEmpresa = parseFloat((parseFloat(valorEmpresa) * valorAliquota / 100).toFixed(2));
+            const valorComImpostoDescontadoEmpresa = parseFloat((parseFloat(valorEmpresa) - impostoEmpresa).toFixed(2));
+            const valorRealLucro = parseFloat((valorComImpostoDescontadoEmpresa - parseFloat(valorProfissional)).toFixed(2));
     
             const calcularPorcentagemLucro = () => {
-                const porcentagem = parseFloat(((valorComImpostoDescontadoEmpresa - valorProfissional) / valorEmpresa * 100).toFixed(2));
+                const porcentagem = parseFloat(((valorComImpostoDescontadoEmpresa - parseFloat(valorProfissional)) / parseFloat(valorEmpresa) * 100).toFixed(2));
                 return porcentagem;
             };
     
