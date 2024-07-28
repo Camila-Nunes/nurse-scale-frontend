@@ -10,7 +10,7 @@ export default function Orcamentos() {
     const valorEmpresaRef = useRef<HTMLInputElement>(null);
     const [valorImpostoProfissional, setValorImpostoProfissional] = useState<number>(0);
     const [valorDescontadoImposto, setValorDescontadoImposto] = useState('0');
-    const [valorProfissional, setValorProfissional] = useState<number>(0);
+    const [valorProfissional, setValorProfissional] = useState<string>('0.00');
     const [porcentagemLucroProfissional, setPorcentagemLucroProfissional] = useState<number>(0);
     const [porcentagemLucroEmpresa, setPorcentagemLucroEmpresa] = useState<string>('');
     const [totalEmpresa, setTotalEmpresa] = useState('0');
@@ -25,7 +25,7 @@ export default function Orcamentos() {
     const [valorSemImposto, setSemImposto] = useState<number>(0);
     const [valorLucro, setValorLucro] = useState<number>(0);
     const [diasAtendimento, setDiasAtendimento] = useState<number>(0);
-    const [valorEmpresa, setValorEmpresa]  = useState<number>(0);
+    const [valorEmpresa, setValorEmpresa]  = useState<string>('0.00');
     const [valorSemImpostoEmpresa, setSemImpostoEmpresa] = useState<number>(0);
     const [valorImpostoEmpresa, setValorImpostoEmpresa] = useState<number>(0);
     const [isNegative, setIsNegative] = useState<boolean>(false);
@@ -62,7 +62,13 @@ export default function Orcamentos() {
     };
 
     const handleValorProfissionalChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setValorProfissional(parseFloat(event.target.value));
+        const value = event.target.value.replace(/[^\d]/g, '');
+        if (value) {
+            const numberValue = parseFloat(value) / 100;
+            setValorProfissional(numberValue.toFixed(2));
+        } else {
+            setValorProfissional('0.00');
+        }
     };
 
     const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -82,7 +88,13 @@ export default function Orcamentos() {
 
 
     const handleValorEmpresaChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setValorEmpresa(parseFloat(event.target.value));
+        const value = event.target.value.replace(/[^\d]/g, '');
+        if (value) {
+            const numberValue = parseFloat(value) / 100;
+            setValorEmpresa(numberValue.toFixed(2));
+        } else {
+            setValorEmpresa('0.00');
+        }
     };
 
     const handleKeyPressEmpresa = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -156,9 +168,7 @@ export default function Orcamentos() {
                             <div className="sm:col-span-3">
                                 <label htmlFor="valor-profissional" className="block text-sm font-medium leading-6 text-gray-900 uppercase text-right">Valor Profissional (R$)</label>
                                 <div className="mt-2">
-                                    <InputMask
-                                        mask="999.99"
-                                        maskChar=""
+                                    <input
                                         type="text"
                                         name="valorProfissional"
                                         id="valorProfissional"
@@ -225,16 +235,14 @@ export default function Orcamentos() {
                             <div className="sm:col-span-3">
                                 <label htmlFor="valor-profissional" className="block text-sm font-medium leading-6 text-gray-900 uppercase text-right">Valor Empresa (R$)</label>
                                 <div className="mt-2">
-                                    <InputMask
-                                        mask="999.99"
-                                        maskChar=""
+                                    <input
                                         type="text"
                                         name="valorEmpresa"
                                         id="valorEmpresa"
                                         value={valorEmpresa}
+                                        autoComplete="valorEmpresa"
                                         onChange={handleValorEmpresaChange}
                                         onKeyPress={handleKeyPressEmpresa}
-                                        autoComplete="valorEmpresa"
                                         className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                     />
                                 </div>
