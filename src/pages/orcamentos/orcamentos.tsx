@@ -116,9 +116,9 @@ export default function Orcamentos() {
             const formatarPorcentagem = (valor: number) => {
                 const isNegative = valor < 0;
                 setIsNegative(isNegative);
-                const formattedValue = valor.toFixed(2).replace('.', ',');
-                return `${formattedValue}%`;
-            };
+                const formattedValue = Math.abs(valor).toFixed(2).replace('.', ',');
+                return isNegative ? `-${formattedValue}%` : `${formattedValue}%`;
+              };
     
             const porcentagem = calcularPorcentagemLucro();
             const formattedPorcentagem = formatarPorcentagem(porcentagem);
@@ -127,6 +127,8 @@ export default function Orcamentos() {
             setValorImpostoEmpresa(impostoEmpresa);
             setSemImpostoEmpresa(valorComImpostoDescontadoEmpresa);
             setValorReal(valorRealLucro);
+
+            console.log(formattedPorcentagem);
         }
     };
 
@@ -184,7 +186,7 @@ export default function Orcamentos() {
                                 <label htmlFor="valorImpostoProfissional" className="block text-sm font-medium leading-6 text-gray-900 uppercase text-right">Valor do Imposto (R$)</label>
                                 <div className="mt-2">
                                     <InputMask
-                                        mask=""
+                                        mask="99.99"
                                         maskChar=""
                                         type="text"
                                         id="valorImpostoProfissional"
@@ -198,7 +200,9 @@ export default function Orcamentos() {
                             <div className="sm:col-span-3">
                                 <label htmlFor="valorSemImposto" className="block text-sm font-medium leading-6 text-gray-900 uppercase text-right">Valor sem Imposto (R$)</label>
                                 <div className="mt-2">
-                                    <input
+                                    <InputMask 
+                                        mask="999.99" 
+                                        maskChar=""
                                         type="text"
                                         name="valorSemImposto"
                                         id="valorSemImposto"
@@ -250,7 +254,9 @@ export default function Orcamentos() {
                             <div className="sm:col-span-2">
                                 <label htmlFor="valor-imposto" className="block text-sm font-medium leading-6 text-gray-900 uppercase text-right">Valor do Imposto (R$)</label>
                                 <div className="mt-2">
-                                    <input
+                                    <InputMask 
+                                        mask="99.99" 
+                                        maskChar=""
                                         type="text"
                                         name="valorImpostoEmpresa"
                                         id="valorImpostoEmpresa"
@@ -264,12 +270,14 @@ export default function Orcamentos() {
                             <div className="sm:col-span-2">
                                 <label htmlFor="valor-descontado-imposto" className="block text-sm font-medium leading-6 text-gray-900 uppercase text-right">Valor Sem Imposto (R$)</label>
                                 <div className="mt-2">
-                                    <input
+                                    <InputMask 
+                                        mask="999.99" 
+                                        maskChar=""
                                         type="text"
-                                        name="valor-descontado-imposto"
-                                        id="valor-descontado-imposto"
+                                        name="valorSemImpostoEmpresa"
+                                        id="valorSemImpostoEmpresa"
                                         value={valorSemImpostoEmpresa}
-                                        autoComplete="valor-descontado-imposto"
+                                        autoComplete="valorSemImpostoEmpresa"
                                         className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                         disabled
                                     />
@@ -279,7 +287,9 @@ export default function Orcamentos() {
                             <div className="sm:col-span-3">
                                 <label htmlFor="valorReal" className="block text-sm font-medium leading-6 text-gray-900 uppercase text-right">Valor Sem Imposto - Valor do Profissional</label>
                                 <div className="mt-2">
-                                    <input
+                                    <InputMask 
+                                        mask="999.99" 
+                                        maskChar=""
                                         type="text"
                                         name="valorReal"
                                         id="valorReal"
@@ -295,7 +305,7 @@ export default function Orcamentos() {
                                 <label htmlFor="valor-lucro" className="block text-sm font-medium leading-6 text-gray-900 uppercase text-right">% Lucro</label>
                                 <div className="mt-2">
                                     <InputMask 
-                                        mask="99,99%" 
+                                        mask={isNegative ? '-99,99%' : '99,99%'}
                                         maskChar=""
                                         type="text"
                                         name="valor-lucro"
