@@ -24,7 +24,155 @@ export default function Orcamentos() {
     const [aliquotas, setAliquotas] = useState([]);
     const [valorAliquota, setValorAliquota] = useState('');
 
-    
+    const calcularImposto = (valor: number) => {
+        const valorEmpresaFloat = valor; // Substitua vírgula por ponto e converta para número de ponto flutuante
+        const imposto = valorEmpresaFloat * 0.1142;
+        return imposto.toFixed(2); // Limitando para duas casas decimais
+    };
+
+    const calcularLucro = () => {
+        const valorProfissionalFloat = parseFloat(valorProfissional); // Substitua vírgula por ponto e converta para número de ponto flutuante
+        const valorDescontadoImpostoFloat = parseFloat(valorDescontadoImposto); // Substitua vírgula por ponto e converta para número de ponto flutuante
+        const lucro = valorDescontadoImpostoFloat - valorProfissionalFloat;
+        return lucro.toFixed(2); // Limitando para duas casas decimais
+    };
+
+    const calcularValorDescontadoImposto = (valor: number) => {
+        const valorEmpresaFloat = valor; // Substitua vírgula por ponto e converta para número de ponto flutuante
+        const impostoFloat = parseFloat(valorImposto); // Substitua vírgula por ponto e converta para número de ponto flutuante
+        const valorDescontado = valorEmpresaFloat - impostoFloat;
+        return valorDescontado.toFixed(2); // Limitando para duas casas decimais
+    };
+
+    const handleValorEmpresaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        let inputValue = e.target.value;
+
+        inputValue = inputValue.replace(/[^\d]/g, '');
+
+        if (!inputValue) {
+            setValorEmpresa('');
+            return;
+        }
+        const valueAsNumber = parseInt(inputValue) / 100;
+
+        setValorEmpresa(valueAsNumber.toFixed(2));
+        const impostoCalculado = calcularImposto(valueAsNumber);
+        setValorImposto(impostoCalculado);
+        const valorDescontadoImpostoCalculado = calcularValorDescontadoImposto(valueAsNumber);
+        setValorDescontadoImposto(valorDescontadoImpostoCalculado);
+        setFocusedFieldId(e.target.id);
+    };
+
+    const handleValorProfissionalChange = (e: any) => {
+        setValorProfissional(e.target.value);
+        const lucroCalculado = calcularLucro();
+        setValorLucro(lucroCalculado);
+        const porcentagemLucroCalculada = calcularPorcentagemLucro();
+        setPorcentagemLucro(porcentagemLucroCalculada);
+    };
+
+    const calcularPorcentagemLucro = () => {
+        const valorEmpresaFloat = parseFloat(valorEmpresa); // Substitua vírgula por ponto e converta para número de ponto flutuante
+        const valorLucroFloat = parseFloat(valorLucro); // Substitua vírgula por ponto e converta para número de ponto flutuante
+        const porcentagemLucro = (valorLucroFloat / valorEmpresaFloat) * 100;
+        return porcentagemLucro.toFixed(2); // Limitando para duas casas decimais
+    };
+
+    const calcularTotalImposto = (totalEmpresaFloat: number): string => {
+        const imposto: number = totalEmpresaFloat * 0.1142;
+        return imposto.toFixed(2);
+    };
+
+    const calcularTotalEmpresa = (valor: number, dias: number): string => {
+        const total = valor * dias;
+        return total.toFixed(2);
+    };
+
+    const calcularValorTotalDescontadoImposto = (totalEmpresaFloat: number, totalImpostoFloat: number): string => {
+        const valorDescontado = totalEmpresaFloat - totalImpostoFloat;
+        return valorDescontado.toFixed(2);
+    };
+
+    const calcularTotalProfissional = (valor: number, dias: number): string => {
+        const total = valor * dias;
+        return total.toFixed(2);
+    };
+
+    const calcularTotalLucro = (valorDescontadoImpostoFloat: number, valorProfissionalFloat: number, dias: number): string => {
+        const total = valorDescontadoImpostoFloat - valorProfissionalFloat;
+        return total.toFixed(2);
+    };
+
+    const calcularTotalPorcentagemLucro = (valorTotalEmpresa: number, valorTotalLucro: number) => {
+        const porcentagemLucroTotal = (valorTotalLucro / valorTotalEmpresa) * 100;
+        return porcentagemLucroTotal.toFixed(2); // Limitando para duas casas decimais
+    };
+
+    const handleDiasAtendimentoChange = (e: any) => {
+        setDiasAtendimento(e.target.value);
+        const totalEmpresaCalculado = calcularTotalEmpresa(parseFloat(valorEmpresa), parseInt(e.target.value));
+        setTotalEmpresa(totalEmpresaCalculado);
+        
+        const impostoCalculado: string = calcularTotalImposto(parseFloat(totalEmpresaCalculado));
+        setTotalImposto(impostoCalculado);
+
+        const valorTotalDescontadoImpostoCalculado = calcularValorTotalDescontadoImposto(parseFloat(totalEmpresaCalculado), parseFloat(impostoCalculado));
+        setTotalDesconto(valorTotalDescontadoImpostoCalculado);
+
+        const totalProfissionalCalculado = calcularTotalProfissional(parseFloat(valorProfissional), parseInt(e.target.value));
+        setTotalProfissional(totalProfissionalCalculado);
+
+        const totalLucroCalculado = calcularTotalLucro(parseFloat(valorTotalDescontadoImpostoCalculado), parseFloat(totalProfissionalCalculado), parseInt(e.target.value));
+        setTotalLucro(totalLucroCalculado);
+
+        const totalPorcentagemLucro = calcularTotalPorcentagemLucro(parseFloat(totalEmpresaCalculado), parseFloat(totalLucroCalculado));
+        setTotalPercentualLucro(totalPorcentagemLucro);
+    };
+
+    const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+        e.target.value = ''; // Limpar o campo
+    };
+
+    useEffect(() => {
+        loadValorAliquota();
+    });
+
+    useEffect(() => {
+        const handleEscKeyPress = (event: KeyboardEvent) => {
+            if (event.key === "Escape") {
+                if (focusedFieldId) {
+                    const field = document.getElementById(focusedFieldId);
+                    if (field) {
+                        field.focus();
+                    }
+                    
+                }
+                else if (valorEmpresaRef.current) {
+                    valorEmpresaRef.current.focus();
+                }
+                setFocusedFieldId(null);
+
+                setValorEmpresa('0');
+                setValorImposto('0');
+                setValorDescontadoImposto('0');
+                setValorProfissional('0');
+                setValorLucro('0');
+                setPorcentagemLucro('0');
+                setDiasAtendimento('0');
+                setTotalEmpresa('0');
+                setTotalImposto('0');
+                setTotalDesconto('0');
+                setTotalLucro('0');
+                setTotalProfissional('0');
+                setTotalPercentualLucro('0');
+            }
+        };
+
+        document.addEventListener("keydown", handleEscKeyPress);
+        return () => {
+            document.removeEventListener("keydown", handleEscKeyPress);
+        };
+    }, [focusedFieldId]);
 
     async function loadValorAliquota() {
         try {

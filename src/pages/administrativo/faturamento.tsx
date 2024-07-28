@@ -15,6 +15,12 @@ interface FaturamentoProps {
   meses: string[];
 }
 
+interface Aliquota {
+  aliquotaId: string;
+  valorAliquota: number; // ou 'number' se 'valorAliquota' for numérico
+}
+
+
 const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
   const [resumoEmpresas, setResumoEmpresas] = useState([]);
   const [resumoProfissionais, setResumoProfissionais] = useState([]);
@@ -24,7 +30,7 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
   const [isLoadingAtendimentos, setIsLoadingAtendimentos] = useState(true);
   const [valorAliquota, setValorAliquota] = useState('');
   const [novoValorAliquota, setNovoValorAliquota] = useState('');
-  const [aliquotas, setAliquotas] = useState([]);
+  const [aliquotas, setAliquotas] = useState<Aliquota[]>([]);
   
   const fullMonthName = format(new Date(), 'MMMM', { locale: pt });
   const monthName = fullMonthName.charAt(0).toUpperCase() + fullMonthName.slice(1);
@@ -173,7 +179,7 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
     }
   }
 
-  const handleSelectChange = (e) => {
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedValue = e.target.value;
     handleValorChange(selectedValue); // Atualize o valor da alíquota selecionada
     // Refaça os cálculos com base na alíquota escolhida aqui
