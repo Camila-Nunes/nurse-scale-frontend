@@ -155,11 +155,17 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
   };
   
   const handleValorChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event && event.target) {
-      setValorAliquota(event.target.value);
-    } else {
-      console.error("event.target is undefined", event);
-    }
+    setValorAliquota(event.target.value);
+  };
+
+  const handleValorUpdate = (value: string) => {
+    setValorAliquota(value);
+  };
+
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedValue = e.target.value;
+    handleValorUpdate(selectedValue); // Atualize o valor da alíquota selecionada
+    // Refaça os cálculos com base na alíquota escolhida aqui
   };
 
   const handleNovoValorChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -178,12 +184,6 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
         setIsLoadingAtendimentos(false);
     }
   }
-
-  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedValue = e.target.value;
-    handleValorChange(selectedValue); // Atualize o valor da alíquota selecionada
-    // Refaça os cálculos com base na alíquota escolhida aqui
-  };
 
   const formatAliquota = (valor: number) => {
     if (!valor) return '';
