@@ -9,13 +9,14 @@ import BuscaEnfermeiro from "@/components/BuscaEnfermeiro";
 import BuscaPaciente from "@/components/BuscaPaciente";
 import ComboBoxClientes from "@/components/ComboBoxClientes ";
 import { CgSpinnerTwo } from "react-icons/cg";
+import InputMask from "react-input-mask";
 
 interface RegistroProps{
+  atendimentoId: string;
   numeroAtendimento: string;
   paciente: string;
-  dataInicial: string;
-  dataFinal: string;
-  statusAtendimento: string;
+  dataAtendimento: string;
+  horario: string;
   localAtendimento: string;
   estadoAtendimento: string;
   enfermeiro: string;
@@ -30,11 +31,11 @@ export default function EditarAtendimento() {
   const router = useRouter();
   const { id } = router.query;
   const [registro, setRegistro] = useState<RegistroProps>({
+    atendimentoId: '',
     numeroAtendimento: '',
     paciente: '',
-    dataInicial: '',
-    dataFinal: '',
-    statusAtendimento: '',
+    dataAtendimento: '',
+    horario: '',
     localAtendimento: '',
     estadoAtendimento: '',
     enfermeiro: '',
@@ -54,9 +55,6 @@ export default function EditarAtendimento() {
       try {
         const response = await api.get(`/api/Atendimentos/` + id); 
         setRegistro(response.data.result);
-        const valorPacienteId = response.data.result.pacienteId;
-        console.log(response.data.result);
-        console.log("PacienteId: " + valorPacienteId);
       } catch (error) {
         console.error('Erro ao obter os dados do registro:', error);
       } finally {
@@ -94,38 +92,34 @@ export default function EditarAtendimento() {
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    api.put(`/api/Atendimentos/${id}`, registro)
+    
+    const payload = {
+        id: id,
+        enfermeiroId: enfermeiroId
+    };
+
+    api.put(`/api/Atendimentos/${id}`, null, {
+        params: {
+            enfermeiroId: enfermeiroId
+        }
+    })
     .then(() => {
-        console.log("registro atualizado: " + registro);
-        toast.success("Registro atualizado com sucesso.")
+        console.log("Registro atualizado com sucesso: " + id);
+        toast.success("Registro atualizado com sucesso.");
         router.push("/atendimentos/listar-atendimentos");
     })
     .catch((error) => {
-        toast.error('Erro ao atualizar registro:', error);
+        toast.error('Erro ao atualizar registro: ' + error.message);
     });
-  };  
+  };
 
   async function handleCancel (){
       router.push(`/atendimentos/listar-atendimentos`);
   };
 
-  const handlePacienteSelecionado = (id: string) => {
-    setPacienteId(id);
-    setRegistro((prevData: any) => ({
-      ...prevData,
-      pacienteId: id,
-    }));
-
-    console.log("PacienteNovo: " + id);
-  };
-  
-  const handleEnfermeiroSelecionado = (id: string) => {
-    setEnfermeiroId(id);
+  const handleEnfermeiroSelecionado = (enfermeiroId: string) => {
+    setEnfermeiroId(enfermeiroId);
   }; 
-
-  const handleSelectCliente = (selectedClienteId: string, nomeFantasia: string) => {
-    setClienteId(selectedClienteId);
-  };
 
   return (
     <Page titulo="Editar Atendimento">
@@ -151,27 +145,14 @@ export default function EditarAtendimento() {
                   />    
                 </div>
               </div>
-              <div className="sm:col-span-7">
-                <label htmlFor="paciente" className="block text-sm font-medium leading-6 text-gray-900">Paciente</label>
-                <div className="mt-2">
-                  <BuscaPaciente valorInicial={registro.paciente} onPacienteSelecionado={handlePacienteSelecionado} />
-                  <input
-                    type="hidden"
-                    name="paciente"
-                    id="paciente"
-                    value={pacienteId}
-                    onChange={handleInputChange}
-                  />
-                </div>
-              </div>
               <div className="sm:col-span-2">
-                <label htmlFor="data" className="block text-sm font-medium leading-6 text-gray-900">Data Inicial</label>
+                <label htmlFor="data" className="block text-sm font-medium leading-6 text-gray-900">Data Atendimento</label>
                 <div className="mt-2">
                 <input
                     type="date"
                     name="dataInicial"
                     id="dataInicial"
-                    defaultValue={moment(registro.dataInicial).format('YYYY-MM-DD')}
+                    defaultValue={moment(registro.dataAtendimento).format('YYYY-MM-DD')}
                     autoComplete="data-inicial"
                     disabled
                     className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -179,37 +160,34 @@ export default function EditarAtendimento() {
                 </div>
               </div>
               <div className="sm:col-span-2">
-                <label htmlFor="data" className="block text-sm font-medium leading-6 text-gray-900">Data Final</label>
+                <label htmlFor="data" className="block text-sm font-medium leading-6 text-gray-900">Horário</label>
                 <div className="mt-2">
-                  <input
-                    type="date"
-                    name="dataFinal"
-                    id="dataFinal"
-                    defaultValue={moment(registro.dataFinal).format('YYYY-MM-DD')}
-                    autoComplete="data"
+                <input
+                    type="text"
+                    name="horario"
+                    id="horario"
+                    defaultValue={registro.horario}
+                    autoComplete="horario"
                     disabled
                     className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   />
                 </div>
               </div>
               <div className="sm:col-span-3">
-                <label htmlFor="uf-local" className="block text-sm font-medium leading-6 text-gray-900">Status</label>
+                <label htmlFor="data" className="block text-sm font-medium leading-6 text-gray-900">Paciente</label>
                 <div className="mt-2">
-                  <select
-                    id="statusAtendimento"
-                    name="statusAtendimento"
-                    autoComplete="statusAtendimento"
-                    defaultValue={registro.statusAtendimento}
-                    className="block w-full rounded-md border-0 py-2 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                  >
-                    <option value="AGUARDANDO">AGUARDANDO</option>
-                    <option value="INICIADO">INICIADO</option>
-                    <option value="PAUSADO">PAUSADO</option>
-                    <option value="FINALIZADO">FINALIZADO</option>
-                  </select>
+                <input
+                    type="text"
+                    name="paciente"
+                    id="paciente"
+                    defaultValue={registro.paciente}
+                    autoComplete="paciente"
+                    disabled
+                    className="text-left block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                  />
                 </div>
               </div>
-              <div className="sm:col-span-7">
+              <div className="sm:col-span-3">
                 <label htmlFor="local" className="block text-sm font-medium leading-6 text-gray-900">Local de Atendimento</label>
                   <div className="mt-2">
                   <input
@@ -220,10 +198,11 @@ export default function EditarAtendimento() {
                     onChange={handleInputChange}
                     autoComplete="localAtendimento"
                     className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                    disabled
                   />
                 </div>
               </div>
-              <div className="sm:col-span-2">
+              <div className="sm:col-span-1">
                 <label htmlFor="uf-local" className="block text-sm font-medium leading-6 text-gray-900">UF</label>
                 <div className="mt-2">
                   <select
@@ -241,7 +220,7 @@ export default function EditarAtendimento() {
                 </div>
               </div>
 
-              <div className="col-span-10">
+              <div className="col-span-4">
                 <label htmlFor="profissional" className="block text-sm font-medium leading-6 text-gray-900">Profissional</label>
                 <div className="mt-2">
                   <BuscaEnfermeiro valorInicial={registro.enfermeiro} onEnfermeiroSelecionado={handleEnfermeiroSelecionado} />
@@ -255,13 +234,22 @@ export default function EditarAtendimento() {
                 </div>
               </div>
               <div className="sm:col-span-2">
-                <label htmlFor="empresa" className="block text-sm font-medium leading-6 text-gray-900">Empresa</label>
-                <div className="mt-2">
-                  <ComboBoxClientes onSelectCliente={handleSelectCliente} isEditMode={true} defaultValue={registro.nomeFantasia}/>
-                </div>  
+                <label htmlFor="local" className="block text-sm font-medium leading-6 text-gray-900">Empresa</label>
+                  <div className="mt-2">
+                  <input
+                    type="text"
+                    name="empresa"
+                    id="empresa"
+                    defaultValue={registro.nomeFantasia}
+                    onChange={handleInputChange}
+                    autoComplete="empresa"
+                    className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                    disabled
+                  />
+                </div>
               </div>
               
-              <div className="sm:col-span-7">
+              <div className="sm:col-span-2">
                 <label htmlFor="assistencia" className="block text-sm font-medium leading-6 text-gray-900">Assitência</label>
                   <div className="mt-2">
                     <input
@@ -278,41 +266,30 @@ export default function EditarAtendimento() {
               <div className="sm:col-span-2">
                 <label htmlFor="valorEmpresa" className="block text-sm font-medium leading-6 text-gray-900">Valor Empresa</label>
                 <div className="mt-2">
-                  <input
-                    type="number"
+                <InputMask
+                    mask="R$ 999.99"
+                    type="text"
                     name="valorEmpresa"
                     id="valorEmpresa"
                     defaultValue={registro.valorEmpresa}
                     onChange={handleInputChange}
                     autoComplete="valorEmpresa"
-                    className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                    className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   />
                 </div>
               </div>
               <div className="sm:col-span-2">
                 <label htmlFor="valorProfissional" className="block text-sm font-medium leading-6 text-gray-900">Valor Profissional</label>
                 <div className="mt-2">
-                  <input
-                    type="number"
+                  <InputMask
+                    mask="R$ 999.99"
+                    type="text"
                     name="valorProfissional"
                     id="valorProfissional"
                     defaultValue={registro.valorProfissional}
                     onChange={handleInputChange}
                     autoComplete="valorProfissional"
-                    className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                  />
-                </div>
-              </div>
-              <div className="sm:col-span-1 text-center">
-                <label htmlFor="pago" className="block text-sm font-medium leading-6 text-gray-900">Pago?</label>
-                <div className="mt-2">
-                  <input
-                    type="checkbox"
-                    name="diaPago"
-                    id="diaPago"
-                    defaultChecked={registro.diaPago === "SIM" ? true : false}
-                    onChange={handleInputChange}
-                    className="h-4 w-4 rounded border-gray-300 text-teal-600 focus:text-teal-600 justify-center"
+                    className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   />
                 </div>
               </div>

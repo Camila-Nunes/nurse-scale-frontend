@@ -2,7 +2,7 @@ import Page from "@/components/Page";
 import { useEffect, useState, useRef } from "react";
 import InputMask from "react-input-mask";
 import api from "@/api";
-import { Slide, toast } from "react-toastify";
+import { Zoom, Flip, Bounce, Slide, toast } from "react-toastify";
 import classNames from 'classnames';
 
 export default function Orcamentos() {
@@ -23,7 +23,7 @@ export default function Orcamentos() {
     const [aliquotas, setAliquotas] = useState([]);
     const [valorAliquota, setValorAliquota] = useState<number>(0);
     const [valorSemImposto, setSemImposto] = useState<number>(0);
-    const [valorLucro, setValorLucro] = useState<number>(0);
+    const [valorLucro, setValorLucro] = useState('0');
     const [diasAtendimento, setDiasAtendimento] = useState<number>(0);
     const [valorEmpresa, setValorEmpresa]  = useState<string>('0.00');
     const [valorSemImpostoEmpresa, setSemImpostoEmpresa] = useState<number>(0);
@@ -74,18 +74,21 @@ export default function Orcamentos() {
     const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === 'Enter') {
             if (!valorAliquota) {
-                toast.error('A alíquota precisa ser preenchida.');
+                toast.warning('A alíquota precisa ser preenchida.', {
+                    transition: Slide,
+                    icon: true,
+                });
+    
                 return;
             }
-          const imposto = (parseFloat(valorProfissional) * valorAliquota) / 100;
-          const valorComImpostoDescontado = parseFloat(valorProfissional) - imposto;
-          const porcentagemLucroProfissional = (valorComImpostoDescontado * 100) / parseFloat(valorProfissional);
-          setValorImpostoProfissional(imposto);
-          setSemImposto(valorComImpostoDescontado);
-          setPorcentagemLucroProfissional(porcentagemLucroProfissional);
+            const imposto = (parseFloat(valorProfissional) * valorAliquota) / 100;
+            const valorComImpostoDescontado = parseFloat(valorProfissional) - imposto;
+            const porcentagemLucroProfissional = (valorComImpostoDescontado * 100) / parseFloat(valorProfissional);
+            setValorImpostoProfissional(imposto);
+            setSemImposto(valorComImpostoDescontado);
+            setPorcentagemLucroProfissional(porcentagemLucroProfissional);
         }
     };
-
 
     const handleValorEmpresaChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const value = event.target.value.replace(/[^\d]/g, '');
@@ -100,7 +103,11 @@ export default function Orcamentos() {
     const handleKeyPressEmpresa = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === 'Enter') {
             if (!valorAliquota) {
-                toast.error('A alíquota precisa ser preenchida.');
+                toast.warning('A alíquota precisa ser preenchida.', {
+                    transition: Slide,
+                    icon: true,
+                });
+    
                 return;
             }
     
@@ -127,8 +134,6 @@ export default function Orcamentos() {
             setValorImpostoEmpresa(impostoEmpresa);
             setSemImpostoEmpresa(valorComImpostoDescontadoEmpresa);
             setValorReal(valorRealLucro);
-
-            console.log(formattedPorcentagem);
         }
     };
 
@@ -137,6 +142,65 @@ export default function Orcamentos() {
         const [intPart, decimalPart] = valor.toString().split('.');
         const formattedDecimal = decimalPart ? decimalPart.padEnd(2, '0').slice(0, 2) : '00';
         return `${intPart},${formattedDecimal}%`;
+    };
+
+    const calcularPorcentagemLucro = () => {
+        const valorEmpresaFloat = parseFloat(valorEmpresa); // Substitua vírgula por ponto e converta para número de ponto flutuante
+        const valorLucroFloat = parseFloat(valorLucro); // Substitua vírgula por ponto e converta para número de ponto flutuante
+        const porcentagemLucro = (valorLucroFloat / valorEmpresaFloat) * 100;
+        return porcentagemLucro.toFixed(2); // Limitando para duas casas decimais
+    };
+
+    const calcularTotalImposto = (totalEmpresaFloat: number): string => {
+        const imposto: number = totalEmpresaFloat * (valorAliquota/100);
+        return imposto.toFixed(2);
+    };
+
+    const calcularTotalEmpresa = (valor: number, dias: number): string => {
+        const total = valor * dias;
+        return total.toFixed(2);
+    };
+
+    const calcularValorTotalDescontadoImposto = (totalEmpresaFloat: number, totalImpostoFloat: number): string => {
+        const valorDescontado = totalEmpresaFloat - totalImpostoFloat;
+        return valorDescontado.toFixed(2);
+    };
+
+    const calcularTotalProfissional = (valor: number, dias: number): string => {
+        const total = valor * dias;
+        return total.toFixed(2);
+    };
+
+    const calcularTotalLucro = (valorDescontadoImpostoFloat: number, valorProfissionalFloat: number, dias: number): string => {
+        const total = valorDescontadoImpostoFloat - valorProfissionalFloat;
+        return total.toFixed(2);
+    };
+
+    const calcularTotalPorcentagemLucro = (valorTotalEmpresa: number, valorTotalLucro: number) => {
+        const porcentagemLucroTotal = (valorTotalLucro / valorTotalEmpresa) * 100;
+        return porcentagemLucroTotal.toFixed(2); // Limitando para duas casas decimais
+    };
+
+    const handleDiasAtendimentoChange = (e: any) => {
+        setDiasAtendimento(e.target.value);
+        const totalEmpresaCalculado = calcularTotalEmpresa(parseFloat(valorEmpresa), parseInt(e.target.value));
+        setTotalEmpresa(totalEmpresaCalculado);
+        
+        const impostoCalculado: string = calcularTotalImposto(parseFloat(totalEmpresaCalculado));
+        setTotalImposto(impostoCalculado);
+
+        const valorTotalDescontadoImpostoCalculado = calcularValorTotalDescontadoImposto(parseFloat(totalEmpresaCalculado), parseFloat(impostoCalculado));
+        setTotalDesconto(valorTotalDescontadoImpostoCalculado);
+
+        const totalProfissionalCalculado = calcularTotalProfissional(parseFloat(valorProfissional), parseInt(e.target.value));
+        setTotalProfissional(totalProfissionalCalculado);
+
+        const totalLucroCalculado = calcularTotalLucro(parseFloat(valorTotalDescontadoImpostoCalculado), parseFloat(totalProfissionalCalculado), parseInt(e.target.value));
+        setTotalLucro(totalLucroCalculado);
+
+        const totalPorcentagemLucro = calcularTotalPorcentagemLucro(parseFloat(totalEmpresaCalculado), parseFloat(totalLucroCalculado));
+        //const formattedPorcentagem = formatarPorcentagem(totalPorcentagemLucro);
+        setTotalPercentualLucro(totalPorcentagemLucro);
     };
 
     return (
@@ -163,7 +227,7 @@ export default function Orcamentos() {
                                 </select>
                             </div>
                         </div>
-                        <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-12 border text-white text-center pb-10 items-center">
+                        <div className="mt-2 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-12 border text-white text-center pb-10 items-center">
                             <div className="sm:col-span-12 uppercase bg-teal-600 px-10">
                                 <p className="py-5 uppercase">Valor para Profissional</p>
                             </div>
@@ -232,7 +296,7 @@ export default function Orcamentos() {
                             </div>
                         </div>  
                         
-                        <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-12 border text-white text-center pb-10">
+                        <div className="mt-2 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-12 border text-white text-center pb-10">
                             <div className="sm:col-span-12 uppercase bg-teal-600 px-10">
                                 <p className="py-5 uppercase">Valor para Empresa</p>
                             </div>
@@ -319,8 +383,7 @@ export default function Orcamentos() {
                             </div>
                         </div> 
 
-
-                        <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-12 border text-white text-center pb-10">
+                        <div className="mt-2 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-12 border text-white text-center pb-10">
                             <div className="sm:col-span-12 uppercase bg-teal-600 px-10">
                                 <p className="py-5 uppercase">Valores Totalizados</p>
                             </div>
@@ -332,6 +395,7 @@ export default function Orcamentos() {
                                         name="diasAtendimento"
                                         id="diasAtendimento"
                                         value={diasAtendimento}
+                                        onChange={handleDiasAtendimentoChange}
                                         autoComplete="valor-com-desconto"
                                         className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                     />
@@ -422,7 +486,7 @@ export default function Orcamentos() {
                                 <label htmlFor="total-porcentagem-lucro" className="block text-sm font-medium leading-6 text-gray-900 uppercase text-right">Total % Lucro</label>
                                 <div className="mt-2">
                                     <InputMask
-                                        mask="99,99%" 
+                                        mask={isNegative ? '-99,99%' : '99,99%'}
                                         maskChar=""
                                         type="text"
                                         name="total-porcentagem-lucro"

@@ -4,6 +4,7 @@ import { format } from 'date-fns';
 import api from '../../api';
 import Link from "next/link";
 import { FaTrashAlt, FaSpinner } from "react-icons/fa";
+import { BiEdit } from "react-icons/bi";
 import { toast } from 'react-toastify';
 import BuscaEnfermeiroFiltro from "@/components/BuscaEnfermeiroFiltro";
 import ComboBoxClientes from "@/components/ComboBoxClientes ";
@@ -467,9 +468,9 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
                   <td className="text-left w-72 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.assistencia}</td>
                   <td className="text-left w-72 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.localAtendimento}  - {atendimento.estadoAtendimento}</td>
                   <td className="text-center w-36 pb-3 pr-3 border-r border-b border-gray-200">
-                    {/* <Link href={`/atendimentos/editar/${atendimento.atendimentoId}`}>
+                    <Link href={`/atendimentos/editar/${atendimento.atendimentoId}`}>
                       <button className="bg-white hover:bg-gray-700 hover:text-white text-gray-600 text-lg font-semibold py-2 px-4 rounded"><BiEdit /></button> { }
-                    </Link> { } */}
+                    </Link> { }
                     <button className="bg-white hover:bg-gray-700 hover:text-white text-gray-600 text-lg font-semibold py-2 px-4 rounded" onClick={(event) => handleDeleteClick(event, atendimento.atendimentoId)}><FaTrashAlt /></button>
                   </td>
                 </tr>

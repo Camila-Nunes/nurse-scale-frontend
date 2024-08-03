@@ -372,7 +372,6 @@ export default function Orcamentos() {
                             </div>
                         </div> 
 
-
                         <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-12 border text-white text-center pb-10">
                             <div className="sm:col-span-12 uppercase bg-teal-600 px-10">
                                 <p className="py-5 uppercase">Valores Totalizados</p>
