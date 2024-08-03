@@ -154,9 +154,9 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
     }
   };
   
-  const handleValorChange = (event) => {
-    if (event) {
-      setValorAliquota(event);
+  const handleValorChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event && event.target) {
+      setValorAliquota(event.target.value);
     } else {
       console.error("event.target is undefined", event);
     }
