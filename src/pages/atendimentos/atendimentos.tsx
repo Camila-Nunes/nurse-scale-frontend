@@ -156,14 +156,47 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
                     <div className="border-b border-gray-900/10 pb-12">
                         <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-12">
 
-                            <div className="sm:col-span-5">
+                            <div className="sm:col-span-2">
+                                <label htmlFor="dataAtendimento" className="block text-sm font-medium leading-6 text-gray-900">
+                                    Data Atendimento
+                                </label>
+                                <div className="mt-2">
+                                    <input
+                                        type="date"
+                                        name="dataAtendimento"
+                                        id="dataAtendimento"
+                                        value={dataAtendimento}
+                                        onChange={handleDataAtendimentoChange}
+                                        autoComplete="data-atendimento"
+                                        className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="sm:col-span-2">
+                                <label htmlFor="horarioId" className="block text-sm font-medium leading-6 text-gray-900">Horário</label>
+                                <div className="mt-2">
+                                    <select
+                                        id="horarioId"
+                                        name="horarioId"
+                                        onChange={(e) => setHorario(e.target.value)}
+                                        className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                    >
+                                        {horarios.map((horario) => (
+                                            <option key={horario.horarioId} value={horario.descricao}>{horario.descricao}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="sm:col-span-4">
                                 <label htmlFor="paciente" className="block text-sm font-medium leading-6 text-gray-900">Paciente</label>
                                 <div className="mt-2">
                                     <BuscaPaciente onPacienteSelecionado={handlePacienteSelecionado} />
                                 </div>
                             </div>
                            
-                            <div className="sm:col-span-4">
+                            <div className="sm:col-span-3">
                                 <label htmlFor="local" className="block text-sm font-medium leading-6 text-gray-900">Local de Atendimento</label>
                                     <div className="mt-2">
                                     <input
@@ -218,42 +251,15 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
                                 </div>
                             </div>
 
-                            
-                            <div className="sm:col-span-2">
-                                <label htmlFor="dataAtendimento" className="block text-sm font-medium leading-6 text-gray-900">
-                                    Data Atendimento
-                                </label>
+                            <div className="col-span-4">
+                                <label htmlFor="profissional" className="block text-sm font-medium leading-6 text-gray-900">Profissional</label>
                                 <div className="mt-2">
-                                    <input
-                                        type="date"
-                                        name="dataAtendimento"
-                                        id="dataAtendimento"
-                                        value={dataAtendimento}
-                                        onChange={handleDataAtendimentoChange}
-                                        autoComplete="data-atendimento"
-                                        className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                    />
+                                    <BuscaEnfermeiro onEnfermeiroSelecionado={handleEnfermeiroSelecionado} />
                                 </div>
-                            </div>
+                            </div> 
 
                             <div className="sm:col-span-2">
-                                <label htmlFor="horarioId" className="block text-sm font-medium leading-6 text-gray-900">Horário</label>
-                                <div className="mt-2">
-                                    <select
-                                        id="horarioId"
-                                        name="horarioId"
-                                        onChange={(e) => setHorario(e.target.value)}
-                                        className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                    >
-                                        {horarios.map((horario) => (
-                                            <option key={horario.horarioId} value={horario.descricao}>{horario.descricao}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div className="sm:col-span-2">
-                                <label htmlFor="valorEmpresa" className="block text-sm font-medium leading-6 text-gray-900">Tipo Atendimento</label>
+                                <label htmlFor="valorEmpresa" className="block text-sm font-medium leading-6 text-gray-900">Assistência</label>
                                 <div className="mt-2">
                                     <select
                                     id="assistencia"
@@ -285,33 +291,26 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
                                 </div>
                             </div>
 
-                            <div className="col-span-4">
-                                <label htmlFor="profissional" className="block text-sm font-medium leading-6 text-gray-900">Profissional</label>
+                            <div className="sm:col-span-2">
+                                <label htmlFor="valorEmpresa" className="block text-sm font-medium leading-6 text-gray-900">Valor Empresa</label>
                                 <div className="mt-2">
-                                    <BuscaEnfermeiro onEnfermeiroSelecionado={handleEnfermeiroSelecionado} />
-                                </div>
-                            </div> 
-
-                            <div className="sm:col-span-1">
-                            <label htmlFor="valorEmpresa" className="block text-sm font-medium leading-6 text-gray-900">Vlr Empresa</label>
-                                <div className="mt-2">
-                                    <NumericFormat
-                                        thousandSeparator={true}
-                                        decimalScale={2}
-                                        fixedDecimalScale={true}
-                                        prefix={'R$ '}
-                                        value={valorEmpresa}
-                                        onValueChange={(values) => {
-                                            const { formattedValue, value } = values;
-                                            setValorEmpresa(value);
-                                        }}
-                                        className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                    />
+                                <NumericFormat
+                                    thousandSeparator={true}
+                                    decimalScale={2}
+                                    fixedDecimalScale={true}
+                                    prefix={'R$ '}
+                                    value={valorEmpresa}
+                                    onValueChange={(values) => {
+                                    const { formattedValue, value } = values;
+                                    setValorEmpresa(value);
+                                    }}
+                                    className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                />
                                 </div>
                             </div>
 
-                            <div className="sm:col-span-1">
-                                <label htmlFor="valorProfissional" className="block text-sm font-medium leading-6 text-gray-900">Vlr Profissional</label>
+                            <div className="sm:col-span-2">
+                                <label htmlFor="valorProfissional" className="block text-sm font-medium leading-6 text-gray-900">Valor Profissional</label>
                                 <div className="mt-2">
                                     <NumericFormat
                                         thousandSeparator={true}
