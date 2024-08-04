@@ -2,12 +2,12 @@ import { useState, useEffect } from "react";
 import api from '@/api';
 import Page from "@/components/Page";
 import BuscaPaciente from "@/components/BuscaPaciente";
-import ComboBoxClientes from "@/components/ComboBoxClientes ";
 import FiltroMes from "@/components/FiltroMes";
 import AnoSelect from "@/components/AnoSelect";
 import { GetStaticProps } from 'next';
 import { format } from 'date-fns';
 import { pt } from 'date-fns/locale';
+import ComboBoxClientes from "@/components/ComboBoxClientes ";
 
 export interface Schedule {
   diaDaSemana: string;
@@ -36,7 +36,7 @@ const formatDate = (dateStr: string) => {
 
 const Escalas: React.FC<ScheduleProps> = ({ meses }) => {
   const [escalas, setEscalas] = useState<Schedule[]>([]);
-  const [calendar, setCalendar] = useState<{ [key: number]: { [key: string]: Schedule[] } }>({}); // Calendar data
+  const [calendar, setCalendar] = useState<{ [key: string]: { [key: string]: Schedule[] } }>({}); // Calendar data
   const [pacienteId, setPacienteId] = useState<string>('');
   const [clienteId, setClienteId] = useState<string>('');
   const [indexMonth, setIndexMonth] = useState<number>(new Date().getMonth() + 1);
@@ -83,35 +83,38 @@ const Escalas: React.FC<ScheduleProps> = ({ meses }) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await getEscala(7, 2024, 'A62FF358-45FE-4911-95B6-B80F9F39433F', 'DD7DD642-F407-4039-B5DD-D7BD36774BAE');
+      const data = await getEscala(indexMonth, ano, pacienteId, clienteId);
       console.log('Dados recebidos:', data);
 
       // Initialize calendar
-      const calendarMap: { [key: number]: { [key: string]: Schedule[] } } = {};
+      const calendarMap: { [key: string]: { [key: string]: Schedule[] } } = {};
 
       // Fill calendar data
       data.forEach(escala => {
         const date = new Date(escala.dataAtendimento);
         const day = date.getDate();
         const dayOfWeek = daysOfWeek[date.getDay()]; // Get day of the week index
-        const weekNumber = Math.ceil((day + new Date(2024, 6, 1).getDay()) / 7); // Calculate week number
+        const weekNumber = Math.ceil((day + new Date(ano, indexMonth - 1, 1).getDay()) / 7); // Calculate week number
+        const weekKey = String(weekNumber); // Convert to string for object keys
 
-        if (!calendarMap[weekNumber]) {
-          calendarMap[weekNumber] = {};
+        if (!calendarMap[weekKey]) {
+          calendarMap[weekKey] = {};
         }
 
-        if (!calendarMap[weekNumber][dayOfWeek]) {
-          calendarMap[weekNumber][dayOfWeek] = [];
+        if (!calendarMap[weekKey][dayOfWeek]) {
+          calendarMap[weekKey][dayOfWeek] = [];
         }
 
-        calendarMap[weekNumber][dayOfWeek].push(escala);
+        calendarMap[weekKey][dayOfWeek].push(escala);
       });
 
       setCalendar(calendarMap);
     };
 
-    fetchData();
-  }, []); // Dependências vazias garantem que o efeito seja executado apenas uma vez após a montagem do componente
+    if (pacienteId && clienteId) {
+      fetchData();
+    }
+  }, [indexMonth, ano, pacienteId, clienteId]);
 
   const handlePacienteSelecionado = (id: string) => {
     setPacienteId(id);
@@ -123,7 +126,7 @@ const Escalas: React.FC<ScheduleProps> = ({ meses }) => {
 
   const handleAtendimentosSubmit = async (selectedMonth: string, monthIndex: number) => {
     setMes(selectedMonth);
-    const mes = getMonthNumber(selectedMonth);
+    getMonthNumber(selectedMonth);
   };
 
   const handleSelectYear = (year: number) => {
@@ -164,7 +167,7 @@ const Escalas: React.FC<ScheduleProps> = ({ meses }) => {
             <thead>
               <tr>
                 {daysOfWeek.map((day, index) => (
-                  <th key={index} className="py-2 px-4 border-b border-gray-300 text-sm text-center">{day}</th>
+                  <th key={index} className="py-2 px-4 border-b border-gray-300 text-sm text-center bg-teal-900 text-slate-300">{day}</th>
                 ))}
               </tr>
             </thead>
@@ -178,9 +181,9 @@ const Escalas: React.FC<ScheduleProps> = ({ meses }) => {
                         {cellData.length > 0 ? (
                           <>
                             <div><strong>{formatDate(cellData[0].dataAtendimento)}</strong></div>
-                            <div><strong>Profissional:</strong> {cellData[0].profissional}</div>
+                            <div className="text-left"><strong>Profissional:</strong> {cellData[0].profissional}</div>
                             {cellData.map((escala, index) => (
-                              <div key={index}>
+                              <div className="text-left" key={index}>
                                 <div><strong>Horário:</strong> {escala.horario}</div>
                               </div>
                             ))}
