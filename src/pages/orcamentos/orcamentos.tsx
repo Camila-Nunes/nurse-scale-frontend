@@ -5,6 +5,11 @@ import api from "@/api";
 import { Zoom, Flip, Bounce, Slide, toast } from "react-toastify";
 import classNames from 'classnames';
 
+interface Aliquota {
+    aliquotaId: number;
+    valorAliquota: number;
+}
+
 export default function Orcamentos() {
 
     const valorEmpresaRef = useRef<HTMLInputElement>(null);
@@ -20,7 +25,7 @@ export default function Orcamentos() {
     const [totalProfissional, setTotalProfissional] = useState('0');
     const [totalPercentualLucro, setTotalPercentualLucro] = useState('0');
     const [focusedFieldId, setFocusedFieldId] = useState<string | null>(null);
-    const [aliquotas, setAliquotas] = useState([]);
+    const [aliquotas, setAliquotas] = useState<Aliquota[]>([]);
     const [valorAliquota, setValorAliquota] = useState<number>(0);
     const [valorSemImposto, setSemImposto] = useState<number>(0);
     const [valorLucro, setValorLucro] = useState('0');
@@ -47,18 +52,14 @@ export default function Orcamentos() {
             //setIsLoadingAtendimentos(false);
         }
     }
-
-    const handleValorChange = (event) => {
-        if (event) {
-          setValorAliquota(event);
-        } else {
-          console.error("event.target is undefined", event);
-        }
-    };
-
-    const handleSelectChange = (e) => {
-        const selectedValue = e.target.value;
-        handleValorChange(selectedValue); 
+    
+    const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedValue = parseFloat(e.target.value); // Converter string para número
+    if (!isNaN(selectedValue)) {
+        setValorAliquota(selectedValue);
+    } else {
+        console.error("Invalid number format", e.target.value);
+    }
     };
 
     const handleValorProfissionalChange = (event: React.ChangeEvent<HTMLInputElement>) => {
