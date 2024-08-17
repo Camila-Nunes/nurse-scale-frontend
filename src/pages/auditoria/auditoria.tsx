@@ -6,6 +6,7 @@ import { CgSpinnerTwo } from "react-icons/cg";
 import FiltroMes from "@/components/FiltroMes";
 import AnoSelect from "@/components/AnoSelect";
 import { format } from "date-fns";
+import { pt } from 'date-fns/locale';
 import { GetStaticProps } from "next";
 
 interface AuditoriaProps {
@@ -16,10 +17,12 @@ const Auditoria: React.FC<AuditoriaProps> = ({ meses }) => {
   const [resumoAuditoriaEmpresas, setResumoAuditoriaEmpresas] = useState([]);
   const [isLoadingEmpresas, setIsLoadingEmpresas] = useState(true);
   const [currentMonthIndex, setCurrentMonthIndex] = useState(0);
+  const [indexMonth, setIndexMonth] = useState<number>(0);
 
-  const [selectedMonth, setSelectedMonth] = useState(
-    format(new Date(), 'MMMM')
-  );
+  const fullMonthName = format(new Date(), 'MMMM', { locale: pt });
+  const monthName = fullMonthName.charAt(0).toUpperCase() + fullMonthName.slice(1);
+
+  const [selectedMonth, setSelectedMonth] = useState(monthName);
 
   const [selectedYear, setSelectedYear] = useState<number>(
     new Date().getFullYear()
@@ -27,13 +30,17 @@ const Auditoria: React.FC<AuditoriaProps> = ({ meses }) => {
 
   const getMonthNumber = (monthName: string) => {
     const monthIndex = meses.indexOf(monthName);
-    return monthIndex + 1;
+    const numberMonth = monthIndex + 1;
+    
+    setIndexMonth(numberMonth);
+
+    return numberMonth;
   };
 
   useEffect(() => {
-    const indexMonth = getMonthNumber(selectedMonth);
-    setCurrentMonthIndex(indexMonth);
-    loadResumoAuditoriaEmpresas(indexMonth, selectedYear);
+    const mes = getMonthNumber(selectedMonth);
+    setCurrentMonthIndex(mes);
+    loadResumoAuditoriaEmpresas(mes, selectedYear);
   }, [selectedMonth, selectedYear]);
 
   async function loadResumoAuditoriaEmpresas(mes: number, ano: number) {
