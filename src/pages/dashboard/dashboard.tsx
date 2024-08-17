@@ -53,11 +53,11 @@ const Dashboard: React.FC<DashboardProps> = ({ meses }) => {
   const loadDashboardData = async (monthIndex: number) => {
     try {
       await Promise.all([
-        // getQtdAtendimentosMes(monthIndex, selectedYear),
-        // getQtdAtendimentosPagosMes(monthIndex, selectedYear),
-        // getEntradasMes(monthIndex, selectedYear),
-        // getQtdAtendimentosNaoPagosMes(monthIndex, selectedYear),
-        // getLucrosMes(monthIndex, selectedYear),
+        getQtdAtendimentosMes(monthIndex, selectedYear),
+        getQtdAtendimentosPagosMes(monthIndex, selectedYear),
+        getEntradasMes(monthIndex, selectedYear),
+        getQtdAtendimentosNaoPagosMes(monthIndex, selectedYear),
+        getLucrosMes(monthIndex, selectedYear),
         getReumosMes(monthIndex, selectedYear),
       ]);
     } catch (error) {
@@ -91,64 +91,64 @@ const Dashboard: React.FC<DashboardProps> = ({ meses }) => {
   };
 
 
-  // async function getQtdAtendimentosMes(mes: number, ano: number) {
-  //   try {
-  //     const response = await api.get(`api/Dashboard/dashboard-atendimentos-mes?mes=${mes}&ano=${ano}`);
-  //     const { mesAtual, valor, quantidade } = response.data;
+  async function getQtdAtendimentosMes(mes: number, ano: number) {
+    try {
+      const response = await api.get(`api/Dashboard/dashboard-atendimentos-mes?mes=${mes}&ano=${ano}`);
+      const { mesAtual, valor, quantidade } = response.data;
   
-  //     setAtendimentosNoMes(valor);
-  //     setQuantityAtendimentosMes(quantidade);
-  //   } catch (error) {
-  //     toast.error('Erro ao obter o total de itens.');
-  //   }
-  // };
+      setAtendimentosNoMes(valor);
+      setQuantityAtendimentosMes(quantidade);
+    } catch (error) {
+      toast.error('Erro ao obter o total de itens.');
+    }
+  };
 
-  // async function getLucrosMes(mes: number, ano: number) {
-  //   try {
-  //     const response = await api.get(`api/Dashboard/dashboard-lucros-mes?mes=${mes}&ano=${ano}`);
-  //     const { valorLucro } = response.data;
+  async function getLucrosMes(mes: number, ano: number) {
+    try {
+      const response = await api.get(`api/Dashboard/dashboard-lucros-mes?mes=${mes}&ano=${ano}`);
+      const { valorLucro } = response.data;
   
-  //     setValorLucro(valorLucro);
-  //   } catch (error) {
-  //     toast.error('Erro ao obter o total de itens.');
-  //   }
-  // };
+      setValorLucro(valorLucro);
+    } catch (error) {
+      toast.error('Erro ao obter o total de itens.');
+    }
+  };
 
-  // async function getQtdAtendimentosPagosMes(mes: number, ano: number) {
-  //   try {
-  //     const response = await api.get(`/api/Dashboard/dashboard-atendimentos-pagos-mes?mes=${mes}&ano=${ano}`);
-  //     const { mesAtual, valor, quantidade } = response.data;
+  async function getQtdAtendimentosPagosMes(mes: number, ano: number) {
+    try {
+      const response = await api.get(`/api/Dashboard/dashboard-atendimentos-pagos-mes?mes=${mes}&ano=${ano}`);
+      const { mesAtual, valor, quantidade } = response.data;
   
-  //     setAtendimentosPagos(valor);
-  //     setQuantityAtendimentosPagos(quantidade);
-  //   } catch (error) {
-  //     toast.error('Erro ao obter o total de itens.');
-  //   }
-  // };
+      setAtendimentosPagos(valor);
+      setQuantityAtendimentosPagos(quantidade);
+    } catch (error) {
+      toast.error('Erro ao obter o total de itens.');
+    }
+  };
 
-  // async function getEntradasMes(mes: number, ano: number){
-  //   try {
-  //     const response = await api.get(`/api/Dashboard/dashboard-atendimentos-entradas-mes?mes=${mes}&ano=${ano}`);
-  //     const { mesAtual, valor, quantidade } = response.data;
+  async function getEntradasMes(mes: number, ano: number){
+    try {
+      const response = await api.get(`/api/Dashboard/dashboard-atendimentos-entradas-mes?mes=${mes}&ano=${ano}`);
+      const { mesAtual, valor, quantidade } = response.data;
   
-  //     setEntradasMes(valor);
-  //     setQuantityAtendimentosEntradasMes(quantidade);
-  //   } catch (error) {
-  //     toast.error('Erro ao obter o total de itens.');
-  //   }
-  // };
+      setEntradasMes(valor);
+      setQuantityAtendimentosEntradasMes(quantidade);
+    } catch (error) {
+      toast.error('Erro ao obter o total de itens.');
+    }
+  };
 
-  // async function getQtdAtendimentosNaoPagosMes(mes: number, ano: number){
-  //   try {
-  //     const response = await api.get(`/api/Dashboard/dashboard-atendimentos-nao-pagos-mes?mes=${mes}&ano=${ano}`);
-  //     const { mesAtual, valor, quantidade } = response.data;
+  async function getQtdAtendimentosNaoPagosMes(mes: number, ano: number){
+    try {
+      const response = await api.get(`/api/Dashboard/dashboard-atendimentos-nao-pagos-mes?mes=${mes}&ano=${ano}`);
+      const { mesAtual, valor, quantidade } = response.data;
   
-  //     setFaltaPagar(valor);
-  //     setQuantityAtendimentosNaoPagos(quantidade);
-  //   } catch (error) {
-  //     toast.error('Erro ao obter o total de itens.');
-  //   }
-  // };
+      setFaltaPagar(valor);
+      setQuantityAtendimentosNaoPagos(quantidade);
+    } catch (error) {
+      toast.error('Erro ao obter o total de itens.');
+    }
+  };
 
   const handleDashboardSubmit = async (selectedMonth: string, monthIndex: number) => {
     setSelectedMonth(selectedMonth);

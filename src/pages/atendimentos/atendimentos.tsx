@@ -7,24 +7,32 @@ import {Slide, Flip, toast } from 'react-toastify';
 import BuscaEnfermeiro from "@/components/BuscaEnfermeiro";
 import BuscaPaciente from "@/components/BuscaPaciente";
 import ComboBoxClientes from "@/components/ComboBoxClientes ";
+import EditarAtendimento from './editar/[id]';
+import { NumericFormat } from 'react-number-format';
 
 interface AtendimentoProps {
     // Outras propriedades necessárias para o componente de Atendimento
   }
 
+interface HorariosPropos {
+    horarioId: string;
+    descricao: string;
+}  
+
 const Atendimentos: React.FC<AtendimentoProps> = () => {
     const [clienteId, setClienteId] = useState<string>('');
     const [pacienteId, setPacienteId] = useState('');
     const [enfermeiroId, setEnfermeiroId] = useState('');
-    const [dataInicial, setDataInicial] = useState<string>('');
-    const [dataFinal, setDataFinal] = useState<string>('');
-    const [statusAtendimento, setStatusAtendimento] = useState('');
+    const [dataAtendimento, setDataAtendimento] = useState<string>('');
     const [localAtendimento, setLocalAtendimento] = useState('');
     const [estadoAtendimento, setEstadoAtendimento] = useState('');
     const [assistencia, setAssistencia] = useState('');
     const [valorEmpresa, setValorEmpresa] = useState('');
     const [valorProfissional, setValorProfissional] = useState('');
-    const [diaPago, setDiaPago] = useState(false);
+    const [horarios, setHorarios] = useState<HorariosPropos[]>([]);
+    const [horario, setHorario] = useState('');
+    const [isValid, setIsValid] = useState(false);
+
     const router = useRouter();
 
     const isFormValid = () => {
@@ -32,16 +40,14 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
             pacienteId !== '' &&
             enfermeiroId !== '' &&
             clienteId !== '' &&
-            dataInicial !== '' &&
-            dataFinal !== '' &&
-            statusAtendimento !== '' &&
+            dataAtendimento !== '' &&
             localAtendimento !== '' &&
             estadoAtendimento !== '' &&
             assistencia !== '' &&
+            horario !== '' &&
             valorEmpresa !== '' &&
             valorProfissional !== ''
         );
-
     };
 
     useEffect(() => {
@@ -50,20 +56,29 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
         }
       }, [valorEmpresa, valorProfissional]);
 
-    const handleDataInicialChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setDataInicial(e.target.value);
-    };
-    
-    const handleDataFinalChange = (e: any) => {
-        const newDataFinal = e.target.value;
-        setDataFinal(newDataFinal);
-    };
-    
-    const handleDataFinalBlur = () => {
-        if (dataFinal < dataInicial) {
-            toast.warning('A Data Final deve ser maior ou igual à Data Inicial');
-            setDataFinal('');
-        }
+      useEffect(() => {
+        const fetchHorarios = async () => {
+            try {
+                const response = await api.get('/api/Horarios/todos-horarios');
+                setHorarios(response.data);
+            } catch (error) {
+                console.error("Erro ao carregar horários.", error);
+                toast.error("Erro ao carregar horários.", {
+                    transition: Slide,
+                    icon: false
+                });
+            }
+        };
+
+        fetchHorarios();
+    }, []);  
+
+    useEffect(() => {
+        setIsValid(isFormValid());
+    }, [pacienteId, enfermeiroId, clienteId, dataAtendimento, localAtendimento, estadoAtendimento, assistencia, horario, valorEmpresa, valorProfissional]);
+
+    const handleDataAtendimentoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setDataAtendimento(e.target.value);
     };
     
     const isValidDate = (dateString: string) => {
@@ -71,11 +86,6 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
         return regex.test(dateString);
     };
     
-
-    const handleCheckboxChange = () => {
-        setDiaPago(!diaPago);
-    };
-
     const handleSelectCliente = (selectedClienteId: string, nomeFantasia: string) => {
         setClienteId(selectedClienteId);
         console.log(selectedClienteId);
@@ -96,15 +106,13 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
             pacienteId, 
             enfermeiroId, 
             clienteId, 
-            dataInicial, 
-            dataFinal, 
-            statusAtendimento,
+            dataAtendimento,
             localAtendimento,
             estadoAtendimento,
             assistencia,
             valorEmpresa,
             valorProfissional,
-            diaPago
+            horario
         };
 
         if (parseFloat(valorProfissional) >= parseFloat(valorEmpresa)) {
@@ -113,11 +121,6 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
 
             setValorEmpresa('');
             setValorProfissional('');
-        };
-    
-        if (new Date(dataFinal) < new Date(dataInicial)) {
-            toast.warning('A data final não pode ser menor que a data inicial.');
-            return;
         };
 
         try {
@@ -141,6 +144,8 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
         router.push(`/atendimentos/listar-atendimentos`);
     };
 
+
+
     return (
         <Page titulo="Cadastro de Atendimentos">
             <form onSubmit={handleSubmit} className="container max-w-full">
@@ -151,46 +156,46 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
                     <div className="border-b border-gray-900/10 pb-12">
                         <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-12">
 
+                            <div className="sm:col-span-2">
+                                <label htmlFor="dataAtendimento" className="block text-sm font-medium leading-6 text-gray-900">
+                                    Data Atendimento
+                                </label>
+                                <div className="mt-2">
+                                    <input
+                                        type="date"
+                                        name="dataAtendimento"
+                                        id="dataAtendimento"
+                                        value={dataAtendimento}
+                                        onChange={handleDataAtendimentoChange}
+                                        autoComplete="data-atendimento"
+                                        className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="sm:col-span-2">
+                                <label htmlFor="horarioId" className="block text-sm font-medium leading-6 text-gray-900">Horário</label>
+                                <div className="mt-2">
+                                    <select
+                                        id="horarioId"
+                                        name="horarioId"
+                                        onChange={(e) => setHorario(e.target.value)}
+                                        className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                    >
+                                        {horarios.map((horario) => (
+                                            <option key={horario.horarioId} value={horario.descricao}>{horario.descricao}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+
                             <div className="sm:col-span-4">
                                 <label htmlFor="paciente" className="block text-sm font-medium leading-6 text-gray-900">Paciente</label>
                                 <div className="mt-2">
                                     <BuscaPaciente onPacienteSelecionado={handlePacienteSelecionado} />
                                 </div>
                             </div>
-
-                            <div className="sm:col-span-2">
-                                <label htmlFor="dataInicial" className="block text-sm font-medium leading-6 text-gray-900">
-                                    Data Inicial
-                                </label>
-                                <div className="mt-2">
-                                    <input
-                                        type="date"
-                                        name="dataInicial"
-                                        id="dataInicial"
-                                        value={dataInicial}
-                                        onChange={handleDataInicialChange}
-                                        autoComplete="data-inicial"
-                                        className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                    />
-                                </div>
-                            </div>
-                            <div className="sm:col-span-2">
-                                <label htmlFor="dataFinal" className="block text-sm font-medium leading-6 text-gray-900">
-                                    Data Final
-                                </label>
-                                <div className="mt-2">
-                                    <input
-                                        type="date"
-                                        name="dataFinal"
-                                        id="dataFinal"
-                                        value={dataFinal}
-                                        onChange={handleDataFinalChange}
-                                        onBlur={handleDataFinalBlur}
-                                        autoComplete="data-final"
-                                        className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                    />
-                                </div>
-                            </div>
+                           
                             <div className="sm:col-span-3">
                                 <label htmlFor="local" className="block text-sm font-medium leading-6 text-gray-900">Local de Atendimento</label>
                                     <div className="mt-2">
@@ -246,8 +251,15 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
                                 </div>
                             </div>
 
+                            <div className="col-span-4">
+                                <label htmlFor="profissional" className="block text-sm font-medium leading-6 text-gray-900">Profissional</label>
+                                <div className="mt-2">
+                                    <BuscaEnfermeiro onEnfermeiroSelecionado={handleEnfermeiroSelecionado} />
+                                </div>
+                            </div> 
+
                             <div className="sm:col-span-2">
-                                <label htmlFor="valorEmpresa" className="block text-sm font-medium leading-6 text-gray-900">Tipo Atendimento</label>
+                                <label htmlFor="valorEmpresa" className="block text-sm font-medium leading-6 text-gray-900">Assistência</label>
                                 <div className="mt-2">
                                     <select
                                     id="assistencia"
@@ -257,36 +269,17 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
                                     className="block w-full rounded-md border-0 py-2 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
                                     >
                                         <option>Selecione um tipo</option>
-                                        <option value="PLANTAO 6 Hrs">PLANTÃO 6 Hrs</option>
-                                        <option value="PLANTAO 12 Hrs">PLANTÃO 12 Hrs</option>
-                                        <option value="PLANTAO 8 Hrs">PLANTÃO 8 Hrs</option>
-                                        <option value="AVALIACAO">AVALIAÇÃO</option>
                                         <option value="ADAPTACAO">ADAPTAÇÃO</option>
+                                        <option value="AVALIACAO">AVALIAÇÃO</option>
+                                        <option value="PLANTAO 6 Hrs">PLANTÃO 6 Hrs</option>
+                                        <option value="PLANTAO 8 Hrs">PLANTÃO 8 Hrs</option>
+                                        <option value="PLANTAO 12 Hrs">PLANTÃO 12 Hrs</option>
                                         <option value="PONTUAL TEC">PONTUAL TEC</option>
                                         <option value="PONTUAL ENF">PONTUAL ENF</option>
                                         <option value="SUPERVISAO">SUPERVISÃO</option>
                                         <option value="NUTRICIONISTA">NUTRICIONISTA</option>
                                         <option value="MEDICO">MÉDICO</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div className="sm:col-span-2">
-                                <label htmlFor="uf-local" className="block text-sm font-medium leading-6 text-gray-900">Status</label>
-                                <div className="mt-2">
-                                    <select
-                                    id="statusAtendimento"
-                                    name="statusAtendimento"
-                                    autoComplete="statusAtendimento"
-                                    value={statusAtendimento}
-                                    onChange={(e) => setStatusAtendimento(e.target.value)}
-                                    className="block w-full rounded-md border-0 py-2 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                                    >
-                                        <option>Selecione o Status</option>
-                                        <option value="AGUARDANDO">AGUARDANDO</option>
-                                        <option value="INICIADO">INICIADO</option>
-                                        <option value="PAUSADO">PAUSADO</option>
-                                        <option value="FINALIZADO">FINALIZADO</option>
+                                        <option value="MEDICO">COBRANÇA RETROATIVA</option>
                                     </select>
                                 </div>
                             </div>
@@ -298,62 +291,49 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
                                 </div>
                             </div>
 
-                            <div className="sm:col-span-1">
+                            <div className="sm:col-span-2">
                                 <label htmlFor="valorEmpresa" className="block text-sm font-medium leading-6 text-gray-900">Valor Empresa</label>
                                 <div className="mt-2">
-                                <input
-                                    type="text"
-                                    name="valorEmpresa"
-                                    id="valorEmpresa"
+                                <NumericFormat
+                                    thousandSeparator={true}
+                                    decimalScale={2}
+                                    fixedDecimalScale={true}
+                                    prefix={'R$ '}
                                     value={valorEmpresa}
-                                    onChange={(e) => setValorEmpresa(e.target.value)}
-                                    autoComplete="valorEmpresa"
+                                    onValueChange={(values) => {
+                                    const { formattedValue, value } = values;
+                                    setValorEmpresa(value);
+                                    }}
                                     className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                 />
                                 </div>
                             </div>
-                            
-                            <div className="col-span-4">
-                                <label htmlFor="profissional" className="block text-sm font-medium leading-6 text-gray-900">Profissional</label>
+
+                            <div className="sm:col-span-2">
+                                <label htmlFor="valorProfissional" className="block text-sm font-medium leading-6 text-gray-900">Valor Profissional</label>
                                 <div className="mt-2">
-                                    <BuscaEnfermeiro onEnfermeiroSelecionado={handleEnfermeiroSelecionado} />
-                                </div>
-                            </div>                            
-                            
-                            <div className="sm:col-span-1">
-                                <label htmlFor="valorProfissional" className="block text-sm font-medium leading-6 text-gray-900">Valor</label>
-                                <div className="mt-2">
-                                <input
-                                    type="text"
-                                    name="valorProfissional"
-                                    id="valorProfissional"
-                                    value={valorProfissional}
-                                    onChange={(e) => setValorProfissional(e.target.value)}
-                                    autoComplete="valorProfissional"
-                                    className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                />
-                                </div>
-                            </div>
-                            {/* <div className="sm:col-span-1 text-center">
-                                <label htmlFor="pago" className="block text-sm font-medium leading-6 text-gray-900">Pago?</label>
-                                <div className="mt-2">
-                                    <input
-                                    type="checkbox"
-                                    checked={diaPago}
-                                    onChange={handleCheckboxChange}
-                                    name="diaPago"
-                                    id="diaPago"
-                                    className="h-4 w-4 rounded border-gray-300 text-teal-600 focus:text-teal-600 justify-center"
+                                    <NumericFormat
+                                        thousandSeparator={true}
+                                        decimalScale={2}
+                                        fixedDecimalScale={true}
+                                        prefix={'R$ '}
+                                        value={valorProfissional}
+                                        onValueChange={(values) => {
+                                            const { formattedValue, value } = values;
+                                            setValorProfissional(value);
+                                        }}
+                                        className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                     />
                                 </div>
-                            </div> */}
+                            </div>               
+                        
                         </div>
                     </div> 
                     {/* <Botoes onCancel={handleCancel} onSubmit={handleSubmit} />    */}
 
                     <div className="mt-6 flex items-center justify-end gap-x-2">
                         <button type="button" onClick={handleCancel} className="text-sm py-2 px-4 font-semibold leading-6 bg-transparent hover:bg-red-700 text-red-700 hover:text-white border border-red-700 hover:border-transparent rounded-md">Cancelar</button>
-                        <button type="submit" className="text-sm py-3 px-8 font-semibold leading-6 text-white bg-teal-600 border rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 sm:ml-3 sm:w-auto sm:text-sm">Salvar</button>
+                        <button type="submit" className="text-sm py-3 px-8 font-semibold leading-6 text-white bg-teal-600 border rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 sm:ml-3 sm:w-auto sm:text-sm" disabled={!isValid}>Salvar</button>
                     </div> 
                 </div>
             </form>     

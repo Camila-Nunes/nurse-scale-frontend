@@ -1,15 +1,13 @@
 import Page from "@/components/Page";
 import { useEffect, useState } from "react";
-import { format, startOfMonth, endOfMonth } from 'date-fns';
+import { format } from 'date-fns';
 import api from '../../api';
 import Link from "next/link";
 import { FaTrashAlt, FaSpinner } from "react-icons/fa";
 import { BiEdit } from "react-icons/bi";
-import { TbFilter, TbFilterX } from "react-icons/tb";
-import {Slide, Flip, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import BuscaEnfermeiroFiltro from "@/components/BuscaEnfermeiroFiltro";
 import ComboBoxClientes from "@/components/ComboBoxClientes ";
-import MonthFilter from "@/components/MonthFilter";
 import Pagination from "@/components/Pagination";
 import BuscaPacienteFiltro from "@/components/BuscaPacienteFiltro";
 import FiltroMes from "@/components/FiltroMes";
@@ -17,6 +15,7 @@ import AnoSelect from "@/components/AnoSelect";
 import { GetStaticProps } from 'next';
 import { pt } from 'date-fns/locale';
 import { CgSpinnerTwo } from "react-icons/cg";
+import FiltroDia from "@/components/FiltroDia";
 interface ListarAtendimentosProps {
   meses: string[];
 }
@@ -28,7 +27,6 @@ interface FiltrosState {
   Paciente: string;
   Enfermeiro: string;
   StatusAtendimento: string;
-  DiaPago: string;
 }
 
 const initialState: FiltrosState = {
@@ -37,8 +35,7 @@ const initialState: FiltrosState = {
   Empresa: '',
   Paciente: '',
   Enfermeiro: '',
-  StatusAtendimento: '',
-  DiaPago: '',
+  StatusAtendimento: ''
 };
 
 interface PaginationParameters {
@@ -52,9 +49,21 @@ interface AtendimentoRequest {
   ano: number;
 }
 
+interface Atendimento {
+  atendimentoId: string;
+  isChecked: boolean;
+  Data: string,
+  Atendimento: number,
+  Empresa: string,
+  Paciente: string,
+  Enfermeiro: string,
+  StatusAtendimento: string,
+  DiaPago: string
+}
+
 const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
   const [clienteId, setClienteId] = useState<string>('');
-  const [atendimentos, setAtendimentos]=useState([]);
+  const [atendimentos, setAtendimentos] = useState<Atendimento[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPaginas, setTotalPaginas] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
@@ -73,6 +82,7 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
   const [StatusAtendimento, setStatusAtendimento] = useState<string>('');
   const [DiaPago, setDiaPago] = useState<string>('');
   const [indexMonth, setIndexMonth] = useState<number>(0);
+  const [selectedDay, setSelectedDay] = useState<number>(1);
 
   const [isLoading, setIsLoading] = useState(true);
 
@@ -98,9 +108,9 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     return numberMonth;
   };
 
-  async function getAtendimentos(page: number, pageSize: number, mes: number, ano: number) {
+  async function getAtendimentos(page: number, pageSize: number, mes: number, ano: number, dia: number) {
     try {
-      let queryString = `?page=${page}&pageSize=${pageSize}&mes=${mes}&ano=${ano}`;
+      let queryString = `?page=${page}&pageSize=${pageSize}&mes=${mes}&ano=${ano}&dia=${dia}`;
       
       // Verifica se há algum filtro preenchido
       const filtrosPreenchidos = Object.values(filtros).some(value => !!value);
@@ -124,10 +134,10 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
       try {
         const mes = getMonthNumber(selectedMonth);
         const endpoint = hasFiltros(filtros) ? 'filtro' : 'todos-atendimentos';
-        const data = await handleNextPrevPageChange(currentPage, endpoint, mes, selectedYear);
-        setAtendimentos(data.results); // Atualizar o estado com os resultados
-        setTotalItems(data.totalCount); // Atualizar o estado com o número total de itens
-        setTotalPaginas(data.totalPages); // Atualizar o estado com o número total de páginas
+        const data = await handleNextPrevPageChange(currentPage, endpoint, mes, selectedYear, selectedDay);
+          setAtendimentos(data.results); // Atualizar o estado com os resultados
+          setTotalItems(data.totalCount); // Atualizar o estado com o número total de itens
+          setTotalPaginas(data.totalPages); // Atualizar o estado com o número total de páginas
       } catch (error) {
         // Trate os erros aqui, se necessário
       } finally {
@@ -136,7 +146,7 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     };
   
     fetchData();
-  }, [selectedMonth, selectedYear, currentPage, itensPorPagina, filtros]);
+  }, [selectedMonth, selectedYear, selectedDay, currentPage, itensPorPagina, filtros]);
   
   const handlePageChange = (pagina: number) => {
     setCurrentPage(pagina);
@@ -150,7 +160,7 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
 
       const response = await api.delete(`/api/Atendimentos/${idAtendimentos}`)
       toast.success("Registro deletado com sucesso.");
-      getAtendimentos(currentPage, 10, currentMonthIndex, currentYear);
+      getAtendimentos(currentPage, 10, currentMonthIndex, currentYear, selectedDay);
     } catch (error) {
       toast.error("Erro ao deletar registro.");
     }
@@ -167,25 +177,21 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     page: number,
     endpoint: string,
     mes?: number,
-    ano?: number
+    ano?: number,
+    dia?: number
   ) => {
     try {
-      let queryString = `?page=${page}&pageSize=${itensPorPagina}&mes=${mes}&ano=${ano}`;
-      // Verifica se há filtros preenchidos
+      let queryString = `?page=${page}&pageSize=${itensPorPagina}&mes=${mes}&ano=${ano}&dia=${dia}`;
       const filtrosPreenchidos = filtros && Object.values(filtros).some(value => !!value);
   
-      // Se houver filtros preenchidos, constrói a queryString
       if (filtrosPreenchidos) {
         queryString += '&' + Object.entries(filtros).map(([key, value]) => `${key}=${value}`).join('&');
       }
   
-      // Constrói a URL completa com endpoint e queryString
       const url = `/api/Atendimentos/${endpoint}` + queryString;
-  
-      // Faz a requisição para a API
       const response = await api.get(url);
       const { data } = response;
-      return data; // Retornar todos os dados relevantes
+      return data;
     } catch (error) {
       toast.error('Erro ao chamar a API.');
       return { results: [], totalCount: 0, totalPages: 0 }; // Tratar o erro corretamente
@@ -196,13 +202,16 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     return Object.values(filtros).some(value => !!value);
   };
 
+  const handleDayChange = (day: number) => {
+    setSelectedDay(day);
+  };
 
   const handleNextPage = async () => {
     const nextPage = currentPage + 1;
     const mes = getMonthNumber(selectedMonth);
     setCurrentPage(nextPage);
     const endpoint = hasFiltros(filtros) ? 'filtro' : 'todos-atendimentos';
-    const data = await handleNextPrevPageChange(nextPage, endpoint, mes, selectedYear);
+    const data = await handleNextPrevPageChange(nextPage, endpoint, mes, selectedYear, selectedDay);
     setAtendimentos(data.results);
     setTotalItems(data.totalCount);
     setTotalPaginas(data.totalPages);
@@ -213,7 +222,7 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     const mes = getMonthNumber(selectedMonth);
     setCurrentPage(prevPage);
     const endpoint = hasFiltros(filtros) ? 'filtro' : 'todos-atendimentos';
-    const data = await handleNextPrevPageChange(prevPage, endpoint, mes, selectedYear);
+    const data = await handleNextPrevPageChange(prevPage, endpoint, mes, selectedYear, selectedDay);
     setAtendimentos(data.results);
     setTotalItems(data.totalCount);
     setTotalPaginas(data.totalPages);
@@ -266,20 +275,20 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     }
   };
   
-  
   const handleFilterSubmit = async (
     e: React.MouseEvent<HTMLButtonElement> | null,
     page: number,
     pageSize: number,
     mes: number,
-    ano: number
+    ano: number,
+    dia: number
 ) => {
     if (e) {
         e.preventDefault();
     }
 
     try {
-      let queryString = `?page=${page}&pageSize=${itensPorPagina}&mes=${mes}&ano=${ano}`;
+      let queryString = `?page=${page}&pageSize=${itensPorPagina}&mes=${mes}&ano=${ano}&dia=${dia}`;
 
       // Verifica se há filtros preenchidos
       const filtrosPreenchidos = Object.values(filtros).some(value => !!value);
@@ -290,7 +299,7 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
       }
 
       // Faz a requisição para a API
-      const response = await api.get(`/api/Atendimentos/filtro${queryString}&page=${page}&pageSize=${pageSize}&mes=${mes}&ano=${ano}`);
+      const response = await api.get(`/api/Atendimentos/filtro${queryString}&page=${page}&pageSize=${pageSize}&mes=${mes}&ano=${ano}&dia=${dia}`);
       const { results, totalCount, totalPages } = response.data;
 
       // Atualiza os estados com os dados recebidos
@@ -305,7 +314,8 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
 
   const resetarFiltros = async (e: React.MouseEvent<HTMLButtonElement>| null,
     mes: number,
-    ano: number
+    ano: number,
+    dia: number
     
     ) => {
 
@@ -319,23 +329,21 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     setPaciente('');
     setEnfermeiro('');
     setStatusAtendimento('');
-    setDiaPago('');
-
+    
     const novosFiltros = {
         Data: '',
         Atendimento: 0,
         Empresa: '',
         Paciente: '',
         Enfermeiro: '',
-        StatusAtendimento: '',
-        DiaPago: ''
+        StatusAtendimento: ''
     };
 
     setFiltros(novosFiltros);
     setCurrentPage(1);
 
     try {
-      let queryString = `?page=1&pageSize=10&mes=${mes}&ano=${ano}`;
+      let queryString = `?page=1&pageSize=10&mes=${mes}&ano=${ano}&dia=${dia}`;
 
       // Verifica se há filtros preenchidos
       const filtrosPreenchidos = Object.values(novosFiltros).some(value => !!value);
@@ -363,9 +371,19 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
   const handleAtendimentosSubmit = async (selectedMonth: string, monthIndex: number) => {
     setSelectedMonth(selectedMonth);
     const mes = getMonthNumber(selectedMonth);
-    getAtendimentos(currentPage, 10, mes, selectedYear);
+    getAtendimentos(currentPage, 10, mes, selectedYear, selectedDay);
   };
 
+  const handleCheckboxChange = (id: string) => {
+    setAtendimentos(prevAtendimentos =>
+      prevAtendimentos.map(atendimento =>
+        atendimento.atendimentoId === id
+          ? { ...atendimento, isChecked: !atendimento.isChecked }
+          : atendimento
+      )
+    );
+  };
+  
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -381,8 +399,18 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
           <button type="button" className="rounded-md bg-teal-600 px-3 py-2 text-sm font-semibold leading-6 text-white">Novo Atendimento</button>     
         </Link>
         <div className="mt-2 mx-auto pt-4 shadow rounded-md bg-slate-50">
-          <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-12">  
+          <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-12"> 
+            <div className="sm:col-span-1">
+              <label htmlFor="dataAtendimento" className="block text-sm font-medium leading-6 text-gray-900">
+                Dia Atendimento
+              </label>
+              <div className="mt-2">
+                <FiltroDia onChange={handleDayChange} />
+              </div>
+            </div> 
+
             <FiltroMes meses={meses} onChange={handleAtendimentosSubmit} />      
+
             <div>
               <label htmlFor="" className="mb-2 block text-sm font-medium leading-6 text-gray-900">Ano</label>
               <AnoSelect onSelectYear={handleSelectYear} />
@@ -393,7 +421,7 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
                 <ComboBoxClientes onSelectCliente={handleSelectCliente} />
               </div>
             </div>
-            <div className="sm:col-span-2">
+            <div className="sm:col-span-3">
               <label htmlFor="paciente" className="block text-sm font-medium leading-6 text-gray-900">Paciente</label>
               <div className="mt-2">
                 <BuscaPacienteFiltro 
@@ -402,100 +430,47 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
                 />
               </div>  
             </div>
-            <div className="sm:col-span-2">
+            <div className="sm:col-span-3">
               <label htmlFor="paciente" className="block text-sm font-medium leading-6 text-gray-900">Enfermeiro</label>
               <div className="mt-2">
                 <BuscaEnfermeiroFiltro onEnfermeiroSelecionado={handleEnfermeiroSelecionado} />
               </div>
             </div>
-            <div className="sm:col-span-2">
-              <label htmlFor="StatusAtendimento" className="block text-sm font-medium leading-6 text-gray-900">Status</label>
-              <div className="mt-2">
-                <select
-                  id="StatusAtendimento"
-                  name="StatusAtendimento"
-                  value={filtros.StatusAtendimento}
-                  onChange={handleFilterChange}
-                  autoComplete="StatusAtendimento"
-                  className="block w-full rounded-md border-0 py-2 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                >
-                  <option value="">Selecione um Status</option>
-                  <option value="AGUARDANDO">AGUARDANDO</option>
-                  <option value="INICIADO">INICIADO</option>
-                  <option value="PAUSADO">PAUSADO</option>
-                  <option value="FINALIZADO">FINALIZADO</option>
-                </select>
-              </div>
-            </div>
-            <div className="sm:col-span-1">
-              <label htmlFor="DiaPago" className="block text-sm font-medium leading-6 text-gray-900">Pago?</label>
-              <div className="mt-2">
-                <select
-                    id="DiaPago"
-                    name="DiaPago"
-                    value={filtros.DiaPago}
-                    onChange={handleFilterChange}
-                    autoComplete="DiaPago"
-                    className="block w-full rounded-md border-0 py-2 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                  >
-                    <option value="">Pago?</option>
-                    <option value={0}>NÃO</option>
-                    <option value={1}>SIM</option>
-                </select>
-              </div>
-            </div>
             <div className="mt-6 sm:col-span-1 text-center">
               {/* <button className="flex items-center justify-between bg-gray-700 hover:bg-gray-500 hover:text-white text-white text-lg font-semibold py-1 px-6 rounded" onClick={(e) => handleFilterSubmit(e, currentPage, itensPorPagina, indexMonth, selectedYear)}><TbFilter/></button>   */}
-              <button className="flex gap-2 items-center justify-between bg-gray-700 hover:bg-gray-500 hover:text-white text-white text-base font-semibold py-3 px-6 rounded" onClick={(e) => resetarFiltros(e, indexMonth, selectedYear)}>Limpar Filtros</button> 
+              <button className="flex gap-2 items-center justify-between bg-gray-700 hover:bg-gray-500 hover:text-white text-white text-base font-semibold mt-1.5 py-2 px-6 rounded" onClick={(e) => resetarFiltros(e, indexMonth, selectedYear, selectedDay)}>Limpar Filtros</button> 
             </div>
           </div>
           <div className="mt-6 overflow-auto rounded-lg shadow hidden md:block">
           <table className="w-full border border-collapse">
             <thead className="text-left text-white border-b-2 border-gray-200 bg-teal-600 border-r">
               <tr>
-                <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Empresa</th>
                 <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Atendimento</th>
+                <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Horario</th>
+                <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Empresa</th>
                 <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Paciente</th>
                 <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Enfermeiro</th>
                 <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Data</th>
-                <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Status</th>
-                <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Local</th>
                 <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Assistência</th>
-                <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right border-r">Vr. Empresa</th>
-                <th className="p-3 text-sm font-semibold tracking-wide ext-left text-right border-r">Vr. Profissional</th>
-                <th className="p-3 text-sm font-semibold tracking-wide ext-left text-center border-r">Pago?</th>
+                <th className="p-3 text-sm font-semibold tracking-wide ext-left border-r">Local</th>
                 <th></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {atendimentos && atendimentos.map((atendimento: any) => (
                 <tr key={atendimento.atendimentoId} className="border-b border-gray-200">
-                  <td className="text-left w-48 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.nomeFantasia}</td>
                   <td className="text-left w-48 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.numeroAtendimento}</td>
+                  <td className="text-left w-48 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.horario}</td>
+                  <td className="text-left w-48 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.nomeFantasia}</td>
                   <td className="text-left w-48 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.paciente}</td>
                   <td className="text-left w-48 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.enfermeiro}</td>
-                  <td className="text-left w-36 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.dataInicial}</td>
-                  <td className="text-center w-36 p-3 text-sm whitespace-nowrap border-r border-b">
-                    <span className={`inline-block px-4 py-1 font-semibold rounded ${atendimento.statusAtendimento === 'AGUARDANDO' ? 'bg-gray-300' : 
-                                                                                    atendimento.statusAtendimento === 'INICIADO' ? 'bg-blue-200' : 
-                                                                                    atendimento.statusAtendimento === 'PAUSADO' ? 'bg-red-200' : 
-                                                                                    atendimento.statusAtendimento === 'FINALIZADO' ? 'bg-green-400' : 'bg-gray-300'}`}>
-                      {atendimento.statusAtendimento}
-                    </span>
-                  </td>
-                  <td className="text-left w-72 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.localAtendimento}  - {atendimento.estadoAtendimento}</td>
+                  <td className="text-left w-36 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.dataAtendimento}</td>
                   <td className="text-left w-72 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.assistencia}</td>
-                  <td className="text-right w-40 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">
-                    R$ {isNaN(parseFloat(atendimento.valorEmpresa)) ? 'Valor inválido' : parseFloat(atendimento.valorEmpresa).toFixed(2)}
-                  </td>
-                  <td className="text-right w-40 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">
-                    R$ {isNaN(parseFloat(atendimento.valorProfissional)) ? 'Valor inválido' : parseFloat(atendimento.valorProfissional).toFixed(2)}
-                  </td>
-                  <td className="text-center w-28 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.diaPago}</td>
+                  <td className="text-left w-72 p-3 text-sm text-gray-700 whitespace-nowrap border-r border-b border-gray-200">{atendimento.localAtendimento}  - {atendimento.estadoAtendimento}</td>
                   <td className="text-center w-36 pb-3 pr-3 border-r border-b border-gray-200">
-                    {/* <Link href={`/atendimentos/editar/${atendimento.atendimentoId}`}>
+                    <Link href={`/atendimentos/editar/${atendimento.atendimentoId}`}>
                       <button className="bg-white hover:bg-gray-700 hover:text-white text-gray-600 text-lg font-semibold py-2 px-4 rounded"><BiEdit /></button> { }
-                    </Link> { } */}
+                    </Link> { }
                     <button className="bg-white hover:bg-gray-700 hover:text-white text-gray-600 text-lg font-semibold py-2 px-4 rounded" onClick={(event) => handleDeleteClick(event, atendimento.atendimentoId)}><FaTrashAlt /></button>
                   </td>
                 </tr>

@@ -1,9 +1,7 @@
 import { Zoom, Flip, Bounce, Slide, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import '../app/globals.css'
-
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
 
 export default function App(props: any) {
     const { Component, pageProps } = props
@@ -13,16 +11,16 @@ export default function App(props: any) {
         <>
             <Component {...pageProps} />
             <ToastContainer position="top-right"
-                autoClose={2500}
+                autoClose={3000}
                 limit={1}
-                hideProgressBar={false}
+                hideProgressBar={true}
                 newestOnTop={false}
                 closeOnClick
                 rtl={false}
                 pauseOnFocusLoss
-                draggable
+                draggable={false}
                 pauseOnHover
-                theme="dark"
+                theme="colored"
             />
         </>
     )

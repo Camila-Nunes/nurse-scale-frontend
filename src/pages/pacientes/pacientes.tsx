@@ -31,9 +31,6 @@ export default function Pacientes() {
         return (
             nome.trim() !== '' &&
             dataNascimento.trim() !== '' &&
-            cpf.trim() !== '' &&
-            rg.trim() !== '' &&
-            email.trim() !== '' &&
             telefone.trim() !== '' &&
             cep.trim() !== '' &&
             endereco.trim() !== '' &&
@@ -122,7 +119,7 @@ export default function Pacientes() {
                 <div className="container mx-auto">
                     <div className="border-b border-gray-900/10 pb-12">
                         <div className="mt-5 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-12">
-                            <div className="sm:col-span-6">
+                            <div className="sm:col-span-3">
                                 <label htmlFor="nome" className="block text-sm font-medium leading-6 text-gray-900">Nome</label>
                                 <div className="mt-2">
                                     <input
@@ -150,35 +147,8 @@ export default function Pacientes() {
                                     />
                                 </div>
                             </div>
-                            <div className="sm:col-span-2">
-                                <label htmlFor="cpf" className="block text-sm font-medium leading-6 text-gray-900">CPF</label>
-                                <div className="mt-2">
-                                <InputMask mask="999.999.999-99" 
-                                        type="text"
-                                        name="cpf"
-                                        id="cpf"
-                                        value={cpf}
-                                        onChange={(e) => setCPF(e.target.value)}
-                                        autoComplete="cpf"
-                                        className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                    />
-                                </div>
-                            </div>
-                            <div className="sm:col-span-2">
-                                <label htmlFor="rg" className="block text-sm font-medium leading-6 text-gray-900">RG</label>
-                                    <div className="mt-2">
-                                        <InputMask mask="99.999.999-9" 
-                                            type="text"
-                                            name="rg"
-                                            id="rg"
-                                            value={rg}
-                                            onChange={(e) => setRG(e.target.value)}
-                                            autoComplete="rg"
-                                            className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" 
-                                        />    
-                                </div>
-                            </div>
-                            <div className="col-span-7">
+                            
+                            <div className="col-span-3">
                                 <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">Email</label>
                                 <div className="mt-2">
                                     <input
@@ -192,7 +162,7 @@ export default function Pacientes() {
                                     />
                                 </div>
                             </div>
-                            <div className="col-span-3">
+                            <div className="col-span-2">
                                 <label htmlFor="telefone" className="block text-sm font-medium leading-6 text-gray-900">Telefone(Whatsapp)</label>
                                 <div className="mt-2">
                                     <InputMask mask="(99) 9 9999-9999" 

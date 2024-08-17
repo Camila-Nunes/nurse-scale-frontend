@@ -1,17 +1,23 @@
 import Page from "@/components/Page";
 import { useEffect, useState, useRef } from "react";
 import InputMask from "react-input-mask";
+import api from "@/api";
+import { Zoom, Flip, Bounce, Slide, toast } from "react-toastify";
+import classNames from 'classnames';
+
+interface Aliquota {
+    aliquotaId: number;
+    valorAliquota: number;
+}
 
 export default function Orcamentos() {
 
     const valorEmpresaRef = useRef<HTMLInputElement>(null);
-    const [valorEmpresa, setValorEmpresa] = useState('0');
-    const [valorImposto, setValorImposto] = useState('0');
+    const [valorImpostoProfissional, setValorImpostoProfissional] = useState<number>(0);
     const [valorDescontadoImposto, setValorDescontadoImposto] = useState('0');
-    const [valorProfissional, setValorProfissional] = useState('0');
-    const [valorLucro, setValorLucro] = useState('0');
-    const [porcentagemLucro, setPorcentagemLucro] = useState('0');
-    const [diasAtendimento, setDiasAtendimento] = useState('0');
+    const [valorProfissional, setValorProfissional] = useState<string>('0.00');
+    const [porcentagemLucroProfissional, setPorcentagemLucroProfissional] = useState<number>(0);
+    const [porcentagemLucroEmpresa, setPorcentagemLucroEmpresa] = useState<string>('');
     const [totalEmpresa, setTotalEmpresa] = useState('0');
     const [totalImposto, setTotalImposto] = useState('0');
     const [totalDesconto, setTotalDesconto] = useState('0');
@@ -19,52 +25,124 @@ export default function Orcamentos() {
     const [totalProfissional, setTotalProfissional] = useState('0');
     const [totalPercentualLucro, setTotalPercentualLucro] = useState('0');
     const [focusedFieldId, setFocusedFieldId] = useState<string | null>(null);
+    const [aliquotas, setAliquotas] = useState<Aliquota[]>([]);
+    const [valorAliquota, setValorAliquota] = useState<number>(0);
+    const [valorSemImposto, setSemImposto] = useState<number>(0);
+    const [valorLucro, setValorLucro] = useState('0');
+    const [diasAtendimento, setDiasAtendimento] = useState<number>(0);
+    const [valorEmpresa, setValorEmpresa]  = useState<string>('0.00');
+    const [valorSemImpostoEmpresa, setSemImpostoEmpresa] = useState<number>(0);
+    const [valorImpostoEmpresa, setValorImpostoEmpresa] = useState<number>(0);
+    const [isNegative, setIsNegative] = useState<boolean>(false);
+    const [valorReal, setValorReal] = useState<number>(0);
 
-    const calcularImposto = (valor: number) => {
-        const valorEmpresaFloat = valor; // Substitua vírgula por ponto e converta para número de ponto flutuante
-        const imposto = valorEmpresaFloat * 0.1142;
-        return imposto.toFixed(2); // Limitando para duas casas decimais
-    };
+    useEffect(() => {
+        loadValorAliquota();
+    });
 
-    const calcularLucro = () => {
-        const valorProfissionalFloat = parseFloat(valorProfissional); // Substitua vírgula por ponto e converta para número de ponto flutuante
-        const valorDescontadoImpostoFloat = parseFloat(valorDescontadoImposto); // Substitua vírgula por ponto e converta para número de ponto flutuante
-        const lucro = valorDescontadoImpostoFloat - valorProfissionalFloat;
-        return lucro.toFixed(2); // Limitando para duas casas decimais
-    };
-
-    const calcularValorDescontadoImposto = (valor: number) => {
-        const valorEmpresaFloat = valor; // Substitua vírgula por ponto e converta para número de ponto flutuante
-        const impostoFloat = parseFloat(valorImposto); // Substitua vírgula por ponto e converta para número de ponto flutuante
-        const valorDescontado = valorEmpresaFloat - impostoFloat;
-        return valorDescontado.toFixed(2); // Limitando para duas casas decimais
-    };
-
-    const handleValorEmpresaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        let inputValue = e.target.value;
-
-        inputValue = inputValue.replace(/[^\d]/g, '');
-
-        if (!inputValue) {
-            setValorEmpresa('');
-            return;
+    async function loadValorAliquota() {
+        try {
+          const response = await api.get(
+            `/api/TabelaDinamica/buscar-aliquota`
+          );
+          setAliquotas(response.data);
+        } catch (error) {
+          toast.error("Erro ao carregar dados. " + error);
+        } finally {
+            //setIsLoadingAtendimentos(false);
         }
-        const valueAsNumber = parseInt(inputValue) / 100;
-
-        setValorEmpresa(valueAsNumber.toFixed(2));
-        const impostoCalculado = calcularImposto(valueAsNumber);
-        setValorImposto(impostoCalculado);
-        const valorDescontadoImpostoCalculado = calcularValorDescontadoImposto(valueAsNumber);
-        setValorDescontadoImposto(valorDescontadoImpostoCalculado);
-        setFocusedFieldId(e.target.id);
+    }
+    
+    const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedValue = parseFloat(e.target.value); // Converter string para número
+    if (!isNaN(selectedValue)) {
+        setValorAliquota(selectedValue);
+    } else {
+        console.error("Invalid number format", e.target.value);
+    }
     };
 
-    const handleValorProfissionalChange = (e: any) => {
-        setValorProfissional(e.target.value);
-        const lucroCalculado = calcularLucro();
-        setValorLucro(lucroCalculado);
-        const porcentagemLucroCalculada = calcularPorcentagemLucro();
-        setPorcentagemLucro(porcentagemLucroCalculada);
+    const handleValorProfissionalChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const value = event.target.value.replace(/[^\d]/g, '');
+        if (value) {
+            const numberValue = parseFloat(value) / 100;
+            setValorProfissional(numberValue.toFixed(2));
+        } else {
+            setValorProfissional('0.00');
+        }
+    };
+
+    const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        if (event.key === 'Enter') {
+            if (!valorAliquota) {
+                toast.warning('A alíquota precisa ser preenchida.', {
+                    transition: Slide,
+                    icon: true,
+                });
+    
+                return;
+            }
+            const imposto = (parseFloat(valorProfissional) * valorAliquota) / 100;
+            const valorComImpostoDescontado = parseFloat(valorProfissional) - imposto;
+            const porcentagemLucroProfissional = (valorComImpostoDescontado * 100) / parseFloat(valorProfissional);
+            setValorImpostoProfissional(imposto);
+            setSemImposto(valorComImpostoDescontado);
+            setPorcentagemLucroProfissional(porcentagemLucroProfissional);
+        }
+    };
+
+    const handleValorEmpresaChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const value = event.target.value.replace(/[^\d]/g, '');
+        if (value) {
+            const numberValue = parseFloat(value) / 100;
+            setValorEmpresa(numberValue.toFixed(2));
+        } else {
+            setValorEmpresa('0.00');
+        }
+    };
+
+    const handleKeyPressEmpresa = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        if (event.key === 'Enter') {
+            if (!valorAliquota) {
+                toast.warning('A alíquota precisa ser preenchida.', {
+                    transition: Slide,
+                    icon: true,
+                });
+    
+                return;
+            }
+    
+            const impostoEmpresa = parseFloat((parseFloat(valorEmpresa) * valorAliquota / 100).toFixed(2));
+            const valorComImpostoDescontadoEmpresa = parseFloat((parseFloat(valorEmpresa) - impostoEmpresa).toFixed(2));
+            const valorRealLucro = parseFloat((valorComImpostoDescontadoEmpresa - parseFloat(valorProfissional)).toFixed(2));
+    
+            const calcularPorcentagemLucro = () => {
+                const porcentagem = parseFloat(((valorComImpostoDescontadoEmpresa - parseFloat(valorProfissional)) / parseFloat(valorEmpresa) * 100).toFixed(2));
+                return porcentagem;
+            };
+    
+            const formatarPorcentagem = (valor: number) => {
+                const isNegative = valor < 0;
+                setIsNegative(isNegative);
+                const formattedValue = Math.abs(valor).toFixed(2).replace('.', ',');
+                return isNegative ? `-${formattedValue}%` : `${formattedValue}%`;
+              };
+    
+            const porcentagem = calcularPorcentagemLucro();
+            const formattedPorcentagem = formatarPorcentagem(porcentagem);
+    
+            setPorcentagemLucroEmpresa(formattedPorcentagem);
+            setValorImpostoEmpresa(impostoEmpresa);
+            setSemImpostoEmpresa(valorComImpostoDescontadoEmpresa);
+            setValorReal(valorRealLucro);
+        }
+    };
+
+    const formatAliquota = (valor: number) => {
+        if (!valor) return '';
+        const [intPart, decimalPart] = valor.toString().split('.');
+        const formattedDecimal = decimalPart ? decimalPart.padEnd(2, '0').slice(0, 2) : '00';
+        return `${intPart},${formattedDecimal}%`;
     };
 
     const calcularPorcentagemLucro = () => {
@@ -75,7 +153,7 @@ export default function Orcamentos() {
     };
 
     const calcularTotalImposto = (totalEmpresaFloat: number): string => {
-        const imposto: number = totalEmpresaFloat * 0.1142;
+        const imposto: number = totalEmpresaFloat * (valorAliquota/100);
         return imposto.toFixed(2);
     };
 
@@ -122,149 +200,87 @@ export default function Orcamentos() {
         setTotalLucro(totalLucroCalculado);
 
         const totalPorcentagemLucro = calcularTotalPorcentagemLucro(parseFloat(totalEmpresaCalculado), parseFloat(totalLucroCalculado));
+        //const formattedPorcentagem = formatarPorcentagem(totalPorcentagemLucro);
         setTotalPercentualLucro(totalPorcentagemLucro);
     };
-
-    const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-        e.target.value = ''; // Limpar o campo
-    };
-
-    useEffect(() => {
-        const handleEscKeyPress = (event: KeyboardEvent) => {
-            if (event.key === "Escape") {
-                if (focusedFieldId) {
-                    const field = document.getElementById(focusedFieldId);
-                    if (field) {
-                        field.focus();
-                    }
-                }
-                else if (valorEmpresaRef.current) {
-                    valorEmpresaRef.current.focus();
-                }
-                setFocusedFieldId(null);
-
-                setValorEmpresa('0');
-                setValorImposto('0');
-                setValorDescontadoImposto('0');
-                setValorProfissional('0');
-                setValorLucro('0');
-                setPorcentagemLucro('0');
-                setDiasAtendimento('0');
-                setTotalEmpresa('0');
-                setTotalImposto('0');
-                setTotalDesconto('0');
-                setTotalLucro('0');
-                setTotalProfissional('0');
-                setTotalPercentualLucro('0');
-            }
-        };
-
-        document.addEventListener("keydown", handleEscKeyPress);
-        return () => {
-            document.removeEventListener("keydown", handleEscKeyPress);
-        };
-    }, [focusedFieldId]);
 
     return (
         <Page titulo="Orçamentos">
             <form className="container max-w-full">
                 <div className="container mx-auto">
                     <div className="border-b border-gray-900/10 pb-12">
-                        <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-12 border text-white text-center pb-10">
-                            <div className="sm:col-span-12 uppercase bg-teal-600 px-10">
-                                <p className="py-5 uppercase">Valor Individual</p>
+                        <div className="sm:col-span-3">
+                            <label htmlFor="aliquota" className="block text-sm font-medium leading-6 text-gray-900 uppercase">Alíquota</label>
+                            <div className="mt-2">
+                                <select
+                                    name="aliquota"
+                                    id="aliquota"
+                                    value={valorAliquota}
+                                    onChange={handleSelectChange}
+                                    className="font-bold block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                >
+                                    <option value="">Selecione uma alíquota</option>
+                                    {aliquotas.map((aliquota) => (
+                                    <option key={aliquota.aliquotaId} value={aliquota.valorAliquota}>
+                                        {formatAliquota(aliquota.valorAliquota)}
+                                    </option>
+                                    ))}
+                                </select>
                             </div>
-                            <div className="sm:col-span-2">
-                                <label htmlFor="valor-com-desconto" className="block text-sm font-medium leading-6 text-gray-900 uppercase">Valor para Empresa</label>
+                        </div>
+                        <div className="mt-2 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-12 border text-white text-center pb-10 items-center">
+                            <div className="sm:col-span-12 uppercase bg-teal-600 px-10">
+                                <p className="py-5 uppercase">Valor para Profissional</p>
+                            </div>
+                            <div className="sm:col-span-3">
+                                <label htmlFor="valor-profissional" className="block text-sm font-medium leading-6 text-gray-900 uppercase text-right">Valor Profissional (R$)</label>
+                                <div className="mt-2">
+                                    <input
+                                        type="text"
+                                        name="valorProfissional"
+                                        id="valorProfissional"
+                                        value={valorProfissional}
+                                        autoComplete="valor-profissional"
+                                        onChange={handleValorProfissionalChange}
+                                        onKeyPress={handleKeyPress}
+                                        className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                    />
+                                </div>
+                            </div>
+                            <div className="sm:col-span-3">
+                                <label htmlFor="valorImpostoProfissional" className="block text-sm font-medium leading-6 text-gray-900 uppercase text-right">Valor do Imposto (R$)</label>
                                 <div className="mt-2">
                                     <InputMask
-                                        mask=""
+                                        mask="99.99"
                                         maskChar=""
                                         type="text"
-                                        id="valor-com-desconto"
-                                        value={valorEmpresa}
-                                        onChange={handleValorEmpresaChange}
+                                        id="valorImpostoProfissional"
+                                        value={valorImpostoProfissional}
                                         autoComplete="off"
                                         className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                        onFocus={handleFocus}
-                                    />
-                                </div>
-                            </div>
-                            <div className="sm:col-span-1">
-                                <label htmlFor="aliquota" className="block text-sm font-medium leading-6 text-gray-900 uppercase">Alíquota</label>
-                                <div className="mt-2">
-                                    <InputMask mask="99,99%" 
-                                        type="text"
-                                        name="aliquota"
-                                        id="aliquota"
-                                        value={11.42}
-                                        autoComplete="aliquota"
-                                        className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                         disabled
                                     />
                                 </div>
                             </div>
-                            <div className="sm:col-span-2">
-                                <label htmlFor="valor-imposto" className="block text-sm font-medium leading-6 text-gray-900 uppercase">Valor Imposto (R$)</label>
+                            <div className="sm:col-span-3">
+                                <label htmlFor="valorSemImposto" className="block text-sm font-medium leading-6 text-gray-900 uppercase text-right">Valor sem Imposto (R$)</label>
                                 <div className="mt-2">
-                                    <input
-                                        type="text"
-                                        name="valor-imposto"
-                                        id="valor-imposto"
-                                        value={valorImposto}
-                                        autoComplete="valor-imposto"
-                                        className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                        disabled
-                                    />
-                                </div>
-                            </div>
-                            <div className="sm:col-span-2">
-                                <label htmlFor="valor-descontado-imposto" className="block text-sm font-medium leading-6 text-gray-900 uppercase">Valor Descontado Imposto (R$)</label>
-                                <div className="mt-2">
-                                    <input
-                                        type="text"
-                                        name="valor-descontado-imposto"
-                                        id="valor-descontado-imposto"
-                                        value={valorDescontadoImposto}
-                                        autoComplete="valor-descontado-imposto"
-                                        className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                        disabled
-                                    />
-                                </div>
-                            </div>
-                            <div className="sm:col-span-2">
-                                <label htmlFor="valor-profissional" className="block text-sm font-medium leading-6 text-gray-900 uppercase">Valor Profissional (R$)</label>
-                                <div className="mt-2">
-                                    <InputMask
-                                        mask="999.99"
+                                    <InputMask 
+                                        mask="999.99" 
                                         maskChar=""
                                         type="text"
-                                        name="valor-profissional"
-                                        id="valor-profissional"
-                                        value={valorProfissional}
-                                        onChange={handleValorProfissionalChange}
-                                        autoComplete="valor-profissional"
-                                        className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                        onFocus={handleFocus}
-                                    />
-                                </div>
-                            </div>
-                            <div className="sm:col-span-2">
-                                <label htmlFor="valor-lucro" className="block text-sm font-medium leading-6 text-gray-900 uppercase">Valor Lucro (R$)</label>
-                                <div className="mt-2">
-                                    <input
-                                        type="text"
-                                        name="valor-lucro"
-                                        id="valor-lucro"
-                                        value={valorLucro}
-                                        autoComplete="valor-lucro"
+                                        name="valorSemImposto"
+                                        id="valorSemImposto"
+                                        value={valorSemImposto}
+                                        autoComplete="valorSemImposto"
                                         className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                         disabled
                                     />
                                 </div>
                             </div>
-                            <div className="sm:col-span-1">
-                                <label htmlFor="valor-lucro" className="block text-sm font-medium leading-6 text-gray-900 uppercase">% Lucro</label>
+                            
+                            <div className="sm:col-span-3">
+                                <label htmlFor="valor-lucro" className="block text-sm font-medium leading-6 text-gray-900 uppercase text-right">% Lucro</label>
                                 <div className="mt-2">
                                     <InputMask 
                                         mask="99,99%" 
@@ -272,8 +288,7 @@ export default function Orcamentos() {
                                         type="text"
                                         name="valor-lucro"
                                         id="valor-lucro"
-                                        value={porcentagemLucro}
-                                        onChange={handleValorProfissionalChange}
+                                        value={porcentagemLucroProfissional}
                                         autoComplete="valor-lucro"
                                         className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                         disabled
@@ -281,13 +296,100 @@ export default function Orcamentos() {
                                 </div>
                             </div>
                         </div>  
+                        
+                        <div className="mt-2 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-12 border text-white text-center pb-10">
+                            <div className="sm:col-span-12 uppercase bg-teal-600 px-10">
+                                <p className="py-5 uppercase">Valor para Empresa</p>
+                            </div>
+                            <div className="sm:col-span-3">
+                                <label htmlFor="valor-profissional" className="block text-sm font-medium leading-6 text-gray-900 uppercase text-right">Valor Empresa (R$)</label>
+                                <div className="mt-2">
+                                    <input
+                                        type="text"
+                                        name="valorEmpresa"
+                                        id="valorEmpresa"
+                                        value={valorEmpresa}
+                                        autoComplete="valorEmpresa"
+                                        onChange={handleValorEmpresaChange}
+                                        onKeyPress={handleKeyPressEmpresa}
+                                        className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                    />
+                                </div>
+                            </div>
+                            <div className="sm:col-span-2">
+                                <label htmlFor="valor-imposto" className="block text-sm font-medium leading-6 text-gray-900 uppercase text-right">Valor do Imposto (R$)</label>
+                                <div className="mt-2">
+                                    <InputMask 
+                                        mask="99.99" 
+                                        maskChar=""
+                                        type="text"
+                                        name="valorImpostoEmpresa"
+                                        id="valorImpostoEmpresa"
+                                        value={valorImpostoEmpresa}
+                                        autoComplete="valorImpostoEmpresa"
+                                        className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        disabled
+                                    />
+                                </div>
+                            </div>
+                            <div className="sm:col-span-2">
+                                <label htmlFor="valor-descontado-imposto" className="block text-sm font-medium leading-6 text-gray-900 uppercase text-right">Valor Sem Imposto (R$)</label>
+                                <div className="mt-2">
+                                    <InputMask 
+                                        mask="999.99" 
+                                        maskChar=""
+                                        type="text"
+                                        name="valorSemImpostoEmpresa"
+                                        id="valorSemImpostoEmpresa"
+                                        value={valorSemImpostoEmpresa}
+                                        autoComplete="valorSemImpostoEmpresa"
+                                        className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        disabled
+                                    />
+                                </div>
+                            </div>
+                            
+                            <div className="sm:col-span-3">
+                                <label htmlFor="valorReal" className="block text-sm font-medium leading-6 text-gray-900 uppercase text-right">Valor Sem Imposto - Valor do Profissional</label>
+                                <div className="mt-2">
+                                    <InputMask 
+                                        mask="999.99" 
+                                        maskChar=""
+                                        type="text"
+                                        name="valorReal"
+                                        id="valorReal"
+                                        value={valorReal}
+                                        autoComplete="valorReal"
+                                        className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        disabled
+                                    />
+                                </div>
+                            </div>
+                            
+                            <div className="sm:col-span-2">
+                                <label htmlFor="valor-lucro" className="block text-sm font-medium leading-6 text-gray-900 uppercase text-right">% Lucro</label>
+                                <div className="mt-2">
+                                    <InputMask 
+                                        mask={isNegative ? '-99,99%' : '99,99%'}
+                                        maskChar=""
+                                        type="text"
+                                        name="valor-lucro"
+                                        id="valor-lucro"
+                                        value={porcentagemLucroEmpresa}
+                                        autoComplete="valor-lucro"
+                                        className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        disabled
+                                    />
+                                </div>
+                            </div>
+                        </div> 
 
-                        <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-12 border text-white text-center pb-10">
+                        <div className="mt-2 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-12 border text-white text-center pb-10">
                             <div className="sm:col-span-12 uppercase bg-teal-600 px-10">
                                 <p className="py-5 uppercase">Valores Totalizados</p>
                             </div>
                             <div className="sm:col-span-1">
-                                <label htmlFor="diasAtendimento" className="block text-sm font-medium leading-6 text-gray-900 uppercase">Atendimentos</label>
+                                <label htmlFor="diasAtendimento" className="block text-sm font-medium leading-6 text-gray-900 uppercase text-right">Atendimentos</label>
                                 <div className="mt-2">
                                     <input
                                         type="text"
@@ -297,12 +399,11 @@ export default function Orcamentos() {
                                         onChange={handleDiasAtendimentoChange}
                                         autoComplete="valor-com-desconto"
                                         className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                        onFocus={handleFocus}
                                     />
                                 </div>
                             </div> 
                             <div className="sm:col-span-2">
-                                <label htmlFor="totalEmpresa" className="block text-sm font-medium leading-6 text-gray-900 uppercase">Total Empresa</label>
+                                <label htmlFor="totalEmpresa" className="block text-sm font-medium leading-6 text-gray-900 uppercase text-right">Total Empresa</label>
                                 <div className="mt-2">
                                     <InputMask
                                         mask=""
@@ -319,7 +420,7 @@ export default function Orcamentos() {
                                 </div>
                             </div> 
                             <div className="sm:col-span-1">
-                                <label htmlFor="imposto" className="block text-sm font-medium leading-6 text-gray-900 uppercase">Imposto</label>
+                                <label htmlFor="imposto" className="block text-sm font-medium leading-6 text-gray-900 uppercase text-right">Imposto</label>
                                 <div className="mt-2">
                                     <InputMask
                                         mask=""
@@ -335,7 +436,7 @@ export default function Orcamentos() {
                                 </div>
                             </div>
                             <div className="sm:col-span-2">
-                                <label htmlFor="desconto" className="block text-sm font-medium leading-6 text-gray-900 uppercase">Total Descontado Imposto</label>
+                                <label htmlFor="desconto" className="block text-sm font-medium leading-6 text-gray-900 uppercase text-right">Total Descontado Imposto</label>
                                 <div className="mt-2">
                                     <InputMask
                                         mask=""
@@ -351,7 +452,7 @@ export default function Orcamentos() {
                                 </div>
                             </div>  
                             <div className="sm:col-span-2">
-                                <label htmlFor="totalProfissional" className="block text-sm font-medium leading-6 text-gray-900 uppercase">Total Profissional</label>
+                                <label htmlFor="totalProfissional" className="block text-sm font-medium leading-6 text-gray-900 uppercase text-right">Total Profissional</label>
                                 <div className="mt-2">
                                     <InputMask
                                         mask=""
@@ -367,7 +468,7 @@ export default function Orcamentos() {
                                 </div>
                             </div>   
                             <div className="sm:col-span-2">
-                                <label htmlFor="totalLucro" className="block text-sm font-medium leading-6 text-gray-900 uppercase">Total Lucro (R$)</label>
+                                <label htmlFor="totalLucro" className="block text-sm font-medium leading-6 text-gray-900 uppercase text-right">Total Lucro (R$)</label>
                                 <div className="mt-2">
                                     <InputMask
                                         mask=""
@@ -376,7 +477,6 @@ export default function Orcamentos() {
                                         name="totalLucro"
                                         id="totalLucro"
                                         value={totalLucro}
-                                        onChange={handleValorEmpresaChange}
                                         autoComplete="totalLucro"
                                         className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                         disabled
@@ -384,10 +484,10 @@ export default function Orcamentos() {
                                 </div>
                             </div> 
                             <div className="sm:col-span-2">
-                                <label htmlFor="total-porcentagem-lucro" className="block text-sm font-medium leading-6 text-gray-900 uppercase">Total % Lucro</label>
+                                <label htmlFor="total-porcentagem-lucro" className="block text-sm font-medium leading-6 text-gray-900 uppercase text-right">Total % Lucro</label>
                                 <div className="mt-2">
                                     <InputMask
-                                        mask="99,99%" 
+                                        mask={isNegative ? '-99,99%' : '99,99%'}
                                         maskChar=""
                                         type="text"
                                         name="total-porcentagem-lucro"

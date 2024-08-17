@@ -23,6 +23,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, atualizarAdiantamentos }
   const [valorDif, setValorDif] = useState('');
   const [modalAlertOpen, setModalAlertOpen] = useState(false);
   const [qtdLancamento, setQtdLancamento] = useState('');
+  const [atendimento, setAtendimento] = useState('');
   
   
   const router = useRouter();
@@ -33,6 +34,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, atualizarAdiantamentos }
     setDataLancamento('');
     setValorAdiantamento('');
     setIsFormValid(false);
+    setAtendimento('');
   };
 
   useEffect(() => {
@@ -81,6 +83,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, atualizarAdiantamentos }
       enfermeiroId,
       dataLancamento,
       valorAdiantamento,
+      atendimento
     };
   
     try {
@@ -151,7 +154,21 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, atualizarAdiantamentos }
                   />
                 </div>
               </div>  
-              <div className="col-span-8">
+              <div className="sm:col-span-1">
+                <label htmlFor="atendimento" className="block text-sm font-medium leading-6 text-gray-900">Atendimento</label>
+                <div className="mt-2">
+                  <input
+                    type="text"
+                    name="atendimento"
+                    id="atendimento"
+                    value={atendimento}
+                    onChange={(e) => setAtendimento(e.target.value)}
+                    autoComplete="atendimento"
+                    className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                  />
+                </div>
+              </div>  
+              <div className="col-span-7">
                 <label htmlFor="profissional" className="block text-sm font-medium leading-6 text-gray-900">Profissional</label>
                 <div className="mt-2">
                     <BuscaEnfermeiro onEnfermeiroSelecionado={handleEnfermeiroSelecionado} />
