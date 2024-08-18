@@ -67,7 +67,7 @@ export default function Clientes() {
   };
 
   return (
-    <Page titulo="Listagem de Clientes">
+    <Page titulo="Listagem de Empresas">
       <form className="container max-w-full">
         <Link href="">
           <button onClick={handleNovoClienteClick} className="rounded-md bg-teal-600 hover:bg-teal-800 px-3 py-2 text-sm font-semibold leading-6 text-white">Novo Cliente</button>    
