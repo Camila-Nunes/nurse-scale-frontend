@@ -1,8 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://camilanunes-001-site3.ctempurl.com'
-  //baseURL: 'https://localhost:55759/'
+  baseURL: 'https://camilanunes-001-site1.ctempurl.com'
 });
 
 // api.interceptors.request.use((config) => {
