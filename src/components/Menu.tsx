@@ -57,13 +57,13 @@ export default function Menu() {
       </div>
       {showCadastros && (
         <div className="pl-6 mr-6">
-          <MenuItem icone={<FaAmbulance size={20}/>} texto="Clientes" url="/clientes/listar-clientes" />
-          <MenuItem icone={<TbNurse size={20}/>} texto="Enfermeiros" url="/enfermeiros/listar-enfermeiros" />
+          <MenuItem icone={<FaAmbulance size={20}/>} texto="Empresas" url="/clientes/listar-clientes" />
+          <MenuItem icone={<TbNurse size={20}/>} texto="Profissionais" url="/enfermeiros/listar-enfermeiros" />
           <MenuItem icone={<FaBed size={20}/>} texto="Pacientes" url="/pacientes/listar-pacientes" />
         </div>
       )}
 
-      <div className="flex justify-between items-center gap-16 text-sm text-zinc-500 pl-3 pt-2" onClick={toggleConfiguracoes}>
+      {/* <div className="flex justify-between items-center gap-16 text-sm text-zinc-500 pl-3 pt-2" onClick={toggleConfiguracoes}>
         <span className="text-base text-zinc-500 pl-3 pt-4">Configurações</span>
         <span className="text-base text-zinc-500 pl-3 pr-10 pt-4">{showConfiguracoes ? <BiChevronUp /> : <BiSolidChevronDown />}</span>
       </div>
@@ -71,9 +71,8 @@ export default function Menu() {
         <div className="pl-6 mr-6">
           <MenuItem icone={<LuAlarmClock size={20}/>} texto="Horários" url="/horarios/listar-horarios" />
           <MenuItem icone={<FaBriefcaseMedical size={20}/>} texto="Assistências" url="/assistencias/listar-assistencias" />
-          {/* <MenuItem icone={<FaUserPlus size={22} />} texto="Usuários" url="/usuarios/listar-usuarios" /> */}
         </div>
-      )}
+      )} */}
 
       <div className="flex justify-between items-center gap-16 text-sm text-zinc-500 pl-3 pt-2" onClick={toggleFinanceiro}>
         <span className="text-base text-zinc-500 pl-3 pt-4">Financeiro</span>

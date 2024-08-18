@@ -229,7 +229,7 @@ export default function ListarEnfermeiros() {
   };
 
   return (
-    <Page titulo="Listagem de Enfermeiros">
+    <Page titulo="Listagem de Profissionais">
       <form className="container max-w-full">
         <Link href="">
           <button onClick={handleNovoEnfermeiroClick} className="rounded-md bg-teal-600 hover:bg-teal-800 px-3 py-2 text-sm font-semibold leading-6 text-white">Novo Enfermeiro</button>    

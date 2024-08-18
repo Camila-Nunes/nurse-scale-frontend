@@ -74,7 +74,7 @@ export default function EditarEnfermeiro() {
     }
 
   return (
-    <Page titulo="Editar Enfermeiros">
+    <Page titulo="Editar Profissional">
       <form onSubmit={handleSubmit} className="container max-w-full">
         <Link href="/enfermeiros/listar-enfermeiros">
             <button type="button" className="rounded-md bg-teal-600 px-10 py-2 text-sm font-semibold leading-6 text-white">Voltar</button>
