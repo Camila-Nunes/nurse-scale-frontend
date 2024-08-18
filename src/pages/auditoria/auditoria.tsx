@@ -146,6 +146,7 @@ const Auditoria: React.FC<AuditoriaProps> = ({ meses }) => {
   );
 }
 
+
 export const getStaticProps: GetStaticProps<AuditoriaProps> = async () => {
   const meses = [
     "Janeiro",
