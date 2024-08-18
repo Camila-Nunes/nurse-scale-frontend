@@ -70,7 +70,7 @@ export default function Clientes() {
     <Page titulo="Listagem de Empresas">
       <form className="container max-w-full">
         <Link href="">
-          <button onClick={handleNovoClienteClick} className="rounded-md bg-teal-600 hover:bg-teal-800 px-3 py-2 text-sm font-semibold leading-6 text-white">Novo Cliente</button>    
+          <button onClick={handleNovoClienteClick} className="rounded-md bg-teal-600 hover:bg-teal-800 px-3 py-2 text-sm font-semibold leading-6 text-white">Novo</button>    
         </Link>
         <div className="mt-6 mx-auto pt-4 shadow rounded-md bg-slate-50">
           <div className="mt-6 overflow-auto rounded-lg shadow hidden md:block">
