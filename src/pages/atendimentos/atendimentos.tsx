@@ -19,13 +19,22 @@ interface HorariosPropos {
     descricao: string;
 }  
 
+interface Paciente {
+    pacienteId: string;
+    nome: string;
+    endereco: string;
+    numero: string;
+    bairro: string;
+    cidade: string;
+    estado: string;
+  }
+
 const Atendimentos: React.FC<AtendimentoProps> = () => {
     const [clienteId, setClienteId] = useState<string>('');
     const [pacienteId, setPacienteId] = useState('');
     const [enfermeiroId, setEnfermeiroId] = useState('');
     const [dataAtendimento, setDataAtendimento] = useState<string>('');
     const [localAtendimento, setLocalAtendimento] = useState('');
-    const [estadoAtendimento, setEstadoAtendimento] = useState('');
     const [assistencia, setAssistencia] = useState('');
     const [valorEmpresa, setValorEmpresa] = useState('');
     const [valorProfissional, setValorProfissional] = useState('');
@@ -42,7 +51,6 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
             clienteId !== '' &&
             dataAtendimento !== '' &&
             localAtendimento !== '' &&
-            estadoAtendimento !== '' &&
             assistencia !== '' &&
             horario !== '' &&
             valorEmpresa !== '' &&
@@ -75,7 +83,7 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
 
     useEffect(() => {
         setIsValid(isFormValid());
-    }, [pacienteId, enfermeiroId, clienteId, dataAtendimento, localAtendimento, estadoAtendimento, assistencia, horario, valorEmpresa, valorProfissional]);
+    }, [pacienteId, enfermeiroId, clienteId, dataAtendimento, localAtendimento, assistencia, horario, valorEmpresa, valorProfissional]);
 
     const handleDataAtendimentoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setDataAtendimento(e.target.value);
@@ -89,11 +97,13 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
     const handleSelectCliente = (selectedClienteId: string, nomeFantasia: string) => {
         setClienteId(selectedClienteId);
         console.log(selectedClienteId);
-      };
+    };
 
-    const handlePacienteSelecionado = (id: string) => {
-        setPacienteId(id);
-    };  
+    const handlePacienteSelecionado = async (paciente: Paciente) => {
+        const enderecoCompleto = `${paciente.endereco}, ${paciente.numero}, ${paciente.bairro}, ${paciente.cidade} - ${paciente.estado}`;
+        setLocalAtendimento(enderecoCompleto);
+        setPacienteId(paciente.pacienteId);
+    };
     
     const handleEnfermeiroSelecionado = (id: string) => {
         setEnfermeiroId(id);
@@ -108,7 +118,6 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
             clienteId, 
             dataAtendimento,
             localAtendimento,
-            estadoAtendimento,
             assistencia,
             valorEmpresa,
             valorProfissional,
@@ -189,15 +198,15 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
                                 </div>
                             </div>
 
-                            <div className="sm:col-span-4">
+                            <div className="sm:col-span-3">
                                 <label htmlFor="paciente" className="block text-sm font-medium leading-6 text-gray-900">Paciente</label>
                                 <div className="mt-2">
                                     <BuscaPaciente onPacienteSelecionado={handlePacienteSelecionado} />
                                 </div>
                             </div>
                            
-                            <div className="sm:col-span-3">
-                                <label htmlFor="local" className="block text-sm font-medium leading-6 text-gray-900">Local de Atendimento</label>
+                            <div className="sm:col-span-5">
+                                <label htmlFor="local" className="block text-sm font-medium leading-6 text-gray-900">Endereço</label>
                                     <div className="mt-2">
                                     <input
                                         type="text"
@@ -210,47 +219,7 @@ const Atendimentos: React.FC<AtendimentoProps> = () => {
                                     />
                                 </div>
                             </div>
-                            <div className="sm:col-span-1">
-                                <label htmlFor="uf-local" className="block text-sm font-medium leading-6 text-gray-900">UF</label>
-                                <div className="mt-2">
-                                    <select
-                                    id="estadoAtendimento"
-                                    name="estadoAtendimento"
-                                    autoComplete="estadoAtendimento"
-                                    onChange={(e) => setEstadoAtendimento(e.target.value)}
-                                    className="block w-full rounded-md border-0 py-2 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                                    >
-                                        <option>AC</option>
-                                        <option>AL</option>
-                                        <option>AP</option>
-                                        <option>AM</option>
-                                        <option>BA</option>
-                                        <option>CE</option>
-                                        <option>DF</option>
-                                        <option>ES</option>
-                                        <option>GO</option>
-                                        <option>MA</option>
-                                        <option>MT</option>
-                                        <option>MS</option>
-                                        <option>MG</option>
-                                        <option>PA</option>
-                                        <option>PB</option>
-                                        <option>PR</option>
-                                        <option>PE</option>
-                                        <option>PI</option>
-                                        <option>RJ</option>
-                                        <option>RN</option>
-                                        <option>RS</option>
-                                        <option>RO</option>
-                                        <option>RR</option>
-                                        <option>SC</option>
-                                        <option>SP</option>
-                                        <option>SE</option>
-                                        <option>TO</option>
-                                    </select>
-                                </div>
-                            </div>
-
+                            
                             <div className="col-span-4">
                                 <label htmlFor="profissional" className="block text-sm font-medium leading-6 text-gray-900">Profissional</label>
                                 <div className="mt-2">

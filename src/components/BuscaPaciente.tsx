@@ -2,18 +2,30 @@ import React, { useState, ChangeEvent, useRef, useEffect } from 'react';
 import api from '../api';
 
 interface BuscaPacienteProps {
-  onPacienteSelecionado: (pacienteId: string) => void;
+  onPacienteSelecionado: (paciente: BuscaPaciente) => void;
   valorInicial?: string;
 }
 
 interface BuscaPaciente {
   pacienteId: string;
   nome: string;
+  endereco: string;
+  estado: string;
+  numero: string;
+  bairro: string;
+  cidade: string;
 }
 
 const BuscaPaciente: React.FC<BuscaPacienteProps> = ({ onPacienteSelecionado, valorInicial = '' }) => {
   const [pacientes, setPacientes] = useState<BuscaPaciente[]>([]);
   const [nome, setNome] = useState<string>(valorInicial || '');
+  const [endereco, setEndereco] = useState<string>('');
+  const [estado, setEstado] = useState<string>('');
+  const [numero, setNumero] = useState<string>('');
+  const [bairro, setBairro] = useState<string>('');
+  const [cidade, setCidade] = useState<string>('');
+
+
   const [itemFocado, setItemFocado] = useState<number>(-1);
   const [id, setId] = useState<string>('');
   const [pacienteSelecionado, setPacienteSelecionado] = useState<BuscaPaciente | null>(null);
@@ -44,17 +56,35 @@ const BuscaPaciente: React.FC<BuscaPacienteProps> = ({ onPacienteSelecionado, va
     }
   };
 
-  const handleNomeSelecionado = (nome: string, pacienteId: string) => {
+  const handleNomeSelecionado = (nome: string, pacienteId: string, endereco: string, numero: string, bairro: string, cidade: string, estado: string) => {
     setNome(nome);
     setId(pacienteId);
+    setEndereco(endereco);
+    setEstado(estado);
+    setNumero(numero);
+    setBairro(bairro);
+    setCidade(cidade);
+
     setPacientes([]);
-    
-    const paciente = { nome, pacienteId };
+  
+    // Aqui você cria o objeto Paciente completo
+    const paciente: BuscaPaciente = {
+      pacienteId,
+      nome,
+      endereco,
+      estado,
+      numero,
+      bairro,
+      cidade
+    };
+  
     setPacienteSelecionado(paciente);
-    
-    onPacienteSelecionado(pacienteId);
+  
+    // Passe o objeto completo para o componente pai
+    onPacienteSelecionado(paciente);
     setShowDropdown(false);
   };
+  
   
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (pacientes.length === 0) {
@@ -69,7 +99,7 @@ const BuscaPaciente: React.FC<BuscaPacienteProps> = ({ onPacienteSelecionado, va
       setItemFocado((prev) => (prev > 0 ? prev - 1 : pacientes.length - 1));
     } else if (event.key === 'Enter' && itemFocado !== -1) {
       const paciente = pacientes[itemFocado];
-      handleNomeSelecionado(paciente.nome, paciente.pacienteId);
+      handleNomeSelecionado(paciente.nome, paciente.pacienteId, paciente.endereco, paciente.numero, paciente.bairro, paciente.cidade, paciente.estado);
     }
   };
 
@@ -102,7 +132,7 @@ const BuscaPaciente: React.FC<BuscaPacienteProps> = ({ onPacienteSelecionado, va
               className={`block w-full py-1.5 px-3 text-gray-900 hover:bg-gray-200 cursor-pointer ${
                 index === itemFocado ? 'bg-teal-500' : ''
               }`}
-              onClick={() => handleNomeSelecionado(paciente.nome, paciente.pacienteId)}
+              onClick={() => handleNomeSelecionado(paciente.nome, paciente.pacienteId, paciente.endereco, paciente.numero, paciente.bairro, paciente.cidade, paciente.estado)}
             >
               {paciente.nome}
             </li>

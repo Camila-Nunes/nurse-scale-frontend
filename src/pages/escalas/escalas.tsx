@@ -24,6 +24,16 @@ interface ScheduleProps {
   meses: string[];
 }
 
+interface Paciente {
+  pacienteId: string;
+  nome: string;
+  endereco: string;
+  numero: string;
+  bairro: string;
+  cidade: string;
+  estado: string;
+}
+
 const daysOfWeek = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
 
 const formatDate = (dateStr: string) => {
@@ -116,8 +126,8 @@ const Escalas: React.FC<ScheduleProps> = ({ meses }) => {
     }
   }, [indexMonth, ano, pacienteId, clienteId]);
 
-  const handlePacienteSelecionado = (id: string) => {
-    setPacienteId(id);
+  const handlePacienteSelecionado = async (paciente: Paciente) => {
+    setPacienteId(paciente.pacienteId);
   };
 
   const handleSelectCliente = (id: string) => {
