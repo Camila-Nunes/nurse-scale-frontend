@@ -1,15 +1,25 @@
+import { ToastContainer } from 'react-toastify'
 import '../app/globals.css'
-import { useRouter } from 'next/router';
-import { PrimeReactProvider } from 'primereact/api';
+
 
 export default function App(props: any) {
     const { Component, pageProps } = props
     
     return (
         <>
-            <PrimeReactProvider>
-                <Component {...pageProps} />      
-            </PrimeReactProvider>
+            <Component {...pageProps} />
+            <ToastContainer position="top-right"
+                autoClose={3000}
+                limit={1}
+                hideProgressBar={true}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable={false}
+                pauseOnHover
+                theme="colored"
+            />
         </>
     )
 }
