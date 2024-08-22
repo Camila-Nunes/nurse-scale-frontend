@@ -134,9 +134,9 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
 
   const handleInputChange = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-  
+
     if (!novoValorAliquota || novoValorAliquota.trim() === '') {
-      toast.info('O campo de alíquota precisa ser preenchido.', {
+      toast.warn('O campo de alíquota precisa ser preenchido.', {
         transition: Slide,
         icon: true,
       });
@@ -148,7 +148,7 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
       const valorFormatadoPonto = valorFormatado.replace(',', '.');
       const response = await api.post(`/api/TabelaDinamica/inserir-aliquota?valorAliquota=${valorFormatadoPonto}`);
       setNovoValorAliquota(response.data);
-  
+      
       toast.success('Alíquota inserida ou atualizada com sucesso', {
         transition: Slide,
         icon: true,
@@ -161,7 +161,6 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
       });
     }
   };
-  
   
   const handleValorChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setValorAliquota(event.target.value);
