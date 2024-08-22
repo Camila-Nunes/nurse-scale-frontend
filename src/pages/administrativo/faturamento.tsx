@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { format } from "date-fns";
 import api from "@/api";
 import Page from "@/components/Page";
-import { Slide, toast } from "react-toastify";
 import { CgSpinnerTwo } from "react-icons/cg";
 import FiltroMes from "@/components/FiltroMes";
 import AnoSelect from "@/components/AnoSelect";
@@ -10,6 +9,8 @@ import { GetStaticProps } from "next";
 import { BsDatabaseX } from "react-icons/bs";
 import InputMask from "react-input-mask";
 import { pt } from 'date-fns/locale';
+import { Toast } from 'primereact/toast';
+import "primereact/resources/themes/lara-light-cyan/theme.css";
 
 interface FaturamentoProps {
   meses: string[];
@@ -22,6 +23,7 @@ interface Aliquota {
 
 
 const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
+  const toast = useRef<Toast>(null);
   const [resumoEmpresas, setResumoEmpresas] = useState([]);
   const [resumoProfissionais, setResumoProfissionais] = useState([]);
   const [resumoAtendimentos, setResumoAtendimentos] = useState([]);
@@ -62,7 +64,7 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
       setResumoEmpresas(response.data);
       setResumoProfissionais(response.data);
     } catch (error) {
-      toast.error("Erro ao carregar dados. " + error);
+      //toast.error("Erro ao carregar dados. " + error);
     } finally {
         setIsLoadingEmpresas(false);
     }
@@ -75,7 +77,7 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
       );
       setResumoAtendimentos(response.data);
     } catch (error) {
-      toast.error("Erro ao carregar dados. " + error);
+      //toast.error("Erro ao carregar dados. " + error);
     } finally {
         setIsLoadingAtendimentos(false);
     }
@@ -88,7 +90,7 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
       );
       setResumoImpostos(response.data);
     } catch (error) {
-      toast.error("Erro ao carregar dados. " + error);
+      //toast.error("Erro ao carregar dados. " + error);
     } finally {
         setIsLoadingEmpresas(false);
     }
@@ -136,9 +138,11 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
     event.preventDefault();
   
     if (!novoValorAliquota || novoValorAliquota.trim() === '') {
-      toast.info('O campo de alíquota precisa ser preenchido.', {
-        transition: Slide,
-        icon: true,
+      toast.current?.show({
+        severity: 'warn',
+        summary: 'Campo Obrigatório',
+        detail: 'O campo de alíquota precisa ser preenchido.',
+        life: 3000,
       });
       return;
     }
@@ -147,20 +151,27 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
       const valorFormatado = novoValorAliquota.replace(/[^\d,.]/g, '');
       const valorFormatadoPonto = valorFormatado.replace(',', '.');
       const response = await api.post(`/api/TabelaDinamica/inserir-aliquota?valorAliquota=${valorFormatadoPonto}`);
-      setNovoValorAliquota(response.data);
   
-      toast.success('Alíquota inserida ou atualizada com sucesso', {
-        transition: Slide,
-        icon: true,
+      // Atualize o estado da alíquota conforme necessário
+      setNovoValorAliquota('');
+  
+      toast.current?.show({
+        severity: 'success',
+        summary: 'Sucesso',
+        detail: 'Alíquota inserida ou atualizada com sucesso.',
+        life: 3000,
       });
     } catch (error) {
       console.error(error);
-      toast.error("Erro ao salvar dados.", {
-        transition: Slide,
-        icon: true,
+      toast.current?.show({
+        severity: 'error',
+        summary: 'Erro',
+        detail: 'Erro ao salvar dados.',
+        life: 3000,
       });
     }
   };
+  
   
   
   const handleValorChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -188,7 +199,7 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
       );
       setAliquotas(response.data);
     } catch (error) {
-      toast.error("Erro ao carregar dados. " + error);
+      //toast.error("Erro ao carregar dados. " + error);
     } finally {
         setIsLoadingAtendimentos(false);
     }
@@ -204,6 +215,7 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
   return (
     <Page titulo="Faturamento">
     <form className="container max-w-full" onSubmit={handleInputChange}>
+      <Toast ref={toast} position="top-right" />
       <div className='flex justify-between gap-2'>
         <div className="flex justify-center sm:col-span-4 px-5 space-x-4 items-center">
           <div className="flex justify-between items-center gap-2">
