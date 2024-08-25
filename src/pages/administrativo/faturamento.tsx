@@ -84,7 +84,7 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
   async function loadResumoImpostos(mes: number, ano: number) {
     try {
       const response = await api.get(
-        `/api/TabelaDinamica/resumo-imposto?mes=${mes}&ano=${ano}`
+        `/api/TabelaDinamica/resumo-imposto?mes=${mes}&ano=${ano}&aliquota=${valorAliquota}`
       );
       setResumoImpostos(response.data);
     } catch (error) {
