@@ -11,7 +11,6 @@ interface Aliquota {
 }
 
 export default function Orcamentos() {
-
     const valorEmpresaRef = useRef<HTMLInputElement>(null);
     const [valorImpostoProfissional, setValorImpostoProfissional] = useState<number>(0);
     const [valorDescontadoImposto, setValorDescontadoImposto] = useState('0');
