@@ -295,7 +295,6 @@ export default function Orcamentos() {
                                 </div>
                             </div>
                         </div>  
-                        
                         <div className="mt-2 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-12 border text-white text-center pb-10">
                             <div className="sm:col-span-12 uppercase bg-teal-600 px-10">
                                 <p className="py-5 uppercase">Valor para Empresa</p>
@@ -347,7 +346,6 @@ export default function Orcamentos() {
                                     />
                                 </div>
                             </div>
-                            
                             <div className="sm:col-span-3">
                                 <label htmlFor="valorReal" className="block text-sm font-medium leading-6 text-gray-900 uppercase text-right">Valor Sem Imposto - Valor do Profissional</label>
                                 <div className="mt-2">
@@ -364,7 +362,6 @@ export default function Orcamentos() {
                                     />
                                 </div>
                             </div>
-                            
                             <div className="sm:col-span-2">
                                 <label htmlFor="valor-lucro" className="block text-sm font-medium leading-6 text-gray-900 uppercase text-right">% Lucro</label>
                                 <div className="mt-2">
