@@ -46,11 +46,21 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
     return monthIndex + 1;
   };
 
-  const initializeAliquota = () => {
+  const loadValorAliquota = async () => {
+    try {
+      const response = await api.get( `/api/TabelaDinamica/buscar-aliquota`); // Substitua pela sua rota de API real
+      setAliquotas(response.data);
+      return response.data; // Retorna as alíquotas para uso posterior
+    } catch (error) {
+      toast.error('Erro ao carregar alíquotas. ' + error);
+    }
+  };
+
+  const initializeAliquota = async () => {
     const currentMonthIndex = getMonthNumber(selectedMonth);
-    loadValorAliquota();
-    if (aliquotas.length > 0) {
-      const primeiraAliquota = String(aliquotas[0].valorAliquota);
+    const loadedAliquotas = await loadValorAliquota(); // Aguarda carregar as alíquotas
+    if (loadedAliquotas.length > 0) {
+      const primeiraAliquota = String(loadedAliquotas[0].valorAliquota);
       setValorAliquota(primeiraAliquota);
       loadResumoImpostos(currentMonthIndex, selectedYear, parseFloat(primeiraAliquota));
     }
@@ -60,7 +70,6 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
     const currentMonthIndex = getMonthNumber(selectedMonth);
     loadResumoEmpresas(currentMonthIndex, selectedYear);
     loadResumoAtendimentos(currentMonthIndex, selectedYear);
-    loadValorAliquota();
     initializeAliquota();
   }, [selectedMonth, selectedYear]);
 
@@ -200,19 +209,6 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
   const handleNovoValorChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setNovoValorAliquota(event.target.value);
   };
-
-  async function loadValorAliquota() {
-    try {
-      const response = await api.get(
-        `/api/TabelaDinamica/buscar-aliquota`
-      );
-      setAliquotas(response.data);
-    } catch (error) {
-      toast.error("Erro ao carregar dados. " + error);
-    } finally {
-        setIsLoadingAtendimentos(false);
-    }
-  }
 
   const formatAliquota = (valor: number) => {
     if (!valor) return '';
