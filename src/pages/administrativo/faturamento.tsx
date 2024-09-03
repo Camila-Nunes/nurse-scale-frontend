@@ -50,7 +50,6 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
     const currentMonthIndex = getMonthNumber(selectedMonth);
     loadResumoEmpresas(currentMonthIndex, selectedYear);
     loadResumoAtendimentos(currentMonthIndex, selectedYear);
-    loadResumoImpostos(currentMonthIndex, selectedYear);
     loadValorAliquota();
   }, [selectedMonth, selectedYear]);
 
@@ -81,7 +80,7 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
     }
   }
 
-  async function loadResumoImpostos(mes: number, ano: number) {
+  async function loadResumoImpostos(mes: number, ano: number, valorAliquota: number) {
     try {
       const response = await api.get(
         `/api/TabelaDinamica/resumo-imposto?mes=${mes}&ano=${ano}&aliquota=${valorAliquota}`
@@ -172,8 +171,19 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedValue = e.target.value;
+    const currentMonthIndex = getMonthNumber(selectedMonth);
     handleValorUpdate(selectedValue); // Atualize o valor da alíquota selecionada
     // Refaça os cálculos com base na alíquota escolhida aqui
+
+    if (aliquotas.length > 0) {
+      loadResumoImpostos(currentMonthIndex, selectedYear, parseFloat(selectedValue));
+    }
+
+    // if (aliquotas.length > 0) {
+    //   setValorAliquota(String(aliquotas[0].valorAliquota));
+    //   // Chama a função ao carregar a primeira vez
+    //   loadResumoImpostos(currentMonthIndex, selectedYear, parseFloat(String(aliquotas[0].valorAliquota)));
+    // }
   };
 
   const handleNovoValorChange = (event: React.ChangeEvent<HTMLInputElement>) => {
