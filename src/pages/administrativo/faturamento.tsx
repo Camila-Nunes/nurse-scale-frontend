@@ -46,11 +46,22 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
     return monthIndex + 1;
   };
 
+  const initializeAliquota = () => {
+    const currentMonthIndex = getMonthNumber(selectedMonth);
+    loadValorAliquota();
+    if (aliquotas.length > 0) {
+      const primeiraAliquota = String(aliquotas[0].valorAliquota);
+      setValorAliquota(primeiraAliquota);
+      loadResumoImpostos(currentMonthIndex, selectedYear, parseFloat(primeiraAliquota));
+    }
+  };
+
   useEffect(() => {
     const currentMonthIndex = getMonthNumber(selectedMonth);
     loadResumoEmpresas(currentMonthIndex, selectedYear);
     loadResumoAtendimentos(currentMonthIndex, selectedYear);
     loadValorAliquota();
+    initializeAliquota();
   }, [selectedMonth, selectedYear]);
 
   async function loadResumoEmpresas(mes: number, ano: number) {
