@@ -6,8 +6,6 @@ import Link from "next/link";
 import moment from 'moment';
 import {Slide, Flip, toast } from 'react-toastify';
 import BuscaEnfermeiro from "@/components/BuscaEnfermeiro";
-import BuscaPaciente from "@/components/BuscaPaciente";
-import ComboBoxClientes from "@/components/ComboBoxClientes ";
 import { CgSpinnerTwo } from "react-icons/cg";
 import InputMask from "react-input-mask";
 
@@ -27,6 +25,12 @@ interface RegistroProps{
   diaPago: string;
 }
 
+const formatCurrency = (value: string | number) => {
+  if (!value) return 'R$ 0.00';
+  const numericValue = typeof value === 'string' ? parseFloat(value.replace(/[^\d,-]/g, '').replace(',', '.')) : value;
+  return `R$ ${numericValue.toFixed(2).replace('.', ',')}`;
+};
+
 export default function EditarAtendimento() {
   const router = useRouter();
   const { id } = router.query;
@@ -45,16 +49,21 @@ export default function EditarAtendimento() {
     valorProfissional: 0, // ou o valor padrão desejado
     diaPago: '',
   });
+
   const [isLoading, setIsLoading] = useState(true);
   const [clienteId, setClienteId] = useState<string>('');
   const [pacienteId, setPacienteId] = useState('');
   const [enfermeiroId, setEnfermeiroId] = useState('');
+  const [valorEmpresaFormatado, setValorEmpresaFormatado] = useState<string>('');
+  const [valorProfissionalFormatado, setValorProfissonalFormatado] = useState<string>('');
 
   useEffect(() => {
     const fetchRegistro = async () => {
       try {
         const response = await api.get(`/api/Atendimentos/` + id); 
         setRegistro(response.data.result);
+        setValorEmpresaFormatado(formatCurrency(response.data.result.valorEmpresa));
+        setValorProfissonalFormatado(formatCurrency(response.data.result.valorProfissional));
       } catch (error) {
         console.error('Erro ao obter os dados do registro:', error);
       } finally {
@@ -92,24 +101,28 @@ export default function EditarAtendimento() {
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    
+  
+    if (!enfermeiroId) {
+      toast.info("Por favor, altere o atendimento antes de salvar.");
+      return; // Impede o envio se o enfermeiroId estiver vazio
+    }
+  
     const payload = {
-        id: id,
-        enfermeiroId: enfermeiroId
+      id: id,
+      enfermeiroId: enfermeiroId
     };
-
+  
     api.put(`/api/Atendimentos/${id}`, null, {
-        params: {
-            enfermeiroId: enfermeiroId
-        }
+      params: {
+        enfermeiroId: enfermeiroId
+      }
     })
     .then(() => {
-        console.log("Registro atualizado com sucesso: " + id);
-        toast.success("Registro atualizado com sucesso.");
-        router.push("/atendimentos/listar-atendimentos");
+      toast.success("Registro atualizado com sucesso.");
+      router.push("/atendimentos/listar-atendimentos");
     })
     .catch((error) => {
-        toast.error('Erro ao atualizar registro: ' + error.message);
+      toast.error('Erro ao atualizar registro: ' + error.message);
     });
   };
 
@@ -255,7 +268,7 @@ export default function EditarAtendimento() {
                     type="text"
                     name="valorEmpresa"
                     id="valorEmpresa"
-                    defaultValue={registro.valorEmpresa}
+                    defaultValue={valorEmpresaFormatado}
                     onChange={handleInputChange}
                     autoComplete="valorEmpresa"
                     className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -270,7 +283,7 @@ export default function EditarAtendimento() {
                     type="text"
                     name="valorProfissional"
                     id="valorProfissional"
-                    defaultValue={registro.valorProfissional}
+                    defaultValue={valorProfissionalFormatado}
                     onChange={handleInputChange}
                     autoComplete="valorProfissional"
                     className="text-right block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"

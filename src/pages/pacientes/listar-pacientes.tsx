@@ -43,7 +43,7 @@ export default function ListarPacientes() {
       getPacientes(currentPage, 10)
     }, 2000);
   }, [currentPage]);
-
+  
   useEffect(()=>{
     getQtdPacientes()
   }, []);

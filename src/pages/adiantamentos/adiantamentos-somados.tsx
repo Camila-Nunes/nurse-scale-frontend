@@ -1,5 +1,5 @@
 import Page from "@/components/Page";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import api from '../../api';
 import { toast } from "react-toastify";
 import Link from "next/link";
@@ -9,12 +9,14 @@ import AnoSelect from "@/components/AnoSelect";
 import { GetStaticProps } from "next";
 import { format } from "date-fns";
 import { CgSpinnerTwo } from "react-icons/cg";
+import { Toast } from "primereact/toast";
 
 interface AdiantamentosSomadosProps {
   meses: string[];
 }
 
 const AdiantamentosSomados: React.FC<AdiantamentosSomadosProps> = ({ meses }) => {
+  const toast = useRef<Toast>(null);
   const [adiantamentos, setAdiantamentos]=useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPaginas, setTotalPaginas] = useState(1);
@@ -38,13 +40,30 @@ const AdiantamentosSomados: React.FC<AdiantamentosSomadosProps> = ({ meses }) =>
     return monthIndex + 1;
   };
 
+  // async function getAdiantamentos(page: number, pageSize: number, mes: number, ano: number) {
+  //   try {
+  //     const response = await api.get(`api/AdiantamentosPagamentos/adiantamentos-somados?page=${page}&pageSize=${pageSize}&mes=${mes}&ano=${ano}`);
+  //     setAdiantamentos(response.data.result);
+  //     console.log(response.data.result);
+  //   } catch (error) {
+  //     toast.error("Erro ao carregar dados. " + error);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
   async function getAdiantamentos(page: number, pageSize: number, mes: number, ano: number) {
     try {
       const response = await api.get(`api/AdiantamentosPagamentos/adiantamentos-somados?page=${page}&pageSize=${pageSize}&mes=${mes}&ano=${ano}`);
       setAdiantamentos(response.data.result);
       console.log(response.data.result);
     } catch (error) {
-      toast.error("Erro ao carregar dados. " + error);
+      toast.current?.show({ 
+        severity: 'error', 
+        summary: 'Erro', 
+        detail: `Erro ao carregar dados: ` + error, 
+        life: 3000 
+      });
     } finally {
       setIsLoading(false);
     }

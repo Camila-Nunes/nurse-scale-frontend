@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { format } from "date-fns";
 import api from "@/api";
 import Page from "@/components/Page";
-import { Slide, toast } from "react-toastify";
 import { CgSpinnerTwo } from "react-icons/cg";
 import FiltroMes from "@/components/FiltroMes";
 import AnoSelect from "@/components/AnoSelect";
@@ -10,6 +9,8 @@ import { GetStaticProps } from "next";
 import { BsDatabaseX } from "react-icons/bs";
 import InputMask from "react-input-mask";
 import { pt } from 'date-fns/locale';
+import { Toast } from 'primereact/toast';
+import "primereact/resources/themes/lara-light-cyan/theme.css";
 
 interface FaturamentoProps {
   meses: string[];
@@ -22,6 +23,7 @@ interface Aliquota {
 
 
 const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
+  const toast = useRef<Toast>(null);
   const [resumoEmpresas, setResumoEmpresas] = useState([]);
   const [resumoProfissionais, setResumoProfissionais] = useState([]);
   const [resumoAtendimentos, setResumoAtendimentos] = useState([]);
@@ -46,31 +48,12 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
     return monthIndex + 1;
   };
 
-  const loadValorAliquota = async () => {
-    try {
-      const response = await api.get( `/api/TabelaDinamica/buscar-aliquota`); // Substitua pela sua rota de API real
-      setAliquotas(response.data);
-      return response.data; // Retorna as alíquotas para uso posterior
-    } catch (error) {
-      toast.error('Erro ao carregar alíquotas. ' + error);
-    }
-  };
-
-  const initializeAliquota = async () => {
-    const currentMonthIndex = getMonthNumber(selectedMonth);
-    const loadedAliquotas = await loadValorAliquota(); // Aguarda carregar as alíquotas
-    if (loadedAliquotas.length > 0) {
-      const primeiraAliquota = String(loadedAliquotas[0].valorAliquota);
-      setValorAliquota(primeiraAliquota);
-      loadResumoImpostos(currentMonthIndex, selectedYear, parseFloat(primeiraAliquota));
-    }
-  };
-
   useEffect(() => {
     const currentMonthIndex = getMonthNumber(selectedMonth);
     loadResumoEmpresas(currentMonthIndex, selectedYear);
     loadResumoAtendimentos(currentMonthIndex, selectedYear);
-    initializeAliquota();
+    loadResumoImpostos(currentMonthIndex, selectedYear);
+    loadValorAliquota();
   }, [selectedMonth, selectedYear]);
 
   async function loadResumoEmpresas(mes: number, ano: number) {
@@ -81,7 +64,7 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
       setResumoEmpresas(response.data);
       setResumoProfissionais(response.data);
     } catch (error) {
-      toast.error("Erro ao carregar dados. " + error);
+      //toast.error("Erro ao carregar dados. " + error);
     } finally {
         setIsLoadingEmpresas(false);
     }
@@ -94,20 +77,20 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
       );
       setResumoAtendimentos(response.data);
     } catch (error) {
-      toast.error("Erro ao carregar dados. " + error);
+      //toast.error("Erro ao carregar dados. " + error);
     } finally {
         setIsLoadingAtendimentos(false);
     }
   }
 
-  async function loadResumoImpostos(mes: number, ano: number, valorAliquota: number) {
+  async function loadResumoImpostos(mes: number, ano: number) {
     try {
       const response = await api.get(
-        `/api/TabelaDinamica/resumo-imposto?mes=${mes}&ano=${ano}&aliquota=${valorAliquota}`
+        `/api/TabelaDinamica/resumo-imposto?mes=${mes}&ano=${ano}`
       );
       setResumoImpostos(response.data);
     } catch (error) {
-      toast.error("Erro ao carregar dados. " + error);
+      //toast.error("Erro ao carregar dados. " + error);
     } finally {
         setIsLoadingEmpresas(false);
     }
@@ -153,11 +136,13 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
 
   const handleInputChange = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
+  
     if (!novoValorAliquota || novoValorAliquota.trim() === '') {
-      toast.warn('O campo de alíquota precisa ser preenchido.', {
-        transition: Slide,
-        icon: true,
+      toast.current?.show({
+        severity: 'warn',
+        summary: 'Campo Obrigatório',
+        detail: 'O campo de alíquota precisa ser preenchido.',
+        life: 3000,
       });
       return;
     }
@@ -166,20 +151,28 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
       const valorFormatado = novoValorAliquota.replace(/[^\d,.]/g, '');
       const valorFormatadoPonto = valorFormatado.replace(',', '.');
       const response = await api.post(`/api/TabelaDinamica/inserir-aliquota?valorAliquota=${valorFormatadoPonto}`);
-      setNovoValorAliquota(response.data);
-      
-      toast.success('Alíquota inserida ou atualizada com sucesso', {
-        transition: Slide,
-        icon: true,
+  
+      // Atualize o estado da alíquota conforme necessário
+      setNovoValorAliquota('');
+  
+      toast.current?.show({
+        severity: 'success',
+        summary: 'Sucesso',
+        detail: 'Alíquota inserida ou atualizada com sucesso.',
+        life: 3000,
       });
     } catch (error) {
       console.error(error);
-      toast.error("Erro ao salvar dados.", {
-        transition: Slide,
-        icon: true,
+      toast.current?.show({
+        severity: 'error',
+        summary: 'Erro',
+        detail: 'Erro ao salvar dados.',
+        life: 3000,
       });
     }
   };
+  
+  
   
   const handleValorChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setValorAliquota(event.target.value);
@@ -191,24 +184,26 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedValue = e.target.value;
-    const currentMonthIndex = getMonthNumber(selectedMonth);
     handleValorUpdate(selectedValue); // Atualize o valor da alíquota selecionada
     // Refaça os cálculos com base na alíquota escolhida aqui
-
-    if (aliquotas.length > 0) {
-      loadResumoImpostos(currentMonthIndex, selectedYear, parseFloat(selectedValue));
-    }
-
-    // if (aliquotas.length > 0) {
-    //   setValorAliquota(String(aliquotas[0].valorAliquota));
-    //   // Chama a função ao carregar a primeira vez
-    //   loadResumoImpostos(currentMonthIndex, selectedYear, parseFloat(String(aliquotas[0].valorAliquota)));
-    // }
   };
 
   const handleNovoValorChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setNovoValorAliquota(event.target.value);
   };
+
+  async function loadValorAliquota() {
+    try {
+      const response = await api.get(
+        `/api/TabelaDinamica/buscar-aliquota`
+      );
+      setAliquotas(response.data);
+    } catch (error) {
+      //toast.error("Erro ao carregar dados. " + error);
+    } finally {
+        setIsLoadingAtendimentos(false);
+    }
+  }
 
   const formatAliquota = (valor: number) => {
     if (!valor) return '';
@@ -220,6 +215,7 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
   return (
     <Page titulo="Faturamento">
     <form className="container max-w-full" onSubmit={handleInputChange}>
+      <Toast ref={toast} position="top-right" />
       <div className='flex justify-between gap-2'>
         <div className="flex justify-center sm:col-span-4 px-5 space-x-4 items-center">
           <div className="flex justify-between items-center gap-2">
