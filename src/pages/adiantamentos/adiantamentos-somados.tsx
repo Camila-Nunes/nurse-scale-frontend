@@ -10,6 +10,7 @@ import { GetStaticProps } from "next";
 import { format } from "date-fns";
 import { CgSpinnerTwo } from "react-icons/cg";
 import { Toast } from "primereact/toast";
+import FiltroData from "@/components/SelectDate";
 
 interface AdiantamentosSomadosProps {
   meses: string[];
@@ -26,31 +27,18 @@ const AdiantamentosSomados: React.FC<AdiantamentosSomadosProps> = ({ meses }) =>
   const paginaAtual = Math.ceil((totalItems + 1)/itensPorPagina);
   const [currentMonthIndex, setCurrentMonthIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedDay, setSelectedDay] = useState<number>(1);
+  const [selectedMonth, setSelectedMonth] = useState<number>(0);
+  const [selectedYear, setSelectedYear] = useState<number>(0);
 
-  const [selectedMonth, setSelectedMonth] = useState(
-    format(new Date(), 'MMMM')
-  );
 
-  const [selectedYear, setSelectedYear] = useState<number>(
-    new Date().getFullYear()
-  );
-
-  const getMonthNumber = (monthName: string) => {
-    const monthIndex = meses.indexOf(monthName);
-    return monthIndex + 1;
+  const handleDateChange = (date: { dia: number; mes: number; ano: number }) => {
+    console.log(`Dia: ${date.dia}, Mês: ${date.mes}, Ano: ${date.ano}`);
+    setSelectedDay(date.dia);
+    setSelectedMonth(date.mes);
+    setSelectedYear(date.ano);
+    console.log(`Dia: ${date.dia}, Mês: ${date.mes}, Ano: ${date.ano}`);
   };
-
-  // async function getAdiantamentos(page: number, pageSize: number, mes: number, ano: number) {
-  //   try {
-  //     const response = await api.get(`api/AdiantamentosPagamentos/adiantamentos-somados?page=${page}&pageSize=${pageSize}&mes=${mes}&ano=${ano}`);
-  //     setAdiantamentos(response.data.result);
-  //     console.log(response.data.result);
-  //   } catch (error) {
-  //     toast.error("Erro ao carregar dados. " + error);
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
 
   async function getAdiantamentos(page: number, pageSize: number, mes: number, ano: number) {
     try {
@@ -70,9 +58,9 @@ const AdiantamentosSomados: React.FC<AdiantamentosSomadosProps> = ({ meses }) =>
   };
 
   useEffect(() => {
-    const indexMonth = getMonthNumber(selectedMonth);
-    setCurrentMonthIndex(indexMonth); // Corrigir para armazenar o índice do mês, não o nome
-    getAdiantamentos(currentPage, 10, indexMonth, selectedYear);
+    //const indexMonth = getMonthNumber(selectedMonth);
+    //setCurrentMonthIndex(indexMonth); // Corrigir para armazenar o índice do mês, não o nome
+    getAdiantamentos(currentPage, 10, selectedMonth, selectedYear);
   }, [currentPage, selectedMonth, selectedYear]);
 
   const handleNextPage = () => {
@@ -87,16 +75,7 @@ const AdiantamentosSomados: React.FC<AdiantamentosSomadosProps> = ({ meses }) =>
     setCurrentPage(pagina);
   };
 
-  const handleAdiantamentosListadosSubmit = (
-    selectedMonth: string,
-    monthIndex: number
-  ) => {
-    setSelectedMonth(selectedMonth);
-  };
 
-  const handleSelectYear = (year: number) => {
-    setSelectedYear(year);
-  };
 
   if (isLoading) {
     return (
@@ -115,10 +94,9 @@ const AdiantamentosSomados: React.FC<AdiantamentosSomadosProps> = ({ meses }) =>
               <button type="button" className="text-sm font-semibold bg-transparent hover:bg-red-900 text-red-900 hover:text-white py-2 px-4 border border-red-900 hover:border-transparent rounded-md">Voltar</button>    
             </Link>
           </div>
-          <div className='flex justify-items-start gap-6'>
-            <FiltroMes meses={meses} onChange={handleAdiantamentosListadosSubmit} />
-            <AnoSelect onSelectYear={handleSelectYear} />
-          </div>
+          <div className="sm:col-span-1">
+              <FiltroData onDateChange={handleDateChange} />
+            </div> 
         </div>
         <div className="mt-5 bg-gray-200 rounded-lg p-4 mb-2 max-w-md">
             <h6 className="text-sm">Essa tela traz os valores somados dos adiantamentos agrupados por mês e por profissional</h6>

@@ -10,6 +10,7 @@ import { GetStaticProps } from "next";
 import { BsDatabaseX } from "react-icons/bs";
 import InputMask from "react-input-mask";
 import { pt } from 'date-fns/locale';
+import FiltroData from "@/components/SelectDate";
 
 interface FaturamentoProps {
   meses: string[];
@@ -35,15 +36,16 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
   const fullMonthName = format(new Date(), 'MMMM', { locale: pt });
   const monthName = fullMonthName.charAt(0).toUpperCase() + fullMonthName.slice(1);
 
-  const [selectedMonth, setSelectedMonth] = useState(monthName);
-  
-  const [selectedYear, setSelectedYear] = useState<number>(
-    new Date().getFullYear()
-  );
+  const [selectedDay, setSelectedDay] = useState<number>(1);
+  const [selectedMonth, setSelectedMonth] = useState<number>(0);
+  const [selectedYear, setSelectedYear] = useState<number>(0);
 
-  const getMonthNumber = (monthName: string) => {
-    const monthIndex = meses.indexOf(monthName);
-    return monthIndex + 1;
+  const handleDateChange = (date: { dia: number; mes: number; ano: number }) => {
+    console.log(`Dia: ${date.dia}, Mês: ${date.mes}, Ano: ${date.ano}`);
+    setSelectedDay(date.dia);
+    setSelectedMonth(date.mes);
+    setSelectedYear(date.ano);
+    console.log(`Dia: ${date.dia}, Mês: ${date.mes}, Ano: ${date.ano}`);
   };
 
   const loadValorAliquota = async () => {
@@ -57,19 +59,17 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
   };
 
   const initializeAliquota = async () => {
-    const currentMonthIndex = getMonthNumber(selectedMonth);
     const loadedAliquotas = await loadValorAliquota(); // Aguarda carregar as alíquotas
     if (loadedAliquotas.length > 0) {
       const primeiraAliquota = String(loadedAliquotas[0].valorAliquota);
       setValorAliquota(primeiraAliquota);
-      loadResumoImpostos(currentMonthIndex, selectedYear, parseFloat(primeiraAliquota));
+      loadResumoImpostos(selectedMonth, selectedYear, parseFloat(primeiraAliquota));
     }
   };
 
   useEffect(() => {
-    const currentMonthIndex = getMonthNumber(selectedMonth);
-    loadResumoEmpresas(currentMonthIndex, selectedYear);
-    loadResumoAtendimentos(currentMonthIndex, selectedYear);
+    loadResumoEmpresas(selectedMonth, selectedYear);
+    loadResumoAtendimentos(selectedMonth, selectedYear);
     initializeAliquota();
   }, [selectedMonth, selectedYear]);
 
@@ -112,36 +112,6 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
         setIsLoadingEmpresas(false);
     }
   }
-
-  const handleTabelaDinamicaSubmit = (
-    selectedMonth: string,
-    monthIndex: number
-  ) => {
-    setSelectedMonth(selectedMonth);
-  };
-
-  const handleSelectYear = (year: number) => {
-    setSelectedYear(year);
-  };
-
-  const handlePrevMonth = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    const currentIndex = meses.indexOf(selectedMonth);
-    const newIndex = (currentIndex - 1 + meses.length) % meses.length;
-    handleMonthChange(meses[newIndex]);
-  };
-
-  const handleNextMonth = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    const currentIndex = meses.indexOf(selectedMonth);
-    const newIndex = (currentIndex + 1) % meses.length;
-    handleMonthChange(meses[newIndex]);
-  };
-
-  const handleMonthChange = (newSelectedMonth: string) => {
-    setSelectedMonth(newSelectedMonth);
-    const monthIndex = getMonthNumber(newSelectedMonth);
-  };
 
   if (isLoadingEmpresas || isLoadingAtendimentos) {
     return (
@@ -191,19 +161,12 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedValue = e.target.value;
-    const currentMonthIndex = getMonthNumber(selectedMonth);
     handleValorUpdate(selectedValue); // Atualize o valor da alíquota selecionada
     // Refaça os cálculos com base na alíquota escolhida aqui
 
     if (aliquotas.length > 0) {
-      loadResumoImpostos(currentMonthIndex, selectedYear, parseFloat(selectedValue));
+      loadResumoImpostos(selectedMonth, selectedYear, parseFloat(selectedValue));
     }
-
-    // if (aliquotas.length > 0) {
-    //   setValorAliquota(String(aliquotas[0].valorAliquota));
-    //   // Chama a função ao carregar a primeira vez
-    //   loadResumoImpostos(currentMonthIndex, selectedYear, parseFloat(String(aliquotas[0].valorAliquota)));
-    // }
   };
 
   const handleNovoValorChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -258,13 +221,9 @@ const Faturamento: React.FC<FaturamentoProps> = ({ meses }) => {
             <button type="submit" className="rounded-md bg-teal-600 px-10 py-2 mt-2 text-sm font-semibold leading-6 text-white hover:bg-teal-700">Cadastrar Alíquota</button>
           </div>
         </div>
-
-        
-
-        <div className='flex justify-items-start gap-6'>
-          <FiltroMes meses={meses} onChange={handleTabelaDinamicaSubmit} />
-          <AnoSelect onSelectYear={handleSelectYear} /> 
-        </div>
+        <div className="sm:col-span-1">
+          <FiltroData onDateChange={handleDateChange} />
+        </div> 
       </div>
       <div className="mt-4 mx-auto shadow rounded-md bg-slate-50">
         <div className="mt-2 overflow-auto rounded-lg shadow hidden md:block">
