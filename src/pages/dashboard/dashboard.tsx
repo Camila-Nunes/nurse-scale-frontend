@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { format, startOfMonth, endOfMonth } from 'date-fns';
 import { GetStaticProps } from 'next';
-import FiltroMes from '@/components/FiltroMes';
 import Card from '@/components/Card';
 import CardPorcentagem from '@/components/CardPorcentagem';
 import Page from '@/components/Page';
@@ -11,20 +10,15 @@ import api from '@/api';
 import { toast } from 'react-toastify';
 import { MdOutlineMoneyOffCsred, MdOutlinePercent } from "react-icons/md";
 import { GiLion } from "react-icons/gi";
-import { CgMathPercent } from "react-icons/cg";
 import { BiInjection } from "react-icons/bi";
 import { HiArrowCircleDown, HiArrowCircleUp } from "react-icons/hi";
-import AnoSelect from '@/components/AnoSelect';
+import FiltroData from '@/components/SelectDate';
 
 interface DashboardProps {
   meses: string[];
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ meses }) => {
-  const [selectedMonth, setSelectedMonth] = useState(format(new Date(), 'MMMM'));
-  const [selectedYear, setSelectedYear] = useState(0);
-  const startDate = startOfMonth(new Date(selectedMonth));
-  const endDate = endOfMonth(new Date(selectedMonth));
   const [atendimentosNoMes, setAtendimentosNoMes] = useState(0);
   const [atendimentosPagos, setAtendimentosPagos] = useState(0);
   const [entradasMes, setEntradasMes] = useState(0);
@@ -45,20 +39,27 @@ const Dashboard: React.FC<DashboardProps> = ({ meses }) => {
   const [quantityAtendimentosEntradasMes, setQuantityAtendimentosEntradasMes] = useState(0);
   const [quantityAtendimentosNaoPagos, setQuantityAtendimentosNaoPagos] = useState(0);
 
-  const getMonthNumber = (monthName: string) => {
-    const monthIndex = meses.indexOf(monthName);
-    return monthIndex + 1;
+  const [selectedDay, setSelectedDay] = useState<number>(1);
+  const [selectedMonth, setSelectedMonth] = useState<number>(0);
+  const [selectedYear, setSelectedYear] = useState<number>(0);
+
+  const handleDateChange = (date: { dia: number; mes: number; ano: number }) => {
+    console.log(`Dia: ${date.dia}, Mês: ${date.mes}, Ano: ${date.ano}`);
+    setSelectedDay(date.dia);
+    setSelectedMonth(date.mes);
+    setSelectedYear(date.ano);
+    loadDashboardData(date.mes);
   };
 
-  const loadDashboardData = async (monthIndex: number) => {
+  const loadDashboardData = async (selectedMonth: number) => {
     try {
       await Promise.all([
-        getQtdAtendimentosMes(monthIndex, selectedYear),
-        getQtdAtendimentosPagosMes(monthIndex, selectedYear),
-        getEntradasMes(monthIndex, selectedYear),
-        getQtdAtendimentosNaoPagosMes(monthIndex, selectedYear),
-        getLucrosMes(monthIndex, selectedYear),
-        getReumosMes(monthIndex, selectedYear),
+        getQtdAtendimentosMes(selectedMonth, selectedYear),
+        getQtdAtendimentosPagosMes(selectedMonth, selectedYear),
+        getEntradasMes(selectedMonth, selectedYear),
+        getQtdAtendimentosNaoPagosMes(selectedMonth, selectedYear),
+        getLucrosMes(selectedMonth, selectedYear),
+        getReumosMes(selectedMonth, selectedYear),
       ]);
     } catch (error) {
       toast.error('Erro ao carregar o dashboard.');
@@ -66,10 +67,9 @@ const Dashboard: React.FC<DashboardProps> = ({ meses }) => {
   };
 
   useEffect(() => {
-    const currentMonthIndex = getMonthNumber(selectedMonth);
     const currentYear = new Date().getFullYear();
     setSelectedYear(currentYear);
-    loadDashboardData(currentMonthIndex);
+    loadDashboardData(selectedMonth);
   }, []);
 
   async function getReumosMes(mes: number, ano: number) {
@@ -150,9 +150,8 @@ const Dashboard: React.FC<DashboardProps> = ({ meses }) => {
     }
   };
 
-  const handleDashboardSubmit = async (selectedMonth: string, monthIndex: number) => {
-    setSelectedMonth(selectedMonth);
-    loadDashboardData(monthIndex);
+  const handleDashboardSubmit = async (selectedMonth: number, monthIndex: number) => {
+    loadDashboardData(selectedMonth);
   };
 
   const handleSelectYear = (year: number) => {
@@ -163,9 +162,8 @@ const Dashboard: React.FC<DashboardProps> = ({ meses }) => {
   return (
     <Page titulo="Dashboard">
       <div className="container max-w-full">
-        <div className='flex justify-end gap-6'>
-          <FiltroMes meses={meses} onChange={handleDashboardSubmit} />
-          <AnoSelect onSelectYear={handleSelectYear} />
+        <div className="sm:col-span-1">
+          <FiltroData onDateChange={handleDateChange} />
         </div>
         
         {/* <button onClick={(e) => handleDashboardSubmit(e)}>Carregar Dashboard</button> */}

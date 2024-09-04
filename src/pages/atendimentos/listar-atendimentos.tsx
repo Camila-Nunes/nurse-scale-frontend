@@ -16,6 +16,7 @@ import { GetStaticProps } from 'next';
 import { pt } from 'date-fns/locale';
 import { CgSpinnerTwo } from "react-icons/cg";
 import FiltroDia from "@/components/FiltroDia";
+import FiltroData from "@/components/SelectDate";
 interface ListarAtendimentosProps {
   meses: string[];
 }
@@ -83,58 +84,41 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
   const [DiaPago, setDiaPago] = useState<string>('');
   const [indexMonth, setIndexMonth] = useState<number>(0);
   const [selectedDay, setSelectedDay] = useState<number>(1);
+  const [selectedMonth, setSelectedMonth] = useState<number>(0);
+  const [selectedYear, setSelectedYear] = useState<number>(0);
 
   const [isLoading, setIsLoading] = useState(true);
 
   const fullMonthName = format(new Date(), 'MMMM', { locale: pt });
   const monthName = fullMonthName.charAt(0).toUpperCase() + fullMonthName.slice(1);
 
-  const [selectedMonth, setSelectedMonth] = useState(monthName);
-
-  const [selectedYear, setSelectedYear] = useState<number>(
-    new Date().getFullYear()
-  );
-
   const handleSelectYear = (year: number) => {
     setSelectedYear(year);
-  };
-
-  const getMonthNumber = (monthName: string) => {
-    const monthIndex = meses.indexOf(monthName);
-    const numberMonth = monthIndex + 1;
-    
-    setIndexMonth(numberMonth);
-
-    return numberMonth;
   };
 
   async function getAtendimentos(page: number, pageSize: number, mes: number, ano: number, dia: number) {
     try {
       let queryString = `?page=${page}&pageSize=${pageSize}&mes=${mes}&ano=${ano}&dia=${dia}`;
-      
-      // Verifica se há algum filtro preenchido
       const filtrosPreenchidos = Object.values(filtros).some(value => !!value);
-      
-      // Se houver algum filtro preenchido, adiciona os filtros à queryString
+
       if (filtrosPreenchidos) {
         queryString += '&' + Object.entries(filtros).map(([key, value]) => `${key}=${value}`).join('&');
       }
       
       const response = await api.get(`/api/Atendimentos/todos-atendimentos${queryString}`);
       const { results, totalCount, totalPages } = response.data;
-      return { results, totalCount, totalPages }; // Retornar os dados relevantes para a paginação
+      return { results, totalCount, totalPages }; 
     } catch (error: any) {
       toast.error("Erro ao carregar dados. " + error.message);
-      return { results: [], totalCount: 0, totalPages: 0 }; // ou outra maneira de lidar com o erro, se necessário
+      return { results: [], totalCount: 0, totalPages: 0 }; 
     }
   }
   
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const mes = getMonthNumber(selectedMonth);
         const endpoint = hasFiltros(filtros) ? 'filtro' : 'todos-atendimentos';
-        const data = await handleNextPrevPageChange(currentPage, endpoint, mes, selectedYear, selectedDay);
+        const data = await handleNextPrevPageChange(currentPage, endpoint, selectedMonth, selectedYear, selectedDay);
           setAtendimentos(data.results); // Atualizar o estado com os resultados
           setTotalItems(data.totalCount); // Atualizar o estado com o número total de itens
           setTotalPaginas(data.totalPages); // Atualizar o estado com o número total de páginas
@@ -155,12 +139,10 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
   async function handleDeleteClick(event: React.MouseEvent<HTMLButtonElement>, idAtendimentos: string) {
     event.preventDefault();
     try {
-      const currentMonthIndex = getMonthNumber(selectedMonth);
       const currentYear = new Date().getFullYear();
-
       const response = await api.delete(`/api/Atendimentos/${idAtendimentos}`)
       toast.success("Registro deletado com sucesso.");
-      getAtendimentos(currentPage, 10, currentMonthIndex, currentYear, selectedDay);
+      getAtendimentos(currentPage, 10, selectedMonth, currentYear, selectedDay);
     } catch (error) {
       toast.error("Erro ao deletar registro.");
     }
@@ -202,16 +184,19 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     return Object.values(filtros).some(value => !!value);
   };
 
-  const handleDayChange = (day: number) => {
-    setSelectedDay(day);
+  const handleDateChange = (date: { dia: number; mes: number; ano: number }) => {
+    console.log(`Dia: ${date.dia}, Mês: ${date.mes}, Ano: ${date.ano}`);
+    setSelectedDay(date.dia);
+    setSelectedMonth(date.mes);
+    setSelectedYear(date.ano);
+    console.log(`Dia: ${date.dia}, Mês: ${date.mes}, Ano: ${date.ano}`);
   };
 
   const handleNextPage = async () => {
     const nextPage = currentPage + 1;
-    const mes = getMonthNumber(selectedMonth);
     setCurrentPage(nextPage);
     const endpoint = hasFiltros(filtros) ? 'filtro' : 'todos-atendimentos';
-    const data = await handleNextPrevPageChange(nextPage, endpoint, mes, selectedYear, selectedDay);
+    const data = await handleNextPrevPageChange(nextPage, endpoint, selectedMonth, selectedYear, selectedDay);
     setAtendimentos(data.results);
     setTotalItems(data.totalCount);
     setTotalPaginas(data.totalPages);
@@ -219,10 +204,9 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
   
   const handlePrevPage = async () => {
     const prevPage = currentPage - 1;
-    const mes = getMonthNumber(selectedMonth);
     setCurrentPage(prevPage);
     const endpoint = hasFiltros(filtros) ? 'filtro' : 'todos-atendimentos';
-    const data = await handleNextPrevPageChange(prevPage, endpoint, mes, selectedYear, selectedDay);
+    const data = await handleNextPrevPageChange(prevPage, endpoint, selectedMonth, selectedYear, selectedDay);
     setAtendimentos(data.results);
     setTotalItems(data.totalCount);
     setTotalPaginas(data.totalPages);
@@ -289,20 +273,15 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
 
     try {
       let queryString = `?page=${page}&pageSize=${itensPorPagina}&mes=${mes}&ano=${ano}&dia=${dia}`;
-
-      // Verifica se há filtros preenchidos
       const filtrosPreenchidos = Object.values(filtros).some(value => !!value);
 
-      // Se houver filtros preenchidos, constrói a queryString
       if (filtrosPreenchidos) {
         queryString += '&' + Object.entries(filtros).map(([key, value]) => `${key}=${value}`).join('&');
       }
 
-      // Faz a requisição para a API
       const response = await api.get(`/api/Atendimentos/filtro${queryString}&page=${page}&pageSize=${pageSize}&mes=${mes}&ano=${ano}&dia=${dia}`);
       const { results, totalCount, totalPages } = response.data;
 
-      // Atualiza os estados com os dados recebidos
       setAtendimentos(results);
       setCurrentPage(page);
       setTotalItems(totalCount);
@@ -344,20 +323,15 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
 
     try {
       let queryString = `?page=1&pageSize=10&mes=${mes}&ano=${ano}&dia=${dia}`;
-
-      // Verifica se há filtros preenchidos
       const filtrosPreenchidos = Object.values(novosFiltros).some(value => !!value);
 
-      // Se houver filtros preenchidos, constrói a queryString
       if (filtrosPreenchidos) {
           queryString = '?' + Object.entries(novosFiltros).map(([key, value]) => `${key}=${value}`).join('&');
       }
 
-      // Faz a requisição para a API
       const response = await api.get(`/api/Atendimentos/filtro${queryString}&page=1&pageSize=${itensPorPagina}`);
       const { results, totalCount, totalPages } = response.data;
 
-      // Atualiza os estados com os dados recebidos
       setAtendimentos(results);
       setTotalPaginas(totalPages);
       setTotalItems(totalCount);
@@ -368,22 +342,6 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
     }
   };
 
-  const handleAtendimentosSubmit = async (selectedMonth: string, monthIndex: number) => {
-    setSelectedMonth(selectedMonth);
-    const mes = getMonthNumber(selectedMonth);
-    getAtendimentos(currentPage, 10, mes, selectedYear, selectedDay);
-  };
-
-  const handleCheckboxChange = (id: string) => {
-    setAtendimentos(prevAtendimentos =>
-      prevAtendimentos.map(atendimento =>
-        atendimento.atendimentoId === id
-          ? { ...atendimento, isChecked: !atendimento.isChecked }
-          : atendimento
-      )
-    );
-  };
-  
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -401,20 +359,9 @@ const ListarAtendimentos: React.FC<ListarAtendimentosProps> = ({ meses }) => {
         <div className="mt-2 mx-auto pt-4 shadow rounded-md bg-slate-50">
           <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-12"> 
             <div className="sm:col-span-1">
-              <label htmlFor="dataAtendimento" className="block text-sm font-medium leading-6 text-gray-900">
-                Dia Atendimento
-              </label>
-              <div className="mt-2">
-                <FiltroDia onChange={handleDayChange} />
-              </div>
+              <FiltroData onDateChange={handleDateChange} />
             </div> 
 
-            <FiltroMes meses={meses} onChange={handleAtendimentosSubmit} />      
-
-            <div>
-              <label htmlFor="" className="mb-2 block text-sm font-medium leading-6 text-gray-900">Ano</label>
-              <AnoSelect onSelectYear={handleSelectYear} />
-            </div>
             <div className="sm:col-span-2">
               <label htmlFor="paciente" className="block text-sm font-medium leading-6 text-gray-900">Empresa</label>
               <div className="mt-2">

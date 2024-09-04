@@ -4,17 +4,17 @@ import { format } from 'date-fns';
 
 interface FiltroMesProps {
   meses: string[];
-  onChange: (selectedMonth: string, monthIndex: number) => void;
+  onChange: (selectedMonth: number, monthIndex: number) => void;
 }
 
 const FiltroMes: React.FC<FiltroMesProps> = ({ meses, onChange }) => {
   const currentDate = new Date();
   const [selectedMonth, setSelectedMonth] = useState<string>(meses[currentDate.getMonth()] || '');
 
-  useEffect(() => {
-    const monthIndex = meses.indexOf(selectedMonth) + 1;
-    onChange(selectedMonth, monthIndex);
-  }, [meses, onChange, selectedMonth]);
+  // useEffect(() => {
+  //   const monthIndex = meses.indexOf(selectedMonth) + 1;
+  //   onChange(selectedMonth, monthIndex);
+  // }, [meses, onChange, selectedMonth]);
 
   const handleMonthChange = (newSelectedMonth: string) => {
     setSelectedMonth(newSelectedMonth);

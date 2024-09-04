@@ -8,6 +8,7 @@ import { GetStaticProps } from 'next';
 import { format } from 'date-fns';
 import { pt } from 'date-fns/locale';
 import ComboBoxClientes from "@/components/ComboBoxClientes ";
+import FiltroData from "@/components/SelectDate";
 
 export interface Schedule {
   diaDaSemana: string;
@@ -49,21 +50,20 @@ const Escalas: React.FC<ScheduleProps> = ({ meses }) => {
   const [calendar, setCalendar] = useState<{ [key: string]: { [key: string]: Schedule[] } }>({}); // Calendar data
   const [pacienteId, setPacienteId] = useState<string>('');
   const [clienteId, setClienteId] = useState<string>('');
-  const [indexMonth, setIndexMonth] = useState<number>(new Date().getMonth() + 1);
-  const [ano, setAno] = useState<number>(new Date().getFullYear());
 
   const fullMonthName = format(new Date(), 'MMMM', { locale: pt });
   const monthName = fullMonthName.charAt(0).toUpperCase() + fullMonthName.slice(1);
 
-  const [mes, setMes] = useState(monthName);
+  const [selectedDay, setSelectedDay] = useState<number>(1);
+  const [selectedMonth, setSelectedMonth] = useState<number>(0);
+  const [selectedYear, setSelectedYear] = useState<number>(0);
 
-  const getMonthNumber = (monthName: string): number => {
-    const monthIndex = meses.indexOf(monthName);
-    const numberMonth = monthIndex + 1;
-
-    setIndexMonth(numberMonth);
-
-    return numberMonth;
+  const handleDateChange = (date: { dia: number; mes: number; ano: number }) => {
+    console.log(`Dia: ${date.dia}, Mês: ${date.mes}, Ano: ${date.ano}`);
+    setSelectedDay(date.dia);
+    setSelectedMonth(date.mes);
+    setSelectedYear(date.ano);
+    getEscala(selectedMonth, selectedYear, pacienteId, clienteId);
   };
 
   const getEscala = async (mes: number, ano: number, pacienteId: string, clienteId: string): Promise<Schedule[]> => {
@@ -93,7 +93,7 @@ const Escalas: React.FC<ScheduleProps> = ({ meses }) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await getEscala(indexMonth, ano, pacienteId, clienteId);
+      const data = await getEscala(selectedMonth, selectedYear, pacienteId, clienteId);
       console.log('Dados recebidos:', data);
 
       // Initialize calendar
@@ -104,7 +104,7 @@ const Escalas: React.FC<ScheduleProps> = ({ meses }) => {
         const date = new Date(escala.dataAtendimento);
         const day = date.getDate();
         const dayOfWeek = daysOfWeek[date.getDay()]; // Get day of the week index
-        const weekNumber = Math.ceil((day + new Date(ano, indexMonth - 1, 1).getDay()) / 7); // Calculate week number
+        const weekNumber = Math.ceil((day + new Date(selectedYear, selectedMonth - 1, 1).getDay()) / 7); // Calculate week number
         const weekKey = String(weekNumber); // Convert to string for object keys
 
         if (!calendarMap[weekKey]) {
@@ -124,7 +124,7 @@ const Escalas: React.FC<ScheduleProps> = ({ meses }) => {
     if (pacienteId && clienteId) {
       fetchData();
     }
-  }, [indexMonth, ano, pacienteId, clienteId]);
+  }, [selectedMonth, selectedYear, pacienteId, clienteId]);
 
   const handlePacienteSelecionado = async (paciente: Paciente) => {
     setPacienteId(paciente.pacienteId);
@@ -132,15 +132,6 @@ const Escalas: React.FC<ScheduleProps> = ({ meses }) => {
 
   const handleSelectCliente = (id: string) => {
     setClienteId(id);
-  };
-
-  const handleAtendimentosSubmit = async (selectedMonth: string, monthIndex: number) => {
-    setMes(selectedMonth);
-    getMonthNumber(selectedMonth);
-  };
-
-  const handleSelectYear = (year: number) => {
-    setAno(year);
   };
 
   return (
@@ -161,17 +152,10 @@ const Escalas: React.FC<ScheduleProps> = ({ meses }) => {
                 <ComboBoxClientes onSelectCliente={handleSelectCliente} />
               </div>
             </div>
-            <div className="sm:col-span-2">
-              <div className="mt-4">
-                <FiltroMes meses={meses} onChange={handleAtendimentosSubmit} /> 
-              </div>
+            <div className="sm:col-span-2">           
+              <FiltroData onDateChange={handleDateChange} />
             </div>
-            <div className="sm:col-span-2">
-              <label htmlFor="ano" className="block text-sm font-medium leading-6 text-gray-900">Ano</label>
-              <div className="mt-2">
-                <AnoSelect onSelectYear={handleSelectYear} />
-              </div>
-            </div>
+            
           </div>  
           <table className="min-w-full bg-white border-collapse mt-2">
             <thead>

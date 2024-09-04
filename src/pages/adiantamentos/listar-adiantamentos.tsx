@@ -12,6 +12,7 @@ import { GetStaticProps } from "next";
 import FiltroMes from "@/components/FiltroMes";
 import AnoSelect from "@/components/AnoSelect";
 import { CgSpinnerTwo } from "react-icons/cg";
+import FiltroData from "@/components/SelectDate";
 
 interface ListarAdiantamentosProps {
   meses: string[];
@@ -27,31 +28,20 @@ const ListarAdiantamentos: React.FC<ListarAdiantamentosProps> = ({ meses }) => {
   const paginaAtual = Math.ceil((totalItems + 1)/itensPorPagina);
   const [isLoading, setIsLoading] = useState(true);
   const [currentMonthIndex, setCurrentMonthIndex] = useState(0);
+  const [selectedDay, setSelectedDay] = useState<number>(1);
+  const [selectedMonth, setSelectedMonth] = useState<number>(0);
+  const [selectedYear, setSelectedYear] = useState<number>(0);
 
-  const [selectedMonth, setSelectedMonth] = useState(
-    format(new Date(), 'MMMM')
-  );
-
-  const [selectedYear, setSelectedYear] = useState<number>(
-    new Date().getFullYear()
-  );
-
-  const getMonthNumber = (monthName: string) => {
-    const monthIndex = meses.indexOf(monthName);
-    return monthIndex + 1;
+  const handleDateChange = (date: { dia: number; mes: number; ano: number }) => {
+    console.log(`Dia: ${date.dia}, Mês: ${date.mes}, Ano: ${date.ano}`);
+    setSelectedDay(date.dia);
+    setSelectedMonth(date.mes);
+    setSelectedYear(date.ano);
+    console.log(`Dia: ${date.dia}, Mês: ${date.mes}, Ano: ${date.ano}`);
   };
-
-  const getMonthName = (monthIndex: any) => {
-    const months = [
-      'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-      'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
-    ];
-    return months[monthIndex - 1]; // Os índices começam em 0, mas os meses começam em 1
-  };
-
   
   const atualizarAdiantamentos = () => {
-    getAdiantamentos(paginaAtual, itensPorPagina, currentMonthIndex, selectedYear);
+    getAdiantamentos(paginaAtual, itensPorPagina, selectedMonth, selectedYear);
     getQtdAdiantamentos();
     setCurrentPage(paginaAtual);
     console.log(adiantamentos);
@@ -91,9 +81,7 @@ const ListarAdiantamentos: React.FC<ListarAdiantamentosProps> = ({ meses }) => {
   };
 
   useEffect(() => {
-    const indexMonth = getMonthNumber(selectedMonth);
-    setCurrentMonthIndex(indexMonth); // Corrigir para armazenar o índice do mês, não o nome
-    getAdiantamentos(currentPage, 10, indexMonth, selectedYear);
+    getAdiantamentos(currentPage, 10, selectedMonth, selectedYear);
 }, [currentPage, selectedMonth, selectedYear]);
 
   useEffect(()=>{
@@ -112,27 +100,13 @@ const ListarAdiantamentos: React.FC<ListarAdiantamentosProps> = ({ meses }) => {
     setCurrentPage(pagina);
   };
 
-  const handleListarAdiantamentos = (
-    selectedMonth: string,
-    monthIndex: number
-  ) => {
-    setSelectedMonth(selectedMonth);
-  };
-
-  const handleSelectYear = (year: number) => {
-    setSelectedYear(year);
-  };
-
   async function handleDeleteClick(event: React.MouseEvent<HTMLButtonElement>, idAdiantamento: string) {
     event.preventDefault();
     try {
-      const indexMonth = getMonthNumber(selectedMonth);
-      setCurrentMonthIndex(indexMonth); // Corrigir para armazenar o índice do mês, não o nome
-      
       const response = await api.delete(`/api/AdiantamentosPagamentos/${idAdiantamento}`);
       console.log("IdAtendimento: " + idAdiantamento)
       toast.success("Registro deletado com sucesso.");
-      getAdiantamentos(currentPage, 10, indexMonth, selectedYear);
+      getAdiantamentos(currentPage, 10, selectedMonth, selectedYear);
     } catch (error) {
       toast.error("Erro ao deletar registro.");
     }
@@ -158,10 +132,9 @@ const ListarAdiantamentos: React.FC<ListarAdiantamentosProps> = ({ meses }) => {
               <button type="button" className="rounded-md bg-cyan-700 hover:bg-cyan-900 px-3 py-2 text-sm font-semibold leading-6 text-white">Somar Adiantamentos</button>     
             </Link> 
           </div>
-          <div className='flex justify-items-start gap-6'>
-            <FiltroMes meses={meses} onChange={handleListarAdiantamentos} />
-            <AnoSelect onSelectYear={handleSelectYear} />
-          </div>
+          <div className="sm:col-span-1">
+              <FiltroData onDateChange={handleDateChange} />
+            </div>
         </div>
         <div className="mt-2 mx-auto pt-4 shadow rounded-md bg-slate-50">
           <div className="grid grid-cols-1 gap-x-10 gap-y-8 sm:grid-cols-12">

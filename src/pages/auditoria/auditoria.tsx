@@ -8,6 +8,7 @@ import AnoSelect from "@/components/AnoSelect";
 import { format } from "date-fns";
 import { pt } from 'date-fns/locale';
 import { GetStaticProps } from "next";
+import FiltroData from "@/components/SelectDate";
 
 interface AuditoriaProps {
   meses: string[];
@@ -17,30 +18,14 @@ const Auditoria: React.FC<AuditoriaProps> = ({ meses }) => {
   const [resumoAuditoriaEmpresas, setResumoAuditoriaEmpresas] = useState([]);
   const [isLoadingEmpresas, setIsLoadingEmpresas] = useState(true);
   const [currentMonthIndex, setCurrentMonthIndex] = useState(0);
-  const [indexMonth, setIndexMonth] = useState<number>(0);
-
   const fullMonthName = format(new Date(), 'MMMM', { locale: pt });
-  const monthName = fullMonthName.charAt(0).toUpperCase() + fullMonthName.slice(1);
-
-  const [selectedMonth, setSelectedMonth] = useState(monthName);
-
-  const [selectedYear, setSelectedYear] = useState<number>(
-    new Date().getFullYear()
-  );
-
-  const getMonthNumber = (monthName: string) => {
-    const monthIndex = meses.indexOf(monthName);
-    const numberMonth = monthIndex + 1;
-    
-    setIndexMonth(numberMonth);
-
-    return numberMonth;
-  };
+  const [selectedDay, setSelectedDay] = useState<number>(1);
+  const [selectedMonth, setSelectedMonth] = useState<number>(0);
+  const [selectedYear, setSelectedYear] = useState<number>(0);
 
   useEffect(() => {
-    const mes = getMonthNumber(selectedMonth);
-    setCurrentMonthIndex(mes);
-    loadResumoAuditoriaEmpresas(mes, selectedYear);
+    setCurrentMonthIndex(selectedMonth);
+    loadResumoAuditoriaEmpresas(selectedMonth, selectedYear);
   }, [selectedMonth, selectedYear]);
 
   async function loadResumoAuditoriaEmpresas(mes: number, ano: number) {
@@ -56,15 +41,12 @@ const Auditoria: React.FC<AuditoriaProps> = ({ meses }) => {
     }
   }
 
-  const handleTabelaDinamicaSubmit = (
-    selectedMonth: string,
-    monthIndex: number
-  ) => {
-    setSelectedMonth(selectedMonth);
-  };
-
-  const handleSelectYear = (year: number) => {
-    setSelectedYear(year);
+  const handleDateChange = (date: { dia: number; mes: number; ano: number }) => {
+    console.log(`Dia: ${date.dia}, Mês: ${date.mes}, Ano: ${date.ano}`);
+    setSelectedDay(date.dia);
+    setSelectedMonth(date.mes);
+    setSelectedYear(date.ano);
+    console.log(`Dia: ${date.dia}, Mês: ${date.mes}, Ano: ${date.ano}`);
   };
 
   if (isLoadingEmpresas) {
@@ -78,9 +60,8 @@ const Auditoria: React.FC<AuditoriaProps> = ({ meses }) => {
   return(
     <Page titulo="Auditoria">
       <form className="container max-w-full">
-        <div className='flex justify-items-start gap-6'>
-          <FiltroMes meses={meses} onChange={handleTabelaDinamicaSubmit} />
-          <AnoSelect onSelectYear={handleSelectYear} />
+        <div className="sm:col-span-1">
+          <FiltroData onDateChange={handleDateChange} />
         </div>
         <div className="mt-6 mx-auto pt-4 shadow rounded-md bg-slate-50">
           {resumoAuditoriaEmpresas.length > 0 ? (
