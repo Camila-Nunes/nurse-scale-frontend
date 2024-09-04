@@ -22,7 +22,7 @@ const FiltroData: React.FC<FiltroDataProps> = ({ onDateChange }) => {
   return (
     <div className="sm:col-span-1">
       <label htmlFor="dataAtendimento" className="block text-sm font-medium leading-6 text-gray-900">
-        Data Atendimento
+        Data
       </label>
       <div>
         <DatePicker
