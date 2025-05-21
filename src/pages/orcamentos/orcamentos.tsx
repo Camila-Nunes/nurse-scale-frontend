@@ -37,7 +37,7 @@ export default function Orcamentos() {
 
     useEffect(() => {
         loadValorAliquota();
-    });
+    }, []);
 
     async function loadValorAliquota() {
         try {

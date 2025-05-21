@@ -22,10 +22,7 @@ export default function Clientes() {
   const [deletando, setDeletando] = useState(false);
 
   useEffect(() => {
-    // Simulando um atraso de 2 segundos para carregar os dados
-    setTimeout(() => {
-      getClientes();
-    }, 2000);
+    getClientes();
   }, []);
 
   async function getClientes() {
@@ -37,19 +34,25 @@ export default function Clientes() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }
 
   async function handleDeleteClick(event: React.MouseEvent<HTMLButtonElement>, idCliente: string) {
     event.preventDefault();
+    setDeletando(true);
     try {
-      const response = await api.delete(`/api/Clientes/${idCliente}`);
+      await api.delete(`/api/Clientes/${idCliente}`);
       toast.success("Registro deletado com sucesso.");
       await getClientes();
     } catch (error) {
       toast.error("Erro ao deletar registro.");
+    } finally {
+      setDeletando(false);
     }
-  };
+  }
 
+  const handleNovoClienteClick = () => {
+    router.push('/clientes/clientes'); // Navegação direta, sem alterar o estado de loading
+  };
 
   if (isLoading) {
     return (
@@ -58,13 +61,6 @@ export default function Clientes() {
       </div>
     );
   }
-
-  const handleNovoClienteClick = () => {
-    setIsLoading(true);
-    setTimeout(() => {
-      router.push('/clientes/clientes');
-    }, 2000);
-  };
 
   return (
     <Page titulo="Listagem de Empresas">

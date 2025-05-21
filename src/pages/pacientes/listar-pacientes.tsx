@@ -60,6 +60,7 @@ export default function ListarPacientes() {
 
   async function getPacientes(page: number, pageSize: number) {
     try {
+      setIsLoading(true); // Inicia o carregamento
       let queryString = `?page=${page}&pageSize=${pageSize}`;
       const filtrosPreenchidos = Object.values(filtros).some(value => !!value);
       
@@ -72,7 +73,7 @@ export default function ListarPacientes() {
     } catch (error: any) {
       toast.error("Erro ao carregar dados. " + error.message);
     } finally {
-      setIsLoading(false);
+      setIsLoading(false); // Finaliza o carregamento
     }
   }
 
@@ -180,47 +181,52 @@ export default function ListarPacientes() {
     }
   };
 
-  const handleNovoPacienteClick = () => {
+  const handleNovoPacienteClick = async () => {
     setIsLoading(true);
-    router.push('/pacientes/pacientes'); // ou qualquer rota que corresponda à página de cadastro
-  };
-
-  const resetarFiltros = async (e: React.MouseEvent<HTMLButtonElement>| null) => {
-
-    if (e) {
-      e.preventDefault();
+    try {
+      await router.push('/pacientes/pacientes');
+    } catch (error) {
+      toast.error('Erro ao navegar para a página de cadastro.');
+    } finally {
+      setIsLoading(false);
     }
-
+  };
+  const resetarFiltros = async (e: React.MouseEvent<HTMLButtonElement>| null) => {
+    if (e) e.preventDefault();
+  
     const novosFiltros = {
       PacienteId: '',
       Cidade: '',
       Estado: ''
     };
-
+  
     setFiltros(novosFiltros);
     setCurrentPage(1);
-
+  
     try {
+      setIsLoading(true); // Inicia o carregamento
       let queryString = `?page=1&pageSize=10`;
-
+  
       // Verifica se há filtros preenchidos
       const filtrosPreenchidos = Object.values(novosFiltros).some(value => !!value);
-
+  
       // Se houver filtros preenchidos, constrói a queryString
       if (filtrosPreenchidos) {
         queryString = '?' + Object.entries(novosFiltros).map(([key, value]) => `${key}=${value}`).join('&');
       }
-
+  
       // Faz a requisição para a API
       const response = await api.get(`/api/Pacientes/filtro${queryString}&page=1&pageSize=${itensPorPagina}`);
       const { results, totalCount, totalPages } = response.data;
-
+  
       // Atualiza os estados com os dados recebidos
       setPacientes(results);
       setTotalPaginas(totalPages);
       setTotalItems(totalCount);
     } catch (error) {
       toast.error('Erro ao chamar a API.');
+    } finally {
+      setIsLoading(false); // Finaliza o carregamento
     }
   };
   
